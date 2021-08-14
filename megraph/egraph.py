@@ -9,20 +9,18 @@ from megraph.from_relay import convert_relay_op
 
 class EGraph:
     def __init__(self, size: int=0):
-        self.eclasses = [None] * size
+        self.eclasses = dict()
         self.size = size
     
     def __getitem__(self, index) -> EClass:
-        assert index < self.size
+        assert index in self.eclasses
         return self.eclasses[index]
     
     def __setitem__(self, index, item):
-        assert index < self.size
         assert isinstance(item, EClass)
         self.eclasses[index] = item
 
     def add(self, eclass: EClass):
-        assert eclass.eid < self.size
         self.eclasses[eclass.eid] = eclass
     
     def __str__(self):

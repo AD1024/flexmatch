@@ -95,7 +95,7 @@ class Constructor:
 
     def consume(self, token):
         if State.ERROR in self.state or State.END in self.state:
-            raise Exception(f'Trying to consume a token while having State {self.state}')
+            raise Exception(f'Trying to consume a token `{token}` while having State {self.state}')
         
         if State.ACCEPT_META in self.state and accept_meta(token):
             self.state = {State.ACCEPT_INT}
@@ -105,7 +105,6 @@ class Constructor:
             self.int_stack.append(int(token))
             if self.resize:
                 self.egraph.size = self.int_stack.pop()
-                self.egraph.eclasses = [None] * self.egraph.size
                 self.resize = False
             if self.peek_state is not None:
                 self.state = self.peek_state
@@ -142,4 +141,5 @@ class Constructor:
     def parse(self):
         for insn in self.instructions:
             self.consume(insn)
+        assert self.state == {State.END}
         return self.egraph
