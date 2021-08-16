@@ -8,6 +8,9 @@ class ENode:
         if self.parent is not None:
             return self.parent.canonicalize()
     
+    def map_children(self, f):
+        list(map(f, self.children))
+    
     def __str__(self):
         return f'({self.symbol} {self.children})'
 
@@ -20,6 +23,15 @@ class EClass:
         self.parent = None
         self.eid = eid
         self.size = len(nodes)
+    
+    def for_each(self, f):
+        list(map(f, self.nodes))
+    
+    def map(self, f):
+        self.nodes = list(map(f, self.nodes))
+    
+    def __iter__(self):
+        return iter(self.nodes)
     
     def __str__(self):
         return f'(EClass {self.eid} {self.nodes})'

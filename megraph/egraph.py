@@ -11,6 +11,7 @@ class EGraph:
     def __init__(self, size: int=0):
         self.eclasses = dict()
         self.size = size
+        self.root = 0
     
     def __getitem__(self, index) -> EClass:
         assert index in self.eclasses

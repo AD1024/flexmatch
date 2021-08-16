@@ -1,29 +1,9 @@
 from megraph.egraph_constructor import Constructor
-
-instructions = [
-    'SIZE', '4',
-    'ECLASS', '0',
-    'BEGIN_ENODE', 'BEGIN_SYMBOL', 'x', 'END_SYMBOL', 'BEGIN_CHILDREN', '1', '2', 'END_CHILDREN', 'END_ENODE',
-    'BEGIN_ENODE', 'BEGIN_SYMBOL', '<<', 'END_SYMBOL', 'BEGIN_CHILDREN', '3', 'END_CHILDREN', 'END_ENODE',
-    'END_ECLASS',
-    'ECLASS', '1',
-    'BEGIN_ENODE', 'BEGIN_SYMBOL', 'a', 'END_SYMBOL', 'END_ENODE',
-    'END_ECLASS',
-    'ECLASS', '2',
-    'BEGIN_ENODE', 'BEGIN_SYMBOL', '2', 'END_SYMBOL', 'END_ENODE',
-    'BEGIN_ENODE', 'BEGIN_SYMBOL', '+', 'END_SYMBOL', 'BEGIN_CHILDREN', '3', '3', 'END_CHILDREN', 'END_ENODE',
-    'END_ECLASS',
-    'ECLASS', '3',
-    'BEGIN_ENODE', 'BEGIN_SYMBOL', '1', 'END_SYMBOL', 'END_ENODE',
-    'END_ECLASS',
-    'FIN'
-]
-
-constructor = Constructor(instructions)
-print(constructor.parse())
+from megraph.language import downcast
 
 egraph_dump = '''
 SIZE 19
+ROOT 16
 ECLASS 0
 BEGIN_ENODE
 BEGIN_SYMBOL x END_SYMBOL
@@ -164,6 +144,8 @@ END_ECLASS
 
 FIN
 '''
-
-instructions = egraph_dump.replace('\n', ' ').split()
-print(Constructor(instructions).parse())
+egraph = Constructor().from_text(egraph_dump)
+print(egraph)
+for i, eclass in egraph.eclasses.items():
+    eclass.map(lambda x: downcast(x))
+print(egraph)

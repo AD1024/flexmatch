@@ -19,14 +19,18 @@ class State(Enum):
     ACCEPT_CHILDREN = 11
     ACCEPT_STR = 12
     ACCEPT_FIN = 13
-    ERROR = 14
-    END = 15
+    ACCEPT_ROOT = 14
+    ERROR = 15
+    END = 16
 
 def accept_symbol_cmd(x):
     return x == 'BEGIN_SYMBOL'
 
 def accept_meta(x):
     return x == 'SIZE'
+
+def accept_root(x):
+    return x == 'ROOT'
 
 def accept_end_symbol(x):
     return x == 'END_SYMBOL'
@@ -62,19 +66,8 @@ def accept_int(x):
     except:
         return False
 
-def set_egraph_size(egraph: EGraph):
-    def f(size):
-        egraph.size = size
-    return f
-
-def set_op_eid(constructor):
-    def f(eid):
-        constructor.op_eid = eid
-    return f
-
 class Constructor:
-    def __init__(self, instructions: List[str]):
-        self.instructions = instructions
+    def __init__(self):
         self.state = set([State.ACCEPT_META])
         self.peek_state = None
         self.int_stack = []
@@ -82,6 +75,8 @@ class Constructor:
         self.enode_stack = []
         self.egraph = EGraph()
         self.op_eid = 0
+        self.resize = False
+        self.reroot = False
     
     def emit_enode(self):
         symbol = self.str_stack.pop()
@@ -99,13 +94,20 @@ class Constructor:
         
         if State.ACCEPT_META in self.state and accept_meta(token):
             self.state = {State.ACCEPT_INT}
-            self.peek_state = {State.ACCEPT_FIN, State.ACCEPT_BEG_ECLASS}
+            self.peek_state = {State.ACCEPT_ROOT}
             self.resize = True
+        elif State.ACCEPT_ROOT in self.state and accept_root(token):
+            self.state = {State.ACCEPT_INT}
+            self.peek_state = {State.ACCEPT_FIN, State.ACCEPT_BEG_ECLASS}
+            self.reroot = True
         elif State.ACCEPT_INT in self.state and accept_int(token):
             self.int_stack.append(int(token))
             if self.resize:
                 self.egraph.size = self.int_stack.pop()
                 self.resize = False
+            if self.reroot:
+                self.egraph.root = self.int_stack.pop()
+                self.reroot = False
             if self.peek_state is not None:
                 self.state = self.peek_state
                 self.peek_state = None
@@ -137,9 +139,13 @@ class Constructor:
             self.state = {State.END}
         else:
             self.state = {State.ERROR}
-    
-    def parse(self):
-        for insn in self.instructions:
+
+    def from_text(self, text: str):
+        instructions = text.replace('\n', ' ').split()
+        return self.parse(instructions)
+
+    def parse(self, instructions: List[str]):
+        for insn in instructions:
             self.consume(insn)
         assert self.state == {State.END}
         return self.egraph
