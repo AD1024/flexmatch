@@ -38,11 +38,13 @@ class EGraphMatcher(ExprFunctor):
     def visit_var(self, var):
         eclass = self.rw[EG][self.accept]
         if var in self.matched_vars:
+            # print('Checking Var', var)
             for enode in eclass.nodes:
                 if isinstance(enode, Symbol) and self.matched_vars[var] == enode:
                     return True
             return False
         else:
+            # print(f'Setting Var {var}')
             for enode in eclass.nodes:
                 if isinstance(enode, Symbol):
                     self.matched_vars[var] = enode
@@ -56,7 +58,6 @@ class EGraphMatcher(ExprFunctor):
         current_accept = self.accept
         for enode in filter(lambda enode: isinstance(enode, RelayOperatorCall), eclass.nodes):
             if convert_relay_op(call.op) == enode.symbol:
-                print(call.op, enode)
                 for (ch_eid, expr) in zip(enode.children, call.args):
                     self.accept = ch_eid
                     if not self.visit(expr):
@@ -66,12 +67,12 @@ class EGraphMatcher(ExprFunctor):
         # Check whether there are variables in current eclass bound to
         # an equivalent operator call
         for enode in filter(lambda enode: isinstance(enode, Symbol), eclass.nodes):
-            if enode.symbol in self.binding and tvm.ir.structural_equal(self.binding[enode.symbol], call):
+            if enode.symbol in self.binding and tvm.ir.structural_equal(self.binding[enode], call):
                 return True
         # Otherwise bind an available variable to the current operator call
         # there should be only exactly 1 variable in this eclass, or the previous
         # matching should return True
-        for enode in filter(lambda enode: isinstance(enode, Symbol) and enode.symbol not in self.binding, eclass.nodes):
+        for enode in filter(lambda enode: isinstance(enode, Symbol) and enode not in self.binding, eclass.nodes):
             self.binding[enode] = call
             return True
         return False
@@ -80,7 +81,10 @@ class EGraphMatcher(ExprFunctor):
         if not isinstance(expr, relay.Call) and not isinstance(expr, relay.Var):
             return False
         else:
-            return super().visit(expr)
+            if isinstance(expr, relay.expr.Call):
+                return self.visit_call(expr)
+            else:
+                return self.visit_var(expr)
 
 def deduplicate_vars(expr):
     """
@@ -153,6 +157,8 @@ def check_and_annotate(expr, rw: Tuple[EGraph, str, str]):
             fv = free_vars(mut_expr)
             matched_vars = egraph_matcher.matched_vars.copy()
             matched_vars.update(map(lambda x: (x[1], x[0]), var_mapping.items()))
+            # print(fv)
+            # print(matched_vars)
             # Ensure all variables in the lifted expression
             # are captured by the pattern
             assert(all(map(lambda x: x in matched_vars, fv)))
@@ -177,12 +183,14 @@ def check_and_annotate(expr, rw: Tuple[EGraph, str, str]):
                     (enode, expr), *xs = bindings
                     relay_var = var_mapping[enode]
                     return relay.Let(relay_var, expr, construct_let(xs, var_mapping))
-            return construct_let(egraph_matcher.binding.items(), var_mapping)
+            return construct_let(egraph_matcher.binding.copy().items(), var_mapping)
 
         def visit(self, expr):
+            egraph_matcher.reset()
+            # print('-------Begin Matching-------')
             if egraph_matcher.visit(expr):
+                # print('--------Matched-------')
                 return self.extract_target(expr)
             else:
-                egraph_matcher.reset()
                 return super().visit(expr)
     return Matcher().visit(expr)
