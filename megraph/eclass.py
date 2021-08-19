@@ -7,6 +7,7 @@ class ENode:
     def canonicalize(self):
         if self.parent is not None:
             return self.parent.canonicalize()
+        return self
     
     def map_children(self, f):
         list(map(f, self.children))
