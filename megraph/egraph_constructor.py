@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 from megraph.eclass import *
 from megraph.egraph import *
 from megraph.language import *
@@ -67,6 +67,13 @@ def accept_int(x):
         return False
 
 class Constructor:
+    '''
+    The EGraph constructor: Given the dump in `egraph` format
+    (could be exported using `3la-mod` branch of AD1024/egg),
+    the constructor parses the dump and construct back an EGraph (representation)
+    Note that all ENodes are uninterpreted. Please use language::downcast to
+    cast the ENodes to the interpreted language
+    '''
     def __init__(self):
         self.state = set([State.ACCEPT_META])
         self.peek_state = None

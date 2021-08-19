@@ -38,13 +38,11 @@ class EGraphMatcher(ExprFunctor):
     def visit_var(self, var):
         eclass = self.rw[EG][self.accept]
         if var in self.matched_vars:
-            # print('Checking Var', var)
             for enode in eclass.nodes:
                 if isinstance(enode, Symbol) and self.matched_vars[var] == enode:
                     return True
             return False
         else:
-            # print(f'Setting Var {var}')
             for enode in eclass.nodes:
                 if isinstance(enode, Symbol):
                     self.matched_vars[var] = enode
@@ -88,6 +86,7 @@ class EGraphMatcher(ExprFunctor):
 
 def deduplicate_vars(expr):
     """
+    Taken from 3la-tvm codebase
     Given the expr, replace all vars in the expression with fresh ones.
     This is done to preserve well-formedness in Relay (all var definitions must be unique)
     """
@@ -127,6 +126,14 @@ def deduplicate_vars(expr):
     return dedup.visit(expr)
 
 def conditional_anf(expr: relay.Expr, bindings: dict) -> relay.Expr:
+    '''
+    ANF transformation for EGraph variables that is matched with a sub-AST
+    in the relay model.
+
+    expr: the expression to be transformed
+    bindings: An ENode to expression mapping that denotes the template
+              template variables we are to replace with the corresponding expressions
+    '''
     class Mutator(relay.ExprMutator):
         def __init__(self):
             super().__init__()
@@ -153,12 +160,17 @@ def check_and_annotate(expr, rw: Tuple[EGraph, str, str]):
             self.composite_counter = 0
         
         def extract_target(self, expr):
+            '''
+            Extract the annotated function
+            in BYOC style where `expr` is matched by the EGraph
+            TODO(mike): We can do sanitize check here to prevent
+                        rewrites that introduces new variables
+            '''
             mut_expr, var_mapping = conditional_anf(expr, egraph_matcher.binding)
             fv = free_vars(mut_expr)
+            # Put together mappings between EGraph variables and model variables / expressions
             matched_vars = egraph_matcher.matched_vars.copy()
             matched_vars.update(map(lambda x: (x[1], x[0]), var_mapping.items()))
-            # print(fv)
-            # print(matched_vars)
             # Ensure all variables in the lifted expression
             # are captured by the pattern
             assert(all(map(lambda x: x in matched_vars, fv)))
@@ -187,9 +199,7 @@ def check_and_annotate(expr, rw: Tuple[EGraph, str, str]):
 
         def visit(self, expr):
             egraph_matcher.reset()
-            # print('-------Begin Matching-------')
             if egraph_matcher.visit(expr):
-                # print('--------Matched-------')
                 return self.extract_target(expr)
             else:
                 return super().visit(expr)
