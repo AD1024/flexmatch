@@ -50,6 +50,9 @@ class ConstructTuple(ENode):
 class Shape(ENode):
     pass
 
+class Literal(ENode):
+    pass
+
 def downcast(enode: ENode):
     symbol = enode.symbol
     lang = {
@@ -71,7 +74,7 @@ def downcast(enode: ENode):
         'maximum':  RelayOperators.RelayMaximum,
     }.get(symbol, None)
     if lang is not None:
-        return ENode(lang, enode.children)
+        return RelayOperatorCall(lang, enode.children)
     
     lang = {
         'flex-linear': AcceleratorFunc.FlexLinear,
@@ -81,6 +84,9 @@ def downcast(enode: ENode):
     }.get(symbol)
     if lang is not None:
         return AcceleratorCall(lang, enode.children)
+    
+    if symbol.isdigit():
+        return Literal(symbol, children=enode.children)
     
     return {
         'shape': lambda: Shape(enode.symbol, enode.children),
