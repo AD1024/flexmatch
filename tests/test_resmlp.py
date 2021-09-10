@@ -192,7 +192,7 @@ def main():
         image_size = 32,
         patch_size = 16,
         dim = 64,
-        depth = 1,
+        depth = 3,
         num_classes = 32
     )
     img = torch.randn(1, 3, 32, 32)
