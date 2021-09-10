@@ -6,14 +6,7 @@ from resmlp import ResMLP
 from tvm import relay
 from megraph.language import RecExprCompiler
 
-def run_baseline(input_data):
-    model = ResMLP(
-        image_size = 32,
-        patch_size = 16,
-        dim = 64,
-        depth = 3,
-        num_classes = 32
-    )
+def run_baseline(model, input_data):
     model.eval()
     with torch.no_grad():
         baseline_outputs = model(*[input.clone() for input in input_data])
@@ -25,7 +18,7 @@ def run_baseline(input_data):
 
     return baseline_outputs
 
-def run_relay(mod, input):
+def run_relay(mod, input, params):
     compiled_input = [inp.clone().cpu().numpy() for inp in input]
     target = tvm.target.create('llvm')
     vm = relay.create_executor('vm', target=target, mod=mod)
@@ -36,9 +29,9 @@ def test_compile(filename, print_model=True):
     with open(filename, 'r') as fp:
         recexpr_json = json.load(fp)
         compiler = RecExprCompiler({
-            'flex-linear': 'ilaflex'
-        }, {
             'flex-linear': 'ilaflex.linear'
+        }, {
+            'flex-linear': 'ilaflex'
         })
  
         expr = compiler.to_relay_expr(recexpr_json, {
@@ -88,12 +81,24 @@ def test_compile(filename, print_model=True):
         })
         mod = tvm.ir.IRModule.from_expr(expr)
         mod = relay.transform.InferType()(mod)
+        baseline = ResMLP(
+        image_size = 32,
+        patch_size = 16,
+        dim = 64,
+        depth = 3,
+        num_classes = 32
+    )
         if print_model:
             print(mod)
 
-        input = torch.randn(1, 3, 32, 32)
-        baseline_output = run_baseline([input])
-        relay_output = run_relay(mod, [input])
+        img_input = [torch.randn(1, 3, 32, 32)]
+        baseline_output = run_baseline(baseline, img_input)
+
+        trace = torch.jit.trace(baseline, [input.clone() for input in img_input])
+        input_names = ["input{}".format(idx) for idx, inp in enumerate(baseline_input)]
+        input_shapes = list(zip(input_names, [inp.shape for inp in baseline_input]))
+        _, params = relay.frontend.from_pytorch(trace, input_shapes)
+        relay_output = run_relay(mod, img_input)
 
         print(baseline_output)
         print('--------------------')

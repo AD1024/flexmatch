@@ -181,7 +181,7 @@ class RecExprCompiler:
             compiler_name = self.compiler_lib[func]
             inner_args = [relay.Var(f'inner_arg_{i}') for i in range(len(ch_vars) - 1)]
             inner_func = relay.Function(inner_args, accelerator_call, ret_type=relay.TensorType(children_exprs[-1]))
-            inner_func.with_attr("Composite", composite_name)
+            inner_func = inner_func.with_attr("Composite", composite_name)
             outer_args = [relay.var(f'outer_arg_{i}') for i in range(len(ch_vars) - 1)]
             outer_func = relay.Function(outer_args, inner_func(*outer_args), ret_type=relay.TensorType(children_exprs[-1]))
             outer_func = outer_func.with_attr("Compiler", compiler_name)
