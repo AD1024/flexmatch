@@ -1,5 +1,6 @@
 import json
 import tvm
+import tvm.testing
 import torch
 from tvm.contrib import graph_executor
 from resmlp import ResMLP
@@ -82,31 +83,40 @@ def test_compile(filename, print_model=True):
         mod = tvm.ir.IRModule.from_expr(expr)
         mod = relay.transform.InferType()(mod)
         baseline = ResMLP(
-        image_size = 32,
-        patch_size = 16,
-        dim = 64,
-        depth = 3,
-        num_classes = 32
-    )
+            image_size = 32,
+            patch_size = 16,
+            dim = 64,
+            depth = 3,
+            num_classes = 32
+        )
         if print_model:
             print(mod)
 
         img_input = [torch.randn(1, 3, 32, 32)]
-        baseline_output = run_baseline(baseline, img_input)
+        baseline_outputs = run_baseline(baseline, img_input)
 
         trace = torch.jit.trace(baseline, [input.clone() for input in img_input])
-        input_names = ["input{}".format(idx) for idx, inp in enumerate(baseline_input)]
-        input_shapes = list(zip(input_names, [inp.shape for inp in baseline_input]))
+        input_names = ["input{}".format(idx) for idx, inp in enumerate(img_input)]
+        input_shapes = list(zip(input_names, [inp.shape for inp in img_input]))
         _, params = relay.frontend.from_pytorch(trace, input_shapes)
-        relay_output = run_relay(mod, img_input)
-
-        print(baseline_output)
-        print('--------------------')
-        print(relay_output)
-
-        # tvm.testing.assert_allclose(
-        #     baseline_output, compiled_output, rtol=rtol, atol=atol
-        # )
+        n_params = dict()
+        for k, v in params.items():
+            n_params[f'v{k.replace(".", "_")}'] = v
+        compiled_input = dict(zip(input_names, [inp.clone().cpu().numpy() for inp in img_input]))
+        
+        with tvm.transform.PassContext(opt_level=3):
+            for target, dev in tvm.testing.enabled_targets():
+                relay_graph, lib, params = relay.build(mod, target=target, params=n_params)
+                relay_model = graph_executor.create(relay_graph, lib, dev)
+                relay_model.set_input(**params)
+                for name, inp in compiled_input.items():
+                    relay_model.set_input(name, inp)
+                relay_model.run()
+                for i, baseline_output in enumerate(baseline_outputs):
+                    compiled_output = relay_model.get_output(i).asnumpy()
+                    tvm.testing.assert_allclose(
+                        baseline_output, compiled_output, rtol=1e-5, atol=1e-5
+                    )
 
 if __name__ == '__main__':
     test_compile('resmlp-dump.json')
