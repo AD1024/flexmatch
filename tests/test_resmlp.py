@@ -10,7 +10,7 @@ from tvm.relay.op.contrib import ilavta
 from tvm.relay.op.contrib import ilaflex
 from torch import nn, einsum
 from einops.layers.torch import Rearrange, Reduce
-
+from tvm.relay import ExprMutator
 
 
 class Affine(nn.Module):
@@ -77,6 +77,23 @@ def assert_shapes_match(tru, est):
         raise AssertionError(msg.format(tru.shape, est.shape))
 
 
+class RenameMutator(ExprMutator):
+    def __init__(self):
+        super().__init__()
+        self.var_map = dict()
+    
+    def visit_var(self, var):
+        if var in self.var_map:
+            return self.var_map[var]
+        else:
+            if '.' in var.name_hint:
+                new_name = var.name_hint.replace('.', '_')
+                new_var = relay.Var(new_name, type_annotation=var.type_annotation)
+                self.var_map[var] = new_var
+                return new_var
+            else:
+                return var
+
 def verify_model(
     model_name,
     input_data=[],
@@ -131,6 +148,14 @@ def verify_model(
         zip(input_names, [inp.clone().cpu().numpy() for inp in baseline_input])
     )
     egraph = megraph.load_egraph('tests/linear_pattern.egraph')
+    # Dump the model with renamed variables (seems rust frontend cannot parse variables with dots in their names)
+    mutator = RenameMutator()
+    new_body = mutator.visit(mod["main"].body)
+    new_mod = tvm.ir.IRModule.from_expr(relay.Function(relay.analysis.free_vars(new_body), new_body))
+    new_mod = relay.transform.InferType()(new_mod)
+    with open('resmlp.relay', 'w') as fp:
+        fp.write(new_mod.astext())
+    return
     mut_main = check_and_annotate(mod["main"].body, (egraph, 'ilaflex', 'ilaflex.linear'))
     mod = tvm.ir.IRModule.from_expr(mut_main)
     if print_model:
@@ -167,7 +192,7 @@ def main():
         image_size = 32,
         patch_size = 16,
         dim = 64,
-        depth = 12,
+        depth = 1,
         num_classes = 32
     )
     img = torch.randn(1, 3, 32, 32)

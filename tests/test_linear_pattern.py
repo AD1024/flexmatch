@@ -43,9 +43,9 @@ def relay_linear_with_subexpr(batch: int, in_channels: int,  hidden_dim: int) ->
 
 def main():
     egraph = megraph.load_egraph('tests/linear_pattern.egraph')
-    print(check_and_annotate(relay_linear(1, 32, 32).body, (egraph, 'ilaflex', 'ilaflex.linear')))
-    print(check_and_annotate(relay_linear_original(1, 32, 32).body, (egraph, 'ilaflex', 'ilaflex.linear')))
-    print(check_and_annotate(relay_linear_with_subexpr(1, 32, 32).body, (egraph, 'ilaflex', 'ilaflex.linear')))
+    print(tvm.ir.IRModule.from_expr(check_and_annotate(relay_linear(1, 32, 32).body, (egraph, 'ilaflex', 'ilaflex.linear'))))
+    print(tvm.ir.IRModule.from_expr(check_and_annotate(relay_linear_original(1, 32, 32).body, (egraph, 'ilaflex', 'ilaflex.linear'))))
+    print(tvm.ir.IRModule.from_expr(check_and_annotate(relay_linear_with_subexpr(1, 32, 32).body, (egraph, 'ilaflex', 'ilaflex.linear'))))
 
 if __name__ == '__main__':
     main()
