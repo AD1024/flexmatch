@@ -7,8 +7,8 @@ def @main(%input0: Tensor[(1, 3, 32, 32), float32], %v1_weight: Tensor[(64, 768)
   %4 = reshape(%2, newshape=[-1, 768]) /* ty=Tensor[(4, 768), float32] */;
   %5 = transpose(%3, axes=[1, 0]) /* ty=Tensor[(64, 768), float32] */;
   %6 = nn.dense(%4, %5, units=None) /* ty=Tensor[(4, 64), float32] */;
-  %7 = reshape(%6, newshape=[1, 4, 64]) /* ty=Tensor[(1, 4, 64), float32] */;
-  %8 = add(%7, %v1_bias) /* ty=Tensor[(1, 4, 64), float32] */;
+  %7 = nn.bias_add(%6, %v1_bias);
+  %8 = reshape(%7, newshape=[1, 4, 64]) /* ty=Tensor[(1, 4, 64), float32] */;
   %9 = multiply(%8, %v2_0_affine_g) /* ty=Tensor[(1, 4, 64), float32] */;
   %10 = add(%9, %v2_0_affine_b) /* ty=Tensor[(1, 4, 64), float32] */;
   %11 = nn.conv1d(%10, %v2_0_fn_weight, channels=4, kernel_size=[1]) /* ty=Tensor[(1, 4, 64), float32] */;

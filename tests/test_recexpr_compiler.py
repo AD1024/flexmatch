@@ -19,13 +19,6 @@ def run_baseline(model, input_data):
 
     return baseline_outputs
 
-def run_relay(mod, input, params):
-    compiled_input = [inp.clone().cpu().numpy() for inp in input]
-    target = tvm.target.create('llvm')
-    vm = relay.create_executor('vm', target=target, mod=mod)
-    executor = vm.evaluate()
-    return executor(*compiled_input).asnumpy()
-
 def test_compile(filename, relay_src, print_model=True):
     relay_code = open(relay_src, 'r').read()
     with open(filename, 'r') as fp:
@@ -48,7 +41,7 @@ def test_compile(filename, relay_src, print_model=True):
             image_size = 32,
             patch_size = 16,
             dim = 64,
-            depth = 3,
+            depth = 1,
             num_classes = 32
         )
         if print_model:
@@ -65,9 +58,11 @@ def test_compile(filename, relay_src, print_model=True):
         for k, v in params.items():
             n_params[f'v{k.replace(".", "_")}'] = v
         compiled_input = dict(zip(input_names, [inp.clone().cpu().numpy() for inp in img_input]))
-        
+ 
+        print(f'baseline: {baseline_outputs}')
         with tvm.transform.PassContext(opt_level=0):
             for target, dev in tvm.testing.enabled_targets():
+                print(f'target: {target} | device: {dev}')
                 relay_graph, lib, params = relay.build(mod, target=target, params=n_params)
                 relay_model = graph_executor.create(relay_graph, lib, dev)
                 relay_model.set_input(**params)
@@ -79,6 +74,7 @@ def test_compile(filename, relay_src, print_model=True):
                     tvm.testing.assert_allclose(
                         baseline_output, compiled_output, rtol=1e-5, atol=1e-5
                     )
+                    print(compiled_output)
 
 if __name__ == '__main__':
     test_compile('resmlp-dump.json', 'resmlp.relay')
