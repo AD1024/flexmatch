@@ -26,7 +26,8 @@ def run_relay(mod, input, params):
     executor = vm.evaluate()
     return executor(*compiled_input).asnumpy()
 
-def test_compile(filename, print_model=True):
+def test_compile(filename, relay_src, print_model=True):
+    relay_code = open(relay_src, 'r').read()
     with open(filename, 'r') as fp:
         recexpr_json = json.load(fp)
         compiler = RecExprCompiler({
@@ -34,52 +35,13 @@ def test_compile(filename, print_model=True):
         }, {
             'flex-linear': 'ilaflex'
         })
+
+        original_model = tvm.parser.fromtext(relay_code)
+        shape_dict = dict()
+        for args in original_model['main'].params:
+            shape_dict[args.name_hint] = tuple(args.type_annotation.shape)
  
-        expr = compiler.to_relay_expr(recexpr_json, {
-            'input0': (1, 3, 32, 32),
-            'v1_weight': (64, 768),
-            'v1_bias': (64,),
-            'v2_0_affine_g': (1, 1, 64),
-            'v2_0_affine_b': (1, 1, 64),
-            'v2_0_fn_weight': (4, 4, 1),
-            'v2_0_fn_bias': (4,),
-            'v2_0_scale': (1, 1, 64),
-            'v2_1_affine_g': (1, 1, 64),
-            'v2_1_affine_b': (1, 1, 64),
-            'v2_1_fn_0_weight': (256, 64),
-            'v2_1_fn_0_bias': (256,),
-            'v2_1_fn_2_weight': (64, 256),
-            'v2_1_fn_2_bias': (64,),
-            'v2_1_scale': (1, 1, 64),
-            'v3_0_affine_g': (1, 1, 64),
-            'v3_0_affine_b': (1, 1, 64),
-            'v3_0_fn_weight': (4, 4, 1),
-            'v3_0_fn_bias': (4,),
-            'v3_0_scale': (1, 1, 64),
-            'v3_1_affine_g': (1, 1, 64),
-            'v3_1_affine_b': (1, 1, 64),
-            'v3_1_fn_0_weight': (256, 64),
-            'v3_1_fn_0_bias': (256,),
-            'v3_1_fn_2_weight': (64, 256),
-            'v3_1_fn_2_bias': (64,),
-            'v3_1_scale': (1, 1, 64),
-            'v4_0_affine_g': (1, 1, 64),
-            'v4_0_affine_b': (1, 1, 64),
-            'v4_0_fn_weight': (4, 4, 1),
-            'v4_0_fn_bias': (4,),
-            'v4_0_scale': (1, 1, 64),
-            'v4_1_affine_g': (1, 1, 64),
-            'v4_1_affine_b': (1, 1, 64),
-            'v4_1_fn_0_weight': (256, 64),
-            'v4_1_fn_0_bias': (256,),
-            'v4_1_fn_2_weight': (64, 256),
-            'v4_1_fn_2_bias': (64,),
-            'v4_1_scale': (1, 1, 64),
-            'v5_g': (1, 1, 64),
-            'v5_b': (1, 1, 64),
-            'v7_weight': (32, 64),
-            'v7_bias': (32,),
-        })
+        expr = compiler.to_relay_expr(recexpr_json, shape_dict)
         mod = tvm.ir.IRModule.from_expr(expr)
         mod = relay.transform.InferType()(mod)
         baseline = ResMLP(
@@ -104,7 +66,7 @@ def test_compile(filename, print_model=True):
             n_params[f'v{k.replace(".", "_")}'] = v
         compiled_input = dict(zip(input_names, [inp.clone().cpu().numpy() for inp in img_input]))
         
-        with tvm.transform.PassContext(opt_level=3):
+        with tvm.transform.PassContext(opt_level=0):
             for target, dev in tvm.testing.enabled_targets():
                 relay_graph, lib, params = relay.build(mod, target=target, params=n_params)
                 relay_model = graph_executor.create(relay_graph, lib, dev)
@@ -119,4 +81,4 @@ def test_compile(filename, print_model=True):
                     )
 
 if __name__ == '__main__':
-    test_compile('resmlp-dump.json')
+    test_compile('resmlp-dump.json', 'resmlp.relay')

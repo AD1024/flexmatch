@@ -1,6 +1,6 @@
 # Res-MLP implementation taken from https://github.com/lucidrains/res-mlp-pytorch/blob/7a5b5276cd9270ad8131f77dfe4e6f56fe65fb3f/res_mlp_pytorch/res_mlp_pytorch.py
 from megraph.matcher import check_and_annotate
-from .resmlp import ResMLP
+from resmlp import ResMLP
 import torch
 import tvm
 import megraph
@@ -88,15 +88,15 @@ def verify_model(
     compiled_input = dict(
         zip(input_names, [inp.clone().cpu().numpy() for inp in baseline_input])
     )
-    egraph = megraph.load_egraph('tests/linear_pattern.egraph')
+    egraph = megraph.load_egraph('linear_pattern.egraph')
     # Dump the model with renamed variables (seems rust frontend cannot parse variables with dots in their names)
-    # mutator = RenameMutator()
-    # new_body = mutator.visit(mod["main"].body)
-    # new_mod = tvm.ir.IRModule.from_expr(relay.Function(relay.analysis.free_vars(new_body), new_body))
-    # new_mod = relay.transform.InferType()(new_mod)
-    # with open('resmlp.relay', 'w') as fp:
-    #     fp.write(new_mod.astext())
-    # return
+    mutator = RenameMutator()
+    new_body = mutator.visit(mod["main"].body)
+    new_mod = tvm.ir.IRModule.from_expr(relay.Function(relay.analysis.free_vars(new_body), new_body))
+    new_mod = relay.transform.InferType()(new_mod)
+    with open('resmlp.relay', 'w') as fp:
+        fp.write(new_mod.astext())
+    return
     mut_main = check_and_annotate(mod["main"].body, (egraph, 'ilaflex', 'ilaflex.linear'))
     mod = tvm.ir.IRModule.from_expr(mut_main)
     if print_model:
@@ -133,7 +133,7 @@ def main():
         image_size = 32,
         patch_size = 16,
         dim = 64,
-        depth = 3,
+        depth = 1,
         num_classes = 32
     )
     img = torch.randn(1, 3, 32, 32)
