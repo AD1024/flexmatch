@@ -89,6 +89,7 @@ def test_compile(filename, relay_src, print_model=True, depth=1):
                 relay_model.run()
                 for i, baseline_output in enumerate(baseline_outputs):
                     compiled_output = relay_model.get_output(i).asnumpy()
+                    tvm.testing.assert_allclose(compiled_output, baseline_outputs[i])
                     print(f'[DEBUG] Building time: {(end - start) * 1000} ms')
                     print('result:')
                     print(compiled_output)
