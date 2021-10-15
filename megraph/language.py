@@ -235,9 +235,9 @@ def _access_window(data: relay.Var, access_dim: int, cur_dim: int,
             sliced = relay.strided_slice(data, starts,
                                             # note that in access dimision, we are only taking in 1
                                             # channel each time, so end = begin + 1
+                                            # (wish a first-order operator `+`)
                                             list(map(lambda x: x + 1, starts[:access_dim])) 
-                                            + list(map(lambda x: x[0] + x[1],
-                                                   zip(starts[access_dim:], ker_shape))))
+                                          + list(map(sum, zip(starts[access_dim:], ker_shape))))
             sliced = relay.expand_dims(sliced, access_dim)
             stacked.append(sliced)
         return relay.concatenate(stacked, access_dim)
