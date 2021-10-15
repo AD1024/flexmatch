@@ -225,6 +225,57 @@ def is_num(x):
     except:
         return False
 
+def _access_window(data: relay.Var, access_dim: int, cur_dim: int,
+                  ker_shape: List[int], starts: List[int], strides: List[int]):
+    ker_dim = len(ker_shape)
+    if cur_dim == access_dim + ker_dim - 1:
+        stacked = list()
+        for i in range(0, int(data.type_annotation.shape[cur_dim]) - ker_shape[cur_dim - access_dim] + 1):
+            starts[cur_dim] = i
+            sliced = relay.strided_slice(data, starts,
+                                            # note that in access dimision, we are only taking in 1
+                                            # channel each time, so end = begin + 1
+                                            list(map(lambda x: x + 1, starts[:access_dim])) 
+                                            + list(map(lambda x: x[0] + x[1],
+                                                   zip(starts[access_dim:], ker_shape))))
+            sliced = relay.expand_dims(sliced, access_dim)
+            stacked.append(sliced)
+        return relay.concatenate(stacked, access_dim)
+    else:
+        if cur_dim < access_dim:
+            # when not reaching the compute dim, iterate
+            # through each channels in this diminsion
+            stacked = list()
+            for i in range(0, int(data.type_annotation.shape[cur_dim])):
+                starts[cur_dim] = i
+                result = _access_window(data, access_dim, cur_dim + 1, ker_shape, starts, strides)
+                stacked.append(result)
+            # concat outside compute dimision should be on itself
+            return relay.concatenate(stacked, cur_dim)
+        else:
+            # at compute dimision, we slide the window
+            # with strides at set at the current dimision
+            stacked = list()
+            for i in range(0, int(data.type_annotation.shape[cur_dim]) - ker_shape[cur_dim - access_dim] + 1,
+                              strides[cur_dim - access_dim]):
+                # set the index of current accessing dimision
+                starts[cur_dim] = i
+                next_dim_result = _access_window(data, access_dim, cur_dim + 1, ker_shape, starts, strides)
+                next_dim_result = relay.expand_dims(next_dim_result, access_dim)
+                stacked.append(next_dim_result)
+            return relay.concatenate(stacked, access_dim)
+
+def access_window(data: relay.Var, kernel_shape: List[int], strides: List[int]):
+    assert len(kernel_shape) == len(strides)
+    assert data.type_annotation is not None
+    data_shape = list(data.type_annotation.shape)
+    # decide access / compute dims
+    access_axis = len(data_shape) - len(kernel_shape)
+    assert access_axis >= 0
+    # begin with 0 each time (probably not, so that we could get rid of paddings?)
+    starts = [0 for _ in range(len(data_shape))]
+    return _access_window(data, access_axis, 0, kernel_shape, starts, strides)
+
 def downcast(enode: ENode):
     symbol = enode.symbol
     lang = {
