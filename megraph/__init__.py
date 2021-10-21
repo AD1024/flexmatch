@@ -1,5 +1,6 @@
 from megraph.egraph_constructor import Constructor
 from megraph.language import downcast
+from megraph.language import RecExprCompiler
 
 def load_egraph(f):
     with open(f, 'r') as fp:

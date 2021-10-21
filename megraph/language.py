@@ -50,6 +50,9 @@ class AcceleratorFunc(enum.Enum):
     def __str__(self):
         return self.value
 
+class PadType(enum.Enum):
+    ZeroPadding = 'zero-padding'
+
 class RelayOperatorCall(ENode):
     pass
 
@@ -96,6 +99,24 @@ class LiteralNode(ENode):
 class AccessShape(ENode):
     pass
 
+class AccessWindows(ENode):
+    pass
+
+class AccessSqueeze(ENode):
+    pass
+
+class AccessPad(ENode):
+    pass
+
+class AccessFlatten(ENode):
+    pass
+
+class Access(ENode):
+    pass
+
+class PadTypeNode(ENode):
+    pass
+
 class RecExprCompiler:
     def __init__(self, composite_lib, compiler_lib):
         self.nodes : List[ENode] = []
@@ -138,7 +159,12 @@ class RecExprCompiler:
         for (ch_id, subexpr) in zip(enode.children, children_exprs):
             if isinstance(subexpr, relay.Var):
                 ch_vars.append(subexpr)
-            elif isinstance(subexpr, relay.Expr):
+            elif isinstance(subexpr, relay.Expr) or isinstance(subexpr, Access):
+                if isinstance(subexpr, Access):
+                    if isinstance(subexpr.symbol, relay.Var):
+                        ch_vars.append(subexpr.symbol)
+                        continue
+                    subexpr = subexpr.symbol
                 v = self.next_var(ch_id)
                 if v not in self.worklist_set:
                     self.let_worklist.append((v, subexpr))
@@ -150,6 +176,10 @@ class RecExprCompiler:
         if isinstance(enode, RelayOperatorCall):
             op = enode.symbol
             return op(*ch_vars)
+        elif isinstance(enode, Access):
+            if int(children_exprs[1]) == 0:
+                return ch_vars[0]
+            return Access(ch_vars[0], [int(children_exprs[1])])
         elif isinstance(enode, Literal):
             return float(enode.symbol)
         elif isinstance(enode, Symbol):
@@ -168,14 +198,58 @@ class RecExprCompiler:
             return children_exprs[0]
         elif isinstance(enode, AccessShape):
             return children_exprs[-1]
+        elif isinstance(enode, AccessFlatten):
+            if isinstance(children_exprs[0], Access):
+                # In this case, `symbol` is a relay.Expr / relay.Var
+                data = ch_vars[0]
+                axis = children_exprs[0].children[0]
+                if axis == 1:
+                    return relay.nn.batch_flatten(data)
+                else:
+                    new_shape = [0] * (axis + 1)
+                    new_shape[-1] = -1
+                    return relay.reshape(data, new_shape)
+            else:
+                return relay.nn.batch_flatten(ch_vars[0])
         elif isinstance(enode, AccessLiteral) or isinstance(enode, LiteralNode):
             return children_exprs[0]
         elif isinstance(enode, ListNode):
             return children_exprs
         elif isinstance(enode, Padding):
             return children_exprs[0]
+        elif isinstance(enode, PadTypeNode):
+            return enode.symbol
+        elif isinstance(enode, AccessPad):
+            assert isinstance(children_exprs[0], relay.Var)
+            ndim = len(children_exprs[0].type_annotation.shape)
+            pad_type = children_exprs[1]
+            axis = int(children_exprs[2])
+            pad_info = (children_exprs[3], children_exprs[4])
+            try:
+                # padding info of each dimension could be either int or an relay.Expr
+                pad_info = tuple([int(x) for x in pad_info])
+            except:
+                pass
+            pad_width = list()
+            for i in range(ndim):
+                if i == axis:
+                    pad_width.append(pad_info)
+                else:
+                    pad_width.append((0, 0))
+            if isinstance(pad_type, PadType):
+                if pad_type == PadType.ZeroPadding:
+                    return relay.nn.pad(children_exprs[0], pad_width, pad_value=0)
+                else:
+                    raise Exception(f'Unkonw PadType: {str(pad_type)}')
+            else:
+                raise Exception(f'Expecting a PadType, Got {type(pad_type)}')
+        elif isinstance(enode, AccessSqueeze):
+            return relay.squeeze(ch_vars[0], axis=[int(children_exprs[1])])
+        elif isinstance(enode, AccessWindows):    
+            return access_window(ch_vars[0], children_exprs[1], children_exprs[2], children_exprs[3])
         elif isinstance(enode, AcceleratorCall):
             func = str(enode.symbol)
+            # In Glenside, the last parameter to accelerator-call is the inferred type
             accelerator_call = relay.accelerator_call(func, children_exprs[-1])
             composite_name = self.composite_lib[func]
             compiler_name = self.compiler_lib[func]
@@ -194,7 +268,7 @@ class RecExprCompiler:
         else:
             raise Exception(f'{type(enode)} not implemented')
     
-    def to_relay_expr(self, expr_data, input_shapes):
+    def to_relay_expr(self, expr_data, input_shapes, analysis_data=dict()):
         self.region_counter = 0
         self.var_count = 0
         self._id_map.clear()
@@ -203,6 +277,7 @@ class RecExprCompiler:
         self.nodes.clear()
         self._load_json(expr_data)
         self.input_shapes = input_shapes
+        self.analysis_data = analysis_data
         if len(self.nodes) == 0:
             return None
         else:
@@ -225,15 +300,15 @@ def is_num(x):
     except:
         return False
 
-def _access_window(data: relay.Var, access_dim: int, cur_dim: int,
+def _access_window(data: relay.Expr, access_dim: int, cur_dim: int, data_shape: List[int],
                   ker_shape: List[int], starts: List[int], strides: List[int]):
     ker_dim = len(ker_shape)
     if cur_dim == access_dim + ker_dim - 1:
         stacked = list()
-        for i in range(0, int(data.type_annotation.shape[cur_dim]) - ker_shape[cur_dim - access_dim] + 1):
+        for i in range(0, int(data_shape[cur_dim]) - ker_shape[cur_dim - access_dim] + 1):
             starts[cur_dim] = i
             sliced = relay.strided_slice(data, starts,
-                                            # note that in access dimision, we are only taking in 1
+                                            # note that in access dimension, we are only taking in 1
                                             # channel each time, so end = begin + 1
                                             # (wish a first-order operator `+`)
                                             list(map(lambda x: x + 1, starts[:access_dim])) 
@@ -244,37 +319,37 @@ def _access_window(data: relay.Var, access_dim: int, cur_dim: int,
     else:
         if cur_dim < access_dim:
             # when not reaching the compute dim, iterate
-            # through each channels in this diminsion
+            # through each channels in this dimension
             stacked = list()
-            for i in range(0, int(data.type_annotation.shape[cur_dim])):
+            for i in range(0, int(data_shape[cur_dim])):
                 starts[cur_dim] = i
-                result = _access_window(data, access_dim, cur_dim + 1, ker_shape, starts, strides)
+                result = _access_window(data, access_dim, cur_dim + 1, data_shape, ker_shape, starts, strides)
                 stacked.append(result)
-            # concat outside compute dimision should be on itself
+            # concat outside compute dimension should be on itself
             return relay.concatenate(stacked, cur_dim)
         else:
-            # at compute dimision, we slide the window
-            # with strides at set at the current dimision
+            # at compute dimension, we slide the window
+            # with strides at set at the current dimension
             stacked = list()
-            for i in range(0, int(data.type_annotation.shape[cur_dim]) - ker_shape[cur_dim - access_dim] + 1,
+            for i in range(0, int(data_shape[cur_dim]) - ker_shape[cur_dim - access_dim] + 1,
                               strides[cur_dim - access_dim]):
-                # set the index of current accessing dimision
+                # set the index of current accessing dimension
                 starts[cur_dim] = i
-                next_dim_result = _access_window(data, access_dim, cur_dim + 1, ker_shape, starts, strides)
+                next_dim_result = _access_window(data, access_dim, cur_dim + 1,
+                                                 data_shape, ker_shape, starts, strides)
                 next_dim_result = relay.expand_dims(next_dim_result, access_dim)
                 stacked.append(next_dim_result)
             return relay.concatenate(stacked, access_dim)
 
-def access_window(data: relay.Var, kernel_shape: List[int], strides: List[int]):
+def access_window(data: relay.Expr, data_shape: List[int], kernel_shape: List[int], strides: List[int]):
     assert len(kernel_shape) == len(strides)
-    assert data.type_annotation is not None
-    data_shape = list(data.type_annotation.shape)
+    # data_shape = list(data.type_annotation.shape)
     # decide access / compute dims
     access_axis = len(data_shape) - len(kernel_shape)
     assert access_axis >= 0
     # begin with 0 each time (probably not, so that we could get rid of paddings?)
     starts = [0 for _ in range(len(data_shape))]
-    return _access_window(data, access_axis, 0, kernel_shape, starts, strides)
+    return _access_window(data, access_axis, 0, data_shape, kernel_shape, starts, strides)
 
 def downcast(enode: ENode):
     symbol = enode.symbol
@@ -316,15 +391,21 @@ def downcast(enode: ENode):
         return Literal(symbol, children=enode.children)
     
     return {
-        'shape': lambda: Shape,
-        'tuple-get-item': lambda: TupleGetItem,
-        'construct-tuple': lambda: ConstructTuple,
-        'access-insert-axis': lambda: Padding,
-        'access-tensor': lambda: AccessTensor,
-        'access-transpose': lambda: AccessTranspose,
-        'access-broadcast': lambda: AccessBroadcast,
-        'access-literal':   lambda: AccessLiteral,
-        'access-shape':     lambda: AccessShape,
-        'literal':          lambda: LiteralNode,
-        'list':             lambda: ListNode
+        'shape':                lambda: Shape,
+        'tuple-get-item':       lambda: TupleGetItem,
+        'construct-tuple':      lambda: ConstructTuple,
+        'access-insert-axis':   lambda: Padding,
+        'access-tensor':        lambda: AccessTensor,
+        'access-transpose':     lambda: AccessTranspose,
+        'access-broadcast':     lambda: AccessBroadcast,
+        'access-literal':       lambda: AccessLiteral,
+        'access-shape':         lambda: AccessShape,
+        'access-squeeze':       lambda: AccessSqueeze,
+        'access-pad':           lambda: AccessPad,
+        'access':               lambda: Access,
+        'access-flatten':       lambda: AccessFlatten,
+        'zero-padding':         lambda: lambda *_: PadTypeNode(PadType.ZeroPadding),
+        'access-windows':        lambda: AccessWindows,
+        'literal':              lambda: LiteralNode,
+        'list':                 lambda: ListNode
     }.get(symbol, lambda: Symbol)()(enode.symbol, enode.children)
