@@ -99,6 +99,9 @@ class LiteralNode(ENode):
 class AccessShape(ENode):
     pass
 
+class AccessReshape(ENode):
+    pass
+
 class AccessWindows(ENode):
     pass
 
@@ -192,12 +195,14 @@ class RecExprCompiler:
             return relay.Tuple(ch_vars)
         elif isinstance(enode, AccessTensor):
             return ch_vars[-1]
+        elif isinstance(enode, AccessReshape):
+            return relay.reshape(ch_vars[0], children_exprs[1])
         elif isinstance(enode, AccessTranspose):
             return relay.transpose(ch_vars[0], axes=list(map(int, ch_vars[1])))
         elif isinstance(enode, AccessBroadcast):
             return children_exprs[0]
         elif isinstance(enode, AccessShape):
-            return children_exprs[-1]
+            return children_exprs[0]
         elif isinstance(enode, AccessFlatten):
             if isinstance(children_exprs[0], Access):
                 # In this case, `symbol` is a relay.Expr / relay.Var
@@ -220,8 +225,12 @@ class RecExprCompiler:
         elif isinstance(enode, PadTypeNode):
             return enode.symbol
         elif isinstance(enode, AccessPad):
-            assert isinstance(children_exprs[0], relay.Var)
-            ndim = len(children_exprs[0].type_annotation.shape)
+            assert isinstance(children_exprs[0], relay.Var) or self.eclass_analysis is not None
+            if self.eclass_analysis:
+                ndim = len(self.eclass_analysis[enode.children[0]])
+            else:
+                ndim = len(children_exprs[0].type_annotation.shape)
+            assert ndim > 0
             pad_type = children_exprs[1]
             axis = int(children_exprs[2])
             pad_info = (children_exprs[3], children_exprs[4])
@@ -277,7 +286,7 @@ class RecExprCompiler:
         self.nodes.clear()
         self._load_json(expr_data)
         self.input_shapes = input_shapes
-        self.analysis_data = analysis_data
+        self.eclass_analysis = analysis_data
         if len(self.nodes) == 0:
             return None
         else:
@@ -396,6 +405,7 @@ def downcast(enode: ENode):
         'construct-tuple':      lambda: ConstructTuple,
         'access-insert-axis':   lambda: Padding,
         'access-tensor':        lambda: AccessTensor,
+        'access-reshape':       lambda: AccessReshape,
         'access-transpose':     lambda: AccessTranspose,
         'access-broadcast':     lambda: AccessBroadcast,
         'access-literal':       lambda: AccessLiteral,
