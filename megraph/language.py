@@ -1,3 +1,4 @@
+from functools import reduce
 import tvm
 import enum
 from megraph.eclass import ENode
@@ -204,18 +205,10 @@ class RecExprCompiler:
         elif isinstance(enode, AccessShape):
             return children_exprs[0]
         elif isinstance(enode, AccessFlatten):
-            if isinstance(children_exprs[0], Access):
-                # In this case, `symbol` is a relay.Expr / relay.Var
-                data = ch_vars[0]
-                axis = children_exprs[0].children[0]
-                if axis == 1:
-                    return relay.nn.batch_flatten(data)
-                else:
-                    new_shape = [0] * (axis + 1)
-                    new_shape[-1] = -1
-                    return relay.reshape(data, new_shape)
-            else:
-                return relay.nn.batch_flatten(ch_vars[0])
+            access_pattern = self.eclass_analysis[enode.children[0]]
+            newshape=[reduce(lambda x, y: x * y, access_pattern['shape']),
+                      reduce(lambda x, y: x * y, access_pattern['item_shape'])]
+            return relay.reshape(ch_vars[0], newshape)
         elif isinstance(enode, AccessLiteral) or isinstance(enode, LiteralNode):
             return children_exprs[0]
         elif isinstance(enode, ListNode):
@@ -227,7 +220,7 @@ class RecExprCompiler:
         elif isinstance(enode, AccessPad):
             assert isinstance(children_exprs[0], relay.Var) or self.eclass_analysis is not None
             if self.eclass_analysis:
-                ndim = len(self.eclass_analysis[enode.children[0]])
+                ndim = len(self.eclass_analysis[enode.children[0]]['shape'])
             else:
                 ndim = len(children_exprs[0].type_annotation.shape)
             assert ndim > 0
@@ -254,8 +247,8 @@ class RecExprCompiler:
                 raise Exception(f'Expecting a PadType, Got {type(pad_type)}')
         elif isinstance(enode, AccessSqueeze):
             return relay.squeeze(ch_vars[0], axis=[int(children_exprs[1])])
-        elif isinstance(enode, AccessWindows):    
-            return access_window(ch_vars[0], children_exprs[1], children_exprs[2], children_exprs[3])
+        elif isinstance(enode, AccessWindows):
+            return access_window(ch_vars[0], self.eclass_analysis[enode.children[0]]['relay_shape'], children_exprs[2], children_exprs[3])
         elif isinstance(enode, AcceleratorCall):
             func = str(enode.symbol)
             # In Glenside, the last parameter to accelerator-call is the inferred type
@@ -314,7 +307,8 @@ def _access_window(data: relay.Expr, access_dim: int, cur_dim: int, data_shape: 
     ker_dim = len(ker_shape)
     if cur_dim == access_dim + ker_dim - 1:
         stacked = list()
-        for i in range(0, int(data_shape[cur_dim]) - ker_shape[cur_dim - access_dim] + 1):
+        for i in range(0, int(data_shape[cur_dim]) - ker_shape[cur_dim - access_dim] + 1,
+                       strides[cur_dim - access_dim]):
             starts[cur_dim] = i
             sliced = relay.strided_slice(data, starts,
                                             # note that in access dimension, we are only taking in 1

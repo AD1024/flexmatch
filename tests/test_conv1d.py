@@ -13,7 +13,7 @@ def main(json_file, analysis_file, relay_src):
     with open(json_file, 'r') as fp:
         with open(analysis_file, 'r') as analysis_fp:
             eclass_analysis = json.load(analysis_fp)
-            eclass_analysis = dict(map(lambda pi: (int(pi[0]), list(pi[1])), eclass_analysis.items()))
+            eclass_analysis = dict(map(lambda pi: (int(pi[0]), pi[1]), eclass_analysis.items()))
             rec_expr = json.load(fp)
             expr = megraph.RecExprCompiler({
                 'vta-dense': 'ilavta.dense'
@@ -22,7 +22,8 @@ def main(json_file, analysis_file, relay_src):
             }).to_relay_expr(rec_expr, name_to_shape, analysis_data=eclass_analysis)
             mod = tvm.ir.IRModule.from_expr(expr)
             mod = relay.transform.InferType()(mod)
-            print(mod)
+            with open('conv1d-im2col.relay', 'w') as out_file:
+                out_file.write(str(mod))
 
 if __name__ == '__main__':
     if len(sys.argv) < 4:
