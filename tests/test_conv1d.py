@@ -22,8 +22,8 @@ def main(json_file, analysis_file, relay_src):
             }).to_relay_expr(rec_expr, name_to_shape, analysis_data=eclass_analysis)
             mod = tvm.ir.IRModule.from_expr(expr)
             mod = relay.transform.InferType()(mod)
-            with open('conv1d-im2col.relay', 'w') as out_file:
-                out_file.write(str(mod))
+            # with open('conv1d-im2col.relay', 'w') as out_file:
+            #     out_file.write(str(mod))
 
 if __name__ == '__main__':
     if len(sys.argv) < 4:
