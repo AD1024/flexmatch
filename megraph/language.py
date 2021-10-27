@@ -122,10 +122,11 @@ class PadTypeNode(ENode):
     pass
 
 class RecExprCompiler:
-    def __init__(self, composite_lib, compiler_lib):
+    def __init__(self, composite_lib, compiler_lib, accelerator_func_lib=dict()):
         self.nodes : List[ENode] = []
         self.composite_lib = composite_lib
         self.compiler_lib = compiler_lib
+        self.accelerator_func_lib = accelerator_func_lib
         self.region_counter = 0
         self._id_map = dict()
         self.let_worklist = list()
@@ -248,29 +249,32 @@ class RecExprCompiler:
         elif isinstance(enode, AccessSqueeze):
             return relay.squeeze(ch_vars[0], axis=[int(children_exprs[1])])
         elif isinstance(enode, AccessWindows):
-            return access_window(ch_vars[0], self.eclass_analysis[enode.children[0]]['relay_shape'], children_exprs[2], children_exprs[3])
+            return access_window(ch_vars[0], self.eclass_analysis[enode.children[0]]['relay_shape'], children_exprs[1], children_exprs[2])
         elif isinstance(enode, AcceleratorCall):
             func = str(enode.symbol)
-            # In Glenside, the last parameter to accelerator-call is the inferred type
-            accelerator_call = relay.accelerator_call(func, children_exprs[-1])
-            composite_name = self.composite_lib[func]
-            compiler_name = self.compiler_lib[func]
-            inner_args = [relay.Var(f'inner_arg_{i}') for i in range(len(ch_vars) - 1)]
-            inner_func = relay.Function(inner_args, accelerator_call, ret_type=relay.TensorType(children_exprs[-1]))
-            inner_func = inner_func.with_attr("Composite", composite_name)
-            outer_args = [relay.var(f'outer_arg_{i}') for i in range(len(ch_vars) - 1)]
-            outer_func = relay.Function(outer_args, inner_func(*outer_args), ret_type=relay.TensorType(children_exprs[-1]))
-            outer_func = outer_func.with_attr("Compiler", compiler_name)
-            outer_func = outer_func.with_attr("Primitive", tvm.tir.IntImm("int32", 1))
-            outer_func = outer_func.with_attr(
-                "global_symbol",
-                f"{composite_name}_{self.region_counter}")
-            self.region_counter += 1
-            return outer_func(*ch_vars[:-1])
+            if self.use_debug_func:
+                return self.accelerator_func_lib[func](*ch_vars[:-1])
+            else:
+                # In Glenside, the last parameter to accelerator-call is the inferred type
+                accelerator_call = relay.accelerator_call(func, children_exprs[-1])
+                composite_name = self.composite_lib[func]
+                compiler_name = self.compiler_lib[func]
+                inner_args = [relay.Var(f'inner_arg_{i}') for i in range(len(ch_vars) - 1)]
+                inner_func = relay.Function(inner_args, accelerator_call, ret_type=relay.TensorType(children_exprs[-1]))
+                inner_func = inner_func.with_attr("Composite", composite_name)
+                outer_args = [relay.var(f'outer_arg_{i}') for i in range(len(ch_vars) - 1)]
+                outer_func = relay.Function(outer_args, inner_func(*outer_args), ret_type=relay.TensorType(children_exprs[-1]))
+                outer_func = outer_func.with_attr("Compiler", compiler_name)
+                outer_func = outer_func.with_attr("Primitive", tvm.tir.IntImm("int32", 1))
+                outer_func = outer_func.with_attr(
+                    "global_symbol",
+                    f"{composite_name}_{self.region_counter}")
+                self.region_counter += 1
+                return outer_func(*ch_vars[:-1])
         else:
             raise Exception(f'{type(enode)} not implemented')
     
-    def to_relay_expr(self, expr_data, input_shapes, analysis_data=dict()):
+    def to_relay_expr(self, expr_data, input_shapes, analysis_data=dict(), use_debug_func=False):
         self.region_counter = 0
         self.var_count = 0
         self._id_map.clear()
@@ -280,6 +284,7 @@ class RecExprCompiler:
         self._load_json(expr_data)
         self.input_shapes = input_shapes
         self.eclass_analysis = analysis_data
+        self.use_debug_func = use_debug_func
         if len(self.nodes) == 0:
             return None
         else:
