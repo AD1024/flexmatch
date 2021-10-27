@@ -1,0 +1,20 @@
+[package]
+name = "flexmatch"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[dependencies.glenside]
+git = "https://github.com/gussmith23/glenside"
+branch = "pldi-flexmatch-conv1d-dev"
+
+[dependencies.egg]
+git = "https://github.com/AD1024/egg"
+branch = "3la-mod"
+
+[dependencies.tvm]
+git = "ssh://git@github.com/uwsampl/3la-tvm.git"
+rev = "bb6c378e5440899083af253c3466db087157acb6"
