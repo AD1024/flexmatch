@@ -14,7 +14,10 @@ pub fn get_rewrite_from_string(name: String) -> Rewrite<Language, MyAnalysis> {
 
         "flex-linear-rewrite" => linear_layer_accelerator_rewrites(),
         "vta-dense-rewrite" => dot_product_with_vta(),
-        _ => { eprintln!("{} not implemented", name); todo!() }
+        _ => {
+            eprintln!("{} not implemented", name);
+            todo!()
+        }
     }
 }
 

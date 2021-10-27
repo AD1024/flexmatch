@@ -1,10 +1,13 @@
 mod rewrites;
 
-use tvm;
 use egg::{EGraph, Extractor, Runner};
-use glenside::{extraction::AcceleratorCostFunction, language::{MyAnalysis, serialize_analysis_data}};
+use glenside::{
+    extraction::AcceleratorCostFunction,
+    language::{serialize_analysis_data, MyAnalysis},
+};
 use rewrites::{get_rewrite_from_string, im2col_rewrites, linear_rewrites};
 use std::{collections::HashMap, env, fs, path::PathBuf, process::exit};
+use tvm;
 
 fn main() {
     let args = env::args().collect::<Vec<_>>();
@@ -24,7 +27,8 @@ fn main() {
             }
         }
         let relay_src = fs::read_to_string(PathBuf::from(source_file)).unwrap();
-        let module: tvm::ir::module::IRModule = tvm::ir::module::IRModule::parse("", relay_src).unwrap();
+        let module: tvm::ir::module::IRModule =
+            tvm::ir::module::IRModule::parse("", relay_src).unwrap();
         let (expr, shape_info, equiv_worklist) =
             glenside::language::from_relay::from_relay(&module, false, &vec![]);
         let mut env = HashMap::default();
@@ -50,11 +54,11 @@ fn main() {
         let extractor = Extractor::new(&runner.egraph, AcceleratorCostFunction {});
         let (_cost, best) = extractor.find_best(id);
         let json_dump = best.serialize();
-        let output_file = PathBuf::from(env::current_dir().unwrap())
-                                .join(PathBuf::from(output_file));
+        let output_file =
+            PathBuf::from(env::current_dir().unwrap()).join(PathBuf::from(output_file));
         let _ = std::fs::write(output_file, json_dump.to_string()).unwrap();
         egraph = EGraph::new(MyAnalysis {
-            name_to_shape: env.clone()
+            name_to_shape: env.clone(),
         });
         let (_, id_map) = egraph.add_expr_with_record(&best);
         let mut native_map = HashMap::new();
