@@ -1,0 +1,16 @@
+{
+    "rewrites": [
+        "linear-rewrites",
+        "access-reshape-to-relay",
+        "flex-linear-rewrite"
+    ],
+    "compilers": {
+        "flex-linear": "ilaflex.linear"
+    },
+    "composites": {
+        "flex-linear": "ilaflex"
+    },
+    "debug_functions": {
+        "flex-linear": "lambda x, w, b: nn.bias_add(nn.dense(x, w), b)"
+    }
+}
