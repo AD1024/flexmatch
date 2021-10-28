@@ -177,6 +177,7 @@ class RecExprCompiler:
         self._id_map = dict()
         self.let_worklist = list()
         self.worklist_set = set()
+        self.access_window_memo = dict()
         self.var_count = 0
     
     def _load_json(self, expr_data: List[Tuple[int, str, List[int]]]):
@@ -301,7 +302,10 @@ class RecExprCompiler:
         elif isinstance(enode, AccessSqueeze):
             return relay.squeeze(ch_vars[0], axis=[int(children_exprs[1])])
         elif isinstance(enode, AccessWindows):
-            return access_window(ch_vars[0], self.eclass_analysis[enode.children[0]]['relay_shape'], children_exprs[1], children_exprs[2])
+            key = (tuple(self.eclass_analysis[enode.children[0]]['relay_shape']), tuple(children_exprs[1]), tuple(children_exprs[2]))
+            if key not in self.access_window_memo:
+                self.access_window_memo[key] = access_window(self.eclass_analysis[enode.children[0]]['relay_shape'], children_exprs[1], children_exprs[2])
+            return self.access_window_memo[key](ch_vars[0])
         elif isinstance(enode, AccessPair):
             return (ch_vars[0], ch_vars[1])
         elif isinstance(enode, Compute):
@@ -424,7 +428,7 @@ def _access_window(data: relay.Expr, access_dim: int, cur_dim: int, data_shape: 
                 stacked.append(next_dim_result)
             return relay.concatenate(stacked, access_dim)
 
-def access_window(data: relay.Expr, data_shape: List[int], kernel_shape: List[int], strides: List[int]):
+def access_window(data_shape: List[int], kernel_shape: List[int], strides: List[int]):
     assert len(kernel_shape) == len(strides)
     # data_shape = list(data.type_annotation.shape)
     # decide access / compute dims
@@ -432,7 +436,8 @@ def access_window(data: relay.Expr, data_shape: List[int], kernel_shape: List[in
     assert access_axis >= 0
     # begin with 0 each time (probably not, so that we could get rid of paddings?)
     starts = [0 for _ in range(len(data_shape))]
-    return _access_window(data, access_axis, 0, data_shape, kernel_shape, starts, strides)
+    meta_var = relay.var('data', type_annotation=relay.TensorType(data_shape))
+    return relay.Function([meta_var], _access_window(meta_var, access_axis, 0, data_shape, kernel_shape, starts, strides))
 
 def downcast(enode: ENode):
     symbol = enode.symbol

@@ -42,6 +42,10 @@ def main(relay_file, output_filename, model_json, data_json, *configs, debug=Fal
         mod = tvm.ir.IRModule.from_expr(compiled_expr)
         # print(mod)
         mod = relay.transform.InferType()(mod)
+        mod = relay.transform.LambdaLift()(mod)
+        mod = relay.transform.FoldConstant()(mod)
+        # mod = relay.transform.EliminateCommonSubexpr()(mod)
+        # mod = relay.transform.FuseOps()(mod)
         with open(output_filename, 'w') as fp:
             fp.write(mod.astext())
 
