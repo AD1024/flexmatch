@@ -4,6 +4,7 @@ import enum
 from megraph.eclass import ENode
 from tvm import relay
 from tvm.relay import TypeKind, nn
+from tvm.relay.expr import Expr
 from tvm.relay.op.nn.nn import global_avg_pool2d, max_pool2d
 from tvm.relay.op.tensor import exp
 from tvm.relay import ScopeBuilder
@@ -32,6 +33,7 @@ class RelayOperators(enum.Enum):
     RelayMultiply = relay.multiply,
     RelayErf      = relay.erf,
     RelayConv1D   = relay.nn.conv1d,
+    RelayConv2D   = relay.nn.conv2d,
 
     def __call__(self, *x):
         # print(self.value, x)
@@ -39,8 +41,28 @@ class RelayOperators(enum.Enum):
             return self.value[0](x[0], axis=int(x[1]))
         if self.value[0] == relay.nn.bias_add:
             return self.value[0](x[0], x[1], axis=int(x[2]))
+        if self.value[0] == relay.nn.batch_norm:
+            return self.value[0](x[0], x[1], x[2], x[3], x[4], axis=int(x[5]), epsilon=float(x[6]))
+        if self.value[0] == relay.nn.max_pool2d or self.value[0] == relay.nn.global_avg_pool2d:
+            layout = x[-1];
+            if layout == RelayActivationLayout.NCHW:
+                return self.value[0](*x[:-1], layout='NCHW')
+            elif layout == RelayActivationLayout.NHWC:
+                return self.value[0](*x[:-1], layout='NHWC')
+        if self.value[0] == relay.nn.softmax:
+            return self.value[0](x[0], axis=int(x[1]))
+        if self.value[0] == relay.nn.conv2d:
+            data_layout = x[-2].value
+            kernel_layout = x[-1].value
+            return self.value[0](x[0], x[1], strides=tuple(x[2]), padding=tuple(x[3]),
+                                groups=int(x[4]), channels=int(x[5]), kernel_size=(int(x[6][1]), int(x[6][2])),
+                                data_layout=data_layout, kernel_layout=kernel_layout)
         x = list(map(lambda x: relay.const(x) if isinstance(x, float) else x, x))
-        return self.value[0](*x)
+        try:
+            return self.value[0](*x)
+        except Exception as e:
+            print(f'Exception caught when applying to {self.value[0]}:\n{e}')
+            exit(-1)
 
 class AcceleratorFunc(enum.Enum):
     FlexLinear = 'flex-linear'
@@ -53,6 +75,24 @@ class AcceleratorFunc(enum.Enum):
 
 class PadType(enum.Enum):
     ZeroPadding = 'zero-padding'
+
+class ComputeType(enum.Enum):
+    Relu = 'relu'
+    Negative = 'negative'
+    Sqrt = 'sqrt'
+    ElementwiseDiv = 'elementwise-div'
+    ElementwiseMul = 'elementwise-mul'
+
+class RelayActivationLayout(enum.Enum):
+    NCHW = 'NCHW'
+    NHWC = 'NHWC'
+
+class RelayKernelLayout(enum.Enum):
+    OIHW = 'OIHW'
+    OHWI = 'OHWI'
+
+class Compute(ENode):
+    pass
 
 class RelayOperatorCall(ENode):
     pass
@@ -121,6 +161,12 @@ class Access(ENode):
 class PadTypeNode(ENode):
     pass
 
+class AccessPair(ENode):
+    pass
+
+class AccessInsertAxis(ENode):
+    pass
+
 class RecExprCompiler:
     def __init__(self, composite_lib, compiler_lib, accelerator_func_lib=dict()):
         self.nodes : List[ENode] = []
@@ -140,7 +186,7 @@ class RecExprCompiler:
             # Check children node refs are valid
             assert eid == len(self.nodes)
             assert all(map(lambda x: x < len(self.nodes), children))
-            if symbol in {'relay-operator-call', 'accelerator-call'}:
+            if symbol in {'relay-operator-call', 'accelerator-call', 'compute'}:
                 symbol = str(expr_data[children[0]][1])
                 children = children[1:]
             self.nodes.append(downcast(ENode(symbol, children)))
@@ -159,6 +205,8 @@ class RecExprCompiler:
         if index in self._id_map:
             return self._id_map[index]
         enode = self.nodes[index]
+        if isinstance(enode, RelayActivationLayout) or isinstance(enode, RelayKernelLayout):
+            return enode
         children_exprs = list(map(self._to_relay_helper, enode.children))
         ch_vars = []
         for (ch_id, subexpr) in zip(enode.children, children_exprs):
@@ -195,6 +243,10 @@ class RecExprCompiler:
             return relay.TupleGetItem(ch_vars[0], *ch_vars[1:])
         elif isinstance(enode, ConstructTuple):
             return relay.Tuple(ch_vars)
+        elif isinstance(enode, AccessInsertAxis):
+            if not isinstance(ch_vars[0], relay.Expr):
+                ch_vars[0] = relay.const(ch_vars[0])
+            return relay.expand_dims(ch_vars[0], axis=int(ch_vars[1]))
         elif isinstance(enode, AccessTensor):
             return ch_vars[-1]
         elif isinstance(enode, AccessReshape):
@@ -202,7 +254,7 @@ class RecExprCompiler:
         elif isinstance(enode, AccessTranspose):
             return relay.transpose(ch_vars[0], axes=list(map(int, ch_vars[1])))
         elif isinstance(enode, AccessBroadcast):
-            return children_exprs[0]
+            return ch_vars[0]
         elif isinstance(enode, AccessShape):
             return children_exprs[0]
         elif isinstance(enode, AccessFlatten):
@@ -241,7 +293,7 @@ class RecExprCompiler:
                     pad_width.append((0, 0))
             if isinstance(pad_type, PadType):
                 if pad_type == PadType.ZeroPadding:
-                    return relay.nn.pad(children_exprs[0], pad_width, pad_value=0)
+                    return relay.nn.pad(ch_vars[0], pad_width, pad_value=0)
                 else:
                     raise Exception(f'Unkonw PadType: {str(pad_type)}')
             else:
@@ -250,6 +302,29 @@ class RecExprCompiler:
             return relay.squeeze(ch_vars[0], axis=[int(children_exprs[1])])
         elif isinstance(enode, AccessWindows):
             return access_window(ch_vars[0], self.eclass_analysis[enode.children[0]]['relay_shape'], children_exprs[1], children_exprs[2])
+        elif isinstance(enode, AccessPair):
+            return (ch_vars[0], ch_vars[1])
+        elif isinstance(enode, Compute):
+            compute_type = enode.symbol
+            for i in range(len(ch_vars)):
+                if isinstance(ch_vars[i], relay.Expr):
+                    continue
+                if isinstance(ch_vars[i], tuple) or isinstance(ch_vars[0], list):
+                    ch_vars[i] = list(map(lambda x: relay.const(x) if not isinstance(x, relay.Expr) else x, ch_vars[i]))
+                if isinstance(ch_vars[i], int) or isinstance(ch_vars[i], float):
+                    ch_vars[i] = relay.const(ch_vars[i])
+
+            func = {
+                ComputeType.Relu: lambda: nn.relu(ch_vars[0]),
+                ComputeType.Negative: lambda: relay.negative(ch_vars[0]),
+                ComputeType.Sqrt: lambda: relay.sqrt(ch_vars[0]),
+                ComputeType.ElementwiseMul: lambda: relay.multiply(ch_vars[0][0], ch_vars[0][1]),
+                ComputeType.ElementwiseDiv: lambda: relay.divide(ch_vars[0][0], ch_vars[0][1])
+            }.get(compute_type, None)
+            if func:
+                return func()
+            else:
+                raise Exception(f'Unrecognized compute type: {compute_type}')
         elif isinstance(enode, AcceleratorCall):
             func = str(enode.symbol)
             if self.use_debug_func:
@@ -363,15 +438,15 @@ def downcast(enode: ENode):
     symbol = enode.symbol
     lang = {
         'relay-reshape':    RelayOperators.RelayReshape,
-        'relay-batch_norm': RelayOperators.RelayBatchNormInference,
+        'relay-batch-norm-inference': RelayOperators.RelayBatchNormInference,
         'relay-softmax':    RelayOperators.RelaySoftMax,
         'relay-relu':       RelayOperators.RelayReLU,
         'relay-leaky_relu': RelayOperators.RelayLeakyReLU,
-        'relay-max_pool2d': RelayOperators.RelayMaxPool2D,
-        'relay-global_avg_pool2d': RelayOperators.RelayGlobalAvgPool2D,
-        'relay-avg_pool2d': RelayOperators.RelayAvgPool2D,
+        'relay-max-pool2d': RelayOperators.RelayMaxPool2D,
+        'relay-global-avg-pool2d': RelayOperators.RelayGlobalAvgPool2D,
+        'relay-avg-pool2d': RelayOperators.RelayAvgPool2D,
         'relay-upsampling': RelayOperators.RelayUpSampling,
-        'relay-batch_flatten': RelayOperators.RelayBatchFlatten,
+        'relay-batch-flatten': RelayOperators.RelayBatchFlatten,
         'relay-bias-add': RelayOperators.RelayBiasAdd,
         'relay-dense':    RelayOperators.RelayDense,
         'relay-add':      RelayOperators.RelayAdd,
@@ -382,10 +457,30 @@ def downcast(enode: ENode):
         'relay-mul':      RelayOperators.RelayMultiply,
         'relay-erf':      RelayOperators.RelayErf,
         'relay-conv1d':   RelayOperators.RelayConv1D,
+        'relay-conv2d':   RelayOperators.RelayConv2D,
     }.get(symbol, None)
     if lang is not None:
         return RelayOperatorCall(lang, enode.children)
     
+    lang = {
+        'relu': ComputeType.Relu,
+        'negative': ComputeType.Negative,
+        'sqrt': ComputeType.Sqrt,
+        'elementwise-div': ComputeType.ElementwiseDiv,
+        'elementwise-mul': ComputeType.ElementwiseMul,
+    }.get(symbol, None)
+    if lang:
+        return Compute(lang, enode.children)
+    
+    lang = {
+        'relay-activation-layout-nchw': RelayActivationLayout.NCHW,
+        'relay-activation-layout-nhwc': RelayActivationLayout.NHWC,
+        'relay-kernel-layout-oihw': RelayKernelLayout.OIHW,
+        'relay-kernel-layout-ohwi': RelayKernelLayout.OHWI,
+    }.get(symbol, None)
+    if lang:
+        return lang
+
     lang = {
         'flex-linear': AcceleratorFunc.FlexLinear,
         'flex-lstm':   AcceleratorFunc.FlexLSTM,
@@ -402,7 +497,7 @@ def downcast(enode: ENode):
         'shape':                lambda: Shape,
         'tuple-get-item':       lambda: TupleGetItem,
         'construct-tuple':      lambda: ConstructTuple,
-        'access-insert-axis':   lambda: Padding,
+        'access-insert-axis':   lambda: AccessInsertAxis,
         'access-tensor':        lambda: AccessTensor,
         'access-reshape':       lambda: AccessReshape,
         'access-transpose':     lambda: AccessTranspose,
@@ -414,7 +509,8 @@ def downcast(enode: ENode):
         'access':               lambda: Access,
         'access-flatten':       lambda: AccessFlatten,
         'zero-padding':         lambda: lambda *_: PadTypeNode(PadType.ZeroPadding),
-        'access-windows':        lambda: AccessWindows,
+        'access-windows':       lambda: AccessWindows,
+        'access-pair':          lambda: AccessPair,
         'literal':              lambda: LiteralNode,
         'list':                 lambda: ListNode
     }.get(symbol, lambda: Symbol)()(enode.symbol, enode.children)

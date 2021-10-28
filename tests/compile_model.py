@@ -40,6 +40,7 @@ def main(relay_file, output_filename, model_json, data_json, *configs, debug=Fal
         recexpr_compiler = megraph.RecExprCompiler(composites, compilers, debug_funcs)
         compiled_expr = recexpr_compiler.to_relay_expr(expr_data, shape_dict, analysis_data, use_debug_func=debug)
         mod = tvm.ir.IRModule.from_expr(compiled_expr)
+        # print(mod)
         mod = relay.transform.InferType()(mod)
         with open(output_filename, 'w') as fp:
             fp.write(mod.astext())
