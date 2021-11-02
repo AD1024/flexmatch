@@ -9,7 +9,9 @@ edition = "2021"
 
 [dependencies.glenside]
 git = "https://github.com/gussmith23/glenside"
-branch = "pldi-flexmatch-conv1d-dev"
+branch = "3la-pldi-push-main"
+default-features = false
+features = ["tvm"]
 
 [dependencies.egg]
 git = "https://github.com/AD1024/egg"
