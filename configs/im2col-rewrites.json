@@ -1,11 +1,11 @@
 {
-    "rewrites": [
-        "flatten-unflatten-all-accesses",
-        "bubble-reshape-through-cartesian-product",
-        "bubble-reshape-through-compute-dot-product",
-        "access-reshape-to-relay",
-        "vta-dense-rewrite"
-    ],
+    "rewrites": {
+        "flatten-unflatten-all-accesses": [],
+        "bubble-reshape-through-cartesian-product": [],
+        "bubble-reshape-through-compute-dot-product": [],
+        "access-reshape-to-relay": [],
+        "vta-dense-rewrite": []
+    },
     "composites": {
         "vta-dense": "ilavta.dense"
     },

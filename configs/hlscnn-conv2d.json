@@ -1,0 +1,14 @@
+{
+    "rewrites": {
+        "hlscnn-conv2d": []
+    },
+    "composites": {
+        "hlscnn-conv2d": "ilacnn.conv2d"
+    },
+    "compilers": {
+        "hlscnn-conv2d": "ilacnn"
+    },
+    "debug_functions": {
+        "hlscnn-conv2d": "nn.conv2d"
+    }
+}

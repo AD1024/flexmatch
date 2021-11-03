@@ -1,13 +1,13 @@
 {
-    "rewrites": [
-        "linear-rewrites",
-        "access-reshape-to-relay",
-        "flex-linear-rewrite"
-    ],
-    "compilers": {
-        "flex-linear": "ilaflex.linear"
+    "rewrites": {
+        "linear-rewrites": [],
+        "access-reshape-to-relay": [],
+        "flex-linear-rewrite": []
     },
     "composites": {
+        "flex-linear": "ilaflex.linear"
+    },
+    "compilers": {
         "flex-linear": "ilaflex"
     },
     "debug_functions": {
