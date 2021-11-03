@@ -5,10 +5,10 @@
         "flex-linear-rewrite"
     ],
     "compilers": {
-        "flex-linear": "ilaflex.linear"
+        "flex-linear": "ilaflex"
     },
     "composites": {
-        "flex-linear": "ilaflex"
+        "flex-linear": "ilaflex.linear"
     },
     "debug_functions": {
         "flex-linear": "lambda x, w, b: nn.bias_add(nn.dense(x, w), b)"
