@@ -3,4 +3,5 @@ __pycache__
 !configs/*.json
 *.relay
 !tests/models
+tests/params/
 .pkl_memoize_py3

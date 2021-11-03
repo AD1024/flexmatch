@@ -1,0 +1,22 @@
+{
+    "rewrites": {
+        "flatten-unflatten-all-accesses": [],
+        "reassociate-max": [2, 2],
+        "flexasr-maxpool": [],
+        "bubble-access-reshape-through-compute-reduce-max": [],
+        "simplify-multiple-accesses": [],
+        "simplify-multiple-transposes": [],
+        "simplify-multiple-access-reshapes": [],
+        "bubble-access-through-access-transpose": [],
+        "simplify-reduce-max": []
+    },
+    "composites": {
+        "flexasr-maxpool": "ilaflex.max_pool"
+    },
+    "compilers": {
+        "flexasr-maxpool": "ilaflex"
+    },
+    "debug_functions": {
+        "flexasr-maxpool": "nn.max_pool2d"
+    }
+}
