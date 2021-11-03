@@ -13,7 +13,7 @@ def main(relay_file, output_filename, *configs):
             if not os.path.isfile(os.path.join(home_dir, 'configs', config)):
                 raise Exception(f'{config} is not a valid config json')
         os.chdir(os.path.join(home_dir, 'flexmatch'))
-        os.system('cargo build')
+        # os.system('cargo build')
         cmd = './target/debug/flexmatch {} {} {} {}'.format(
             relay_file,
             os.path.join(cur_dir, f'{output_filename}-rewritten.json'),

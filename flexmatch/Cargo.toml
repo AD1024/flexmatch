@@ -12,6 +12,7 @@ serde = "1.0.130"
 [dependencies.glenside]
 git = "https://github.com/gussmith23/glenside"
 branch = "3la-pldi-push-main"
+default-features = false
 features = ["tvm"]
 
 [dependencies.egg]

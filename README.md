@@ -8,6 +8,7 @@ Flexible Matching via Equality Saturation
 4. Annotate matched region with BYOC-style function annotations for the codegen
 
 # Utilities
+*Note: Please run `cargo build` in the `flexmatch` directory before using the utilities there.*
 - `flexmatch`: Rust interfaces that call [glenside](https://github.com/gussmith23/glenside) and apis in (my fork of) [egg](https://github.com/AD1024/egg)
 - `tests/run_eqsat`
     - Takes a **relay source file**, an output file name and config(s) (under `configs/`)
