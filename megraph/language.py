@@ -1,6 +1,7 @@
 from functools import reduce
 import tvm
 import enum
+import resource, sys
 from megraph.eclass import ENode
 from tvm import relay
 from tvm.relay import TypeKind, nn
@@ -9,6 +10,9 @@ from tvm.relay.op.nn.nn import global_avg_pool2d, max_pool2d
 from tvm.relay.op.tensor import exp
 from tvm.relay import ScopeBuilder
 from typing import List, Tuple
+
+resource.setrlimit(resource.RLIMIT_STACK, (2**29, -1))
+sys.setrecursionlimit(65536)
 
 class Language: pass
 
@@ -168,6 +172,9 @@ class AccessPair(ENode):
 class AccessInsertAxis(ENode):
     pass
 
+class AccessSlice(ENode):
+    pass
+
 class RecExprCompiler:
     def __init__(self, composite_lib, compiler_lib, accelerator_func_lib=dict()):
         self.nodes : List[ENode] = []
@@ -309,6 +316,12 @@ class RecExprCompiler:
             return self.access_window_memo[key](ch_vars[0])
         elif isinstance(enode, AccessPair):
             return (ch_vars[0], ch_vars[1])
+        elif isinstance(enode, AccessSlice):
+            data = ch_vars[0]
+            axis = int(ch_vars[1])
+            start = int(ch_vars[2])
+            end = int(ch_vars[3])
+            return access_slice(data, self.eclass_analysis[enode.children[0]]['relay_shape'], axis, start, end)
         elif isinstance(enode, Compute):
             compute_type = enode.symbol
             for i in range(len(ch_vars)):
@@ -442,6 +455,14 @@ def access_window(data_shape: List[int], kernel_shape: List[int], strides: List[
     meta_var = relay.var('data', type_annotation=relay.TensorType(data_shape))
     return relay.Function([meta_var], _access_window(meta_var, access_axis, 0, data_shape, kernel_shape, starts, strides))
 
+def access_slice(data: relay.Expr, data_shape: List[int], axis: int, begin: int, end: int):
+    assert axis < len(data_shape)
+    starts = [0] * len(data_shape)
+    ends = data_shape.copy()
+    starts[axis] = begin
+    ends[axis] = end
+    return relay.strided_slice(data, starts, ends)
+
 def downcast(enode: ENode):
     symbol = enode.symbol
     lang = {
@@ -519,6 +540,7 @@ def downcast(enode: ENode):
         'access-flatten':       lambda: AccessFlatten,
         'zero-padding':         lambda: lambda *_: PadTypeNode(PadType.ZeroPadding),
         'access-windows':       lambda: AccessWindows,
+        'access-slice':         lambda: AccessSlice,
         'access-pair':          lambda: AccessPair,
         'literal':              lambda: LiteralNode,
         'list':                 lambda: ListNode

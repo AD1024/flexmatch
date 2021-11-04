@@ -1,11 +1,8 @@
-use egg::Rewrite;
+use egg::{Rewrite, rewrite};
 use glenside::language::rewrites::*;
 use glenside::language::{Language, MyAnalysis};
 
-pub fn get_rewrite_from_string(
-    name: &String,
-    args: &Box<[i32]>,
-) -> Rewrite<Language, MyAnalysis> {
+pub fn get_rewrite_from_string(name: &String, args: &Box<[i32]>) -> Rewrite<Language, MyAnalysis> {
     match name.as_str() {
         "bubble-reshape-through-cartesian-product" => bubble_reshape_through_cartesian_product(),
         "flatten-unflatten-all-accesses" => flatten_unflatten_any_access(),
@@ -21,6 +18,7 @@ pub fn get_rewrite_from_string(
         "bubble-access-reshape-through-compute-reduce-max" => {
             bubble_access_reshape_through_compute_reduce_max()
         }
+        "dot-product-to-dense" => rewrite!("dot-product-to-relay-dense"; "(compute dot-product (access-cartesian-product ?x ?y))" => "(relay-operator-call relay-dense ?x ?y)"),
         "simplify-multiple-accesses" => simplify_multiple_accesses(),
         "simplify-multiple-transposes" => simplify_multiple_transposes(),
         "simplify-multiple-access-reshapes" => simplify_multiple_access_reshapes(),

@@ -5,9 +5,16 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = ['cplex']
+
+cplex = ['rplex']
+
 [dependencies]
 serde_json = "1.0"
 serde = "1.0.130"
+log = "0.4.14"
+env_logger = "0.9.0"
 
 [dependencies.glenside]
 git = "https://github.com/gussmith23/glenside"
@@ -21,3 +28,7 @@ branch = "3la-mod"
 [dependencies.tvm]
 git = "ssh://git@github.com/uwsampl/3la-tvm.git"
 rev = "f336b159fa62686e13ee89b0fa9cb808905ac8fc"
+
+[dependencies.rplex]
+optional = true
+git = "https://github.com/gussmith23/rplex"
