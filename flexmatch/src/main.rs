@@ -1,7 +1,10 @@
 mod rewrites;
 
 use egg::{EGraph, Extractor, Language, RecExpr, Runner};
-use glenside::{extraction::AcceleratorCostFunction, language::{MyAnalysis, MyAnalysisData, RelayOperator, serialize_analysis_data}};
+use glenside::{
+    extraction::AcceleratorCostFunction,
+    language::{serialize_analysis_data, MyAnalysis, MyAnalysisData, RelayOperator},
+};
 use rewrites::{get_rewrite_from_string, im2col_rewrites, linear_rewrites};
 use serde::Deserialize;
 use serde_json;
@@ -88,7 +91,11 @@ fn main() {
         let output_file = PathBuf::from(&args[2]);
         let analysis_data_file = PathBuf::from(&args[3]);
         let use_ilp = &args[args.len() - 1] == "--ilp";
-        let config_files = if use_ilp { &args[4..args.len() - 1] } else { &args[4..] };
+        let config_files = if use_ilp {
+            &args[4..args.len() - 1]
+        } else {
+            &args[4..]
+        };
 
         let aggregated_configs = read_configs(&flexmatch_home, config_files);
         let mut rewrites = vec![];
@@ -134,9 +141,9 @@ fn main() {
         info!("Running Equality Saturation");
         let runner = Runner::<_, _, ()>::new(MyAnalysis::default())
             .with_egraph(egraph)
-            .with_time_limit(std::time::Duration::from_secs(5))
-            .with_node_limit(500000)
-            .with_iter_limit(40)
+            .with_time_limit(std::time::Duration::from_secs(20))
+            .with_node_limit(900000)
+            .with_iter_limit(100)
             .run(&rewrites);
         info!("EqSat Complete");
         if !use_ilp {
@@ -174,10 +181,7 @@ fn main() {
                 let mut model = glenside::extraction::ilp::create_generic_egraph_lp_model(
                     &cplex_env,
                     &runner.egraph,
-                    |node, id, egraph| {
-                        true
-                        && filter_nodes(node, id, egraph)
-                    },
+                    |node, id, egraph| true && filter_nodes(node, id, egraph),
                     &[id],
                     "ilp-extraction",
                 );
@@ -222,24 +226,35 @@ fn main() {
     }
 }
 
-fn check_accelerator_call_by_eid(ch_id: &egg::Id, egraph: &EGraph<glenside::language::Language, MyAnalysis>) -> bool {
+fn check_accelerator_call_by_eid(
+    ch_id: &egg::Id,
+    egraph: &EGraph<glenside::language::Language, MyAnalysis>,
+) -> bool {
     match &egraph[*ch_id].data {
         MyAnalysisData::AccessPattern(access) => access.contains_accelerator_calls,
-            _ => false,
+        _ => false,
     }
 }
 
-fn filter_nodes(node: &glenside::language::Language, id: egg::Id, egraph: &EGraph<glenside::language::Language, MyAnalysis>) -> bool {
+fn filter_nodes(
+    node: &glenside::language::Language,
+    id: egg::Id,
+    egraph: &EGraph<glenside::language::Language, MyAnalysis>,
+) -> bool {
     if let glenside::language::Language::AcceleratorCall(_) = &node {
         return true;
     }
-    let contains_accel_call = if let glenside::language::MyAnalysisData::AccessPattern(access) = &egraph[id].data {
-        access.contains_accelerator_calls
-    } else {
-        false
-    };
+    let contains_accel_call =
+        if let glenside::language::MyAnalysisData::AccessPattern(access) = &egraph[id].data {
+            access.contains_accelerator_calls
+        } else {
+            false
+        };
     if contains_accel_call {
-        return node.children().iter().any(|cid| check_accelerator_call_by_eid(cid, egraph));
+        return node
+            .children()
+            .iter()
+            .any(|cid| check_accelerator_call_by_eid(cid, egraph));
     }
     if egraph[id].nodes.iter().any(|expr| match expr {
         &glenside::language::Language::RelayOperatorCall(_) => true,
@@ -250,9 +265,12 @@ fn filter_nodes(node: &glenside::language::Language, id: egg::Id, egraph: &EGrap
             | glenside::language::Language::AccessTensor(_)
             | glenside::language::Language::Access(_) => true,
             _ => {
-                debug!("Say no to {:?} because {:?} has relay nodes", node, &egraph[id].nodes);
+                debug!(
+                    "Say no to {:?} because {:?} has relay nodes",
+                    node, &egraph[id].nodes
+                );
                 false
-            },
+            }
         }
     } else {
         true
