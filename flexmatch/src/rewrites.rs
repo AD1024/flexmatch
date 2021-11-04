@@ -28,6 +28,8 @@ pub fn get_rewrite_from_string(
         "simplify-reduce-max" => simplify_reduce_max(),
 
         "flex-linear-rewrite" => linear_layer_accelerator_rewrites(),
+        "flex-linear-dense" => dot_product_to_linear(),
+        "hlscnn-conv2d" => conv2d_on_hlscnn(),
         "vta-dense-rewrite" => dot_product_with_vta(),
         "flexasr-maxpool" => flexasr_maxpool(),
         _ => {

@@ -69,6 +69,7 @@ class AcceleratorFunc(enum.Enum):
     FlexLSTM   = 'flex-lstm'
     VTADense   = 'vta-dense'
     VTAConv1D  = 'vta-conv1d'
+    HLSCNNConv2D = 'hlscnn-conv2d'
 
     def __str__(self):
         return self.value
@@ -335,21 +336,23 @@ class RecExprCompiler:
                 return self.accelerator_func_lib[func](*ch_vars[:-1])
             else:
                 # In Glenside, the last parameter to accelerator-call is the inferred type
-                accelerator_call = relay.accelerator_call(func, children_exprs[-1])
+                inferred_type = self.eclass_analysis[index]['relay_shape']
+                accelerator_call = relay.accelerator_call(func, inferred_type)
                 composite_name = self.composite_lib[func]
                 compiler_name = self.compiler_lib[func]
-                inner_args = [relay.Var(f'inner_arg_{i}') for i in range(len(ch_vars) - 1)]
-                inner_func = relay.Function(inner_args, accelerator_call, ret_type=relay.TensorType(children_exprs[-1]))
+                ch_vars = list(filter(lambda x: isinstance(x, relay.Expr), ch_vars))
+                inner_args = [relay.Var(f'inner_arg_{i}') for i in range(len(ch_vars))]
+                inner_func = relay.Function(inner_args, accelerator_call, ret_type=relay.TensorType(inferred_type))
                 inner_func = inner_func.with_attr("Composite", composite_name)
-                outer_args = [relay.var(f'outer_arg_{i}') for i in range(len(ch_vars) - 1)]
-                outer_func = relay.Function(outer_args, inner_func(*outer_args), ret_type=relay.TensorType(children_exprs[-1]))
+                outer_args = [relay.var(f'outer_arg_{i}') for i in range(len(ch_vars))]
+                outer_func = relay.Function(outer_args, inner_func(*outer_args), ret_type=relay.TensorType(inferred_type))
                 outer_func = outer_func.with_attr("Compiler", compiler_name)
                 outer_func = outer_func.with_attr("Primitive", tvm.tir.IntImm("int32", 1))
                 outer_func = outer_func.with_attr(
                     "global_symbol",
                     f"{composite_name}_{self.region_counter}")
                 self.region_counter += 1
-                return outer_func(*ch_vars[:-1])
+                return outer_func(*ch_vars)
         else:
             raise Exception(f'{type(enode)} not implemented')
     
@@ -491,6 +494,7 @@ def downcast(enode: ENode):
         'flex-lstm':   AcceleratorFunc.FlexLSTM,
         'vta-dense':   AcceleratorFunc.VTADense,
         'vta-conv1d':  AcceleratorFunc.VTAConv1D,
+        'hlscnn-conv2d': AcceleratorFunc.HLSCNNConv2D,
     }.get(symbol)
     if lang is not None:
         return AcceleratorCall(lang, enode.children)

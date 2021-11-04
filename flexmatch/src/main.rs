@@ -1,10 +1,7 @@
 mod rewrites;
 
 use egg::{EGraph, Extractor, Runner};
-use glenside::{
-    extraction::AcceleratorCostFunction,
-    language::{serialize_analysis_data, MyAnalysis},
-};
+use glenside::{extraction::AcceleratorCostFunction, language::{MyAnalysis, RelayOperator, serialize_analysis_data}};
 use rewrites::{get_rewrite_from_string, im2col_rewrites, linear_rewrites};
 use serde::Deserialize;
 use serde_json;
@@ -65,7 +62,8 @@ fn main() {
         let module: tvm::ir::module::IRModule =
             tvm::ir::module::IRModule::parse("", relay_src).unwrap();
         let (expr, shape_info, equiv_worklist) =
-            glenside::language::from_relay::from_relay(&module, false, &vec![]);
+            glenside::language::from_relay::from_relay(&module, false, &vec![RelayOperator::RelaySigmoid]);
+        println!("got expression");
         let mut env = HashMap::default();
         for (name, shape) in &shape_info {
             env.insert(name.clone(), shape.clone());
@@ -80,13 +78,16 @@ fn main() {
             }
         }
         egraph.rebuild();
+        println!("rebuild");
         let runner = Runner::<_, _, ()>::new(MyAnalysis::default())
             .with_egraph(egraph)
             .with_time_limit(std::time::Duration::from_secs(5))
             .with_node_limit(500000)
             .with_iter_limit(40)
             .run(&rewrites);
+        println!("eqsat");
         let extractor = Extractor::new(&runner.egraph, AcceleratorCostFunction {});
+        println!("extract");
         let (_cost, best) = extractor.find_best(id);
         let json_dump = best.serialize();
         let output_file =
@@ -95,12 +96,14 @@ fn main() {
         egraph = EGraph::new(MyAnalysis {
             name_to_shape: env.clone(),
         });
+        println!("rebuild for eclass analysis");
         let (_, id_map) = egraph.add_expr_with_record(&best);
         egraph.rebuild();
         let mut native_map = HashMap::new();
         for (k, v) in id_map.into_iter() {
             native_map.insert(k, v);
         }
+        println!("serialize");
         let data_json_dump = serialize_analysis_data(&egraph, &native_map);
         let data_output = PathBuf::from(env::current_dir().unwrap()).join(analysis_data_file);
         let _ = std::fs::write(data_output, data_json_dump.to_string()).unwrap();

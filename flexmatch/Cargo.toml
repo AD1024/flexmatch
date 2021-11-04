@@ -11,7 +11,7 @@ serde = "1.0.130"
 
 [dependencies.glenside]
 git = "https://github.com/gussmith23/glenside"
-branch = "3la-pldi-push-main"
+branch = "3la-pldi-flexmatch-eval"
 features = ["tvm"]
 
 [dependencies.egg]
@@ -20,4 +20,4 @@ branch = "3la-mod"
 
 [dependencies.tvm]
 git = "ssh://git@github.com/uwsampl/3la-tvm.git"
-rev = "bb6c378e5440899083af253c3466db087157acb6"
+rev = "f336b159fa62686e13ee89b0fa9cb808905ac8fc"
