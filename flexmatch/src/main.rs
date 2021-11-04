@@ -1,10 +1,7 @@
 mod rewrites;
 
 use egg::{EGraph, Extractor, Language, RecExpr, Runner};
-use glenside::{
-    extraction::AcceleratorCostFunction,
-    language::{serialize_analysis_data, MyAnalysis, RelayOperator},
-};
+use glenside::{extraction::AcceleratorCostFunction, language::{MyAnalysis, MyAnalysisData, RelayOperator, serialize_analysis_data}};
 use rewrites::{get_rewrite_from_string, im2col_rewrites, linear_rewrites};
 use serde::Deserialize;
 use serde_json;
@@ -19,7 +16,7 @@ use tvm;
 extern crate env_logger;
 extern crate log;
 
-use log::info;
+use log::{debug, info};
 
 #[derive(Deserialize, Clone, Debug)]
 struct RewriteConfig {
@@ -35,7 +32,7 @@ fn read_configs(flexmatch_home: &PathBuf, config_files: &[String]) -> Vec<Rewrit
         let config_file = flexmatch_home.join(Path::new("configs").join(config));
         if let Ok(content) = std::fs::read_to_string(config_file) {
             result.push(serde_json::from_str(&content).unwrap());
-            println!("{:?}", result[result.len() - 1]);
+            debug!("{:?}", result[result.len() - 1]);
         } else {
             panic!("failed to read {}", config)
         }
@@ -90,12 +87,13 @@ fn main() {
         let source_file = &args[1];
         let output_file = PathBuf::from(&args[2]);
         let analysis_data_file = PathBuf::from(&args[3]);
-        let config_files = &args[4..args.len() - 1];
         let use_ilp = &args[args.len() - 1] == "--ilp";
+        let config_files = if use_ilp { &args[4..args.len() - 1] } else { &args[4..] };
 
         let aggregated_configs = read_configs(&flexmatch_home, config_files);
         let mut rewrites = vec![];
         let mut rewrite_set = HashSet::new();
+        debug!("{:?}", aggregated_configs);
         for config in aggregated_configs.iter() {
             for (rws, rw_args) in config.rewrites.iter() {
                 if rewrite_set.contains(rws) {
@@ -178,8 +176,7 @@ fn main() {
                     &runner.egraph,
                     |node, id, egraph| {
                         true
-                        && filter_non_accelerator_calls(node, id, egraph)
-                        && filter_non_relay_operator_calls(node, id, egraph)
+                        && filter_nodes(node, id, egraph)
                     },
                     &[id],
                     "ilp-extraction",
@@ -225,31 +222,37 @@ fn main() {
     }
 }
 
-fn filter_non_relay_operator_calls(node: &glenside::language::Language, id: egg::Id, egraph: &EGraph<glenside::language::Language, MyAnalysis>) -> bool {
-    if let glenside::language::Language::AcceleratorCall(_) = node {
-        return true;
-    }
-    if egraph[id].nodes.iter().any(|expr| match expr {
-        glenside::language::Language::RelayOperatorCall(_) => true,
-        _ => false,
-    }) {
-        match node {
-            glenside::language::Language::RelayOperatorCall(_) => true,
+fn check_accelerator_call_by_eid(ch_id: &egg::Id, egraph: &EGraph<glenside::language::Language, MyAnalysis>) -> bool {
+    match &egraph[*ch_id].data {
+        MyAnalysisData::AccessPattern(access) => access.contains_accelerator_calls,
             _ => false,
-        }
-    } else {
-        true
     }
 }
 
-fn filter_non_accelerator_calls(node: &glenside::language::Language, id: egg::Id, egraph: &EGraph<glenside::language::Language, MyAnalysis>) -> bool {
+fn filter_nodes(node: &glenside::language::Language, id: egg::Id, egraph: &EGraph<glenside::language::Language, MyAnalysis>) -> bool {
+    if let glenside::language::Language::AcceleratorCall(_) = &node {
+        return true;
+    }
+    let contains_accel_call = if let glenside::language::MyAnalysisData::AccessPattern(access) = &egraph[id].data {
+        access.contains_accelerator_calls
+    } else {
+        false
+    };
+    if contains_accel_call {
+        return node.children().iter().any(|cid| check_accelerator_call_by_eid(cid, egraph));
+    }
     if egraph[id].nodes.iter().any(|expr| match expr {
-        glenside::language::Language::AcceleratorCall(_) => true,
-        _ => false,
+        &glenside::language::Language::RelayOperatorCall(_) => true,
+        &_ => false,
     }) {
         match node {
-            glenside::language::Language::AcceleratorCall(_) => true,
-            _ => false,
+            glenside::language::Language::RelayOperatorCall(_)
+            | glenside::language::Language::AccessTensor(_)
+            | glenside::language::Language::Access(_) => true,
+            _ => {
+                debug!("Say no to {:?} because {:?} has relay nodes", node, &egraph[id].nodes);
+                false
+            },
         }
     } else {
         true
