@@ -24,6 +24,7 @@ features = ["tvm"]
 [dependencies.egg]
 git = "https://github.com/AD1024/egg"
 branch = "3la-mod"
+features = ["good_lp"]
 
 [dependencies.tvm]
 git = "ssh://git@github.com/uwsampl/3la-tvm.git"

@@ -1,6 +1,6 @@
 mod rewrites;
 
-use egg::{EGraph, Extractor, Language, RecExpr, Runner};
+use egg::{EGraph, Extractor, Language, LpCostFunction, LpExtractor, RecExpr, Runner};
 use glenside::{
     extraction::AcceleratorCostFunction,
     language::{serialize_analysis_data, MyAnalysis, MyAnalysisData, RelayOperator},
@@ -139,19 +139,46 @@ fn main() {
         }
         egraph.rebuild();
         info!("Running Equality Saturation");
-        let runner = Runner::<_, _, ()>::new(MyAnalysis::default())
+        let mut runner = Runner::<_, _, ()>::new(MyAnalysis::default())
             .with_egraph(egraph)
             .with_time_limit(std::time::Duration::from_secs(20))
             .with_node_limit(900000)
             .with_iter_limit(100)
             .run(&rewrites);
         info!("EqSat Complete");
+        // propagate accelerator calls
+        let analysis_worklist = &runner.egraph.analysis_update_worklist(|a| {
+            match a {
+                glenside::language::MyAnalysisData::AccessPattern(access) => access.contains_accelerator_calls,
+                _ => false,
+            }
+        });
+        for (ids, _ref_id) in analysis_worklist.iter() {
+            for id in ids.iter().cloned() {
+                let analysis_data = &mut runner.egraph[id].data;
+                match analysis_data {
+                    glenside::language::MyAnalysisData::AccessPattern(access) => access.contains_accelerator_calls = true,
+                    _ => ()
+                }
+            }
+        }
         if !use_ilp {
             info!("Extraction without ILP");
             let extractor = Extractor::new(&runner.egraph, AcceleratorCostFunction {});
             let (_cost, best) = extractor.find_best(id);
             save_expr_and_analysis(output_file, analysis_data_file, &env, &best);
         } else {
+            info!("Extracting with ILP solver");
+            struct LpAcceleratorCostFn;
+            impl LpCostFunction<glenside::language::Language, MyAnalysis> for LpAcceleratorCostFn {
+                fn node_cost(&mut self, egraph: &EGraph<glenside::language::Language, MyAnalysis>, _eclass: egg::Id, enode: &glenside::language::Language) -> f64 {
+                    return get_node_weights(enode, egraph);
+                }
+            }
+            let extractor = LpExtractor::new(&runner.egraph, LpAcceleratorCostFn {});
+            let expr = extractor.solve(id);
+            save_expr_and_analysis(output_file, analysis_data_file, &env, &expr);
+            /*
             // The following extraction strategy is borrowed from Glenside ISCA demo
             #[cfg(feature = "cplex")]
             {
@@ -159,29 +186,24 @@ fn main() {
                 info!("Extraction with ILP solver");
                 let mut cplex_env = Env::new().unwrap();
                 cplex_env.set_param(EnvParam::ScreenOutput(true)).unwrap();
-                cplex_env.set_param(EnvParam::RelativeGap(0.9)).unwrap();
-                cplex_env.set_param(EnvParam::Threads(60)).unwrap();
-                cplex_env.set_param(EnvParam::MIPStrategyProbe(3)).unwrap();
+                // cplex_env.set_param(EnvParam::RelativeGap(0.9)).unwrap();
+                // cplex_env.set_param(EnvParam::Threads(60)).unwrap();
+                // cplex_env.set_param(EnvParam::MIPStrategyProbe(3)).unwrap();
                 // Finds "hidden" solutions -- seems to work well with our problems, where
                 // CPLEX struggles to even find one solution.
-                cplex_env.set_param(EnvParam::MIPEmphasis(4)).unwrap();
+                // cplex_env.set_param(EnvParam::MIPEmphasis(4)).unwrap();
                 cplex_env
                     .set_param(EnvParam::MIPLimitsSolutions(1))
-                    .unwrap();
-                cplex_env
-                    .set_param(EnvParam::MIPStrategyHeuristicFreq(-1))
-                    .unwrap();
-                cplex_env
-                    .set_param(EnvParam::MIPLimitsCutPasses(1))
                     .unwrap();
                 // Deterministic time limit in "ticks"
                 cplex_env
                     .set_param(EnvParam::DetTimeLimit(100000.0))
                     .unwrap();
+                info!("Root eclass analysis: {:?}", runner.egraph[id].data);
                 let mut model = glenside::extraction::ilp::create_generic_egraph_lp_model(
                     &cplex_env,
                     &runner.egraph,
-                    |node, id, egraph| true && filter_nodes(node, id, egraph),
+                    |node, id, egraph| true,
                     &[id],
                     "ilp-extraction",
                 );
@@ -196,8 +218,9 @@ fn main() {
                 for (_, var) in model.topo_sort_vars.iter() {
                     costs.add_wvar(WeightedVariable::new_idx(*var, 0.0));
                 }
-                for (_, var) in model.bn_vars.iter() {
-                    costs.add_wvar(WeightedVariable::new_idx(*var, 0.0));
+                for (&node, var) in model.bn_vars.iter() {
+                    let weight = get_node_weights(node, &runner.egraph);
+                    costs.add_wvar(WeightedVariable::new_idx(*var, weight));
                 }
                 model
                     .problem
@@ -221,7 +244,7 @@ fn main() {
                 save_egraph_as_recexpr(&expr, &mut rec_expr);
                 info!("Save RecExpr to {:?}", output_file);
                 save_expr_and_analysis(output_file, analysis_data_file, &env, &rec_expr);
-            }
+            } */
         }
     }
 }
@@ -234,6 +257,84 @@ fn check_accelerator_call_by_eid(
         MyAnalysisData::AccessPattern(access) => access.contains_accelerator_calls,
         _ => false,
     }
+}
+
+fn get_node_weights(node: &glenside::language::Language, egraph: &EGraph<glenside::language::Language, MyAnalysis>) -> f64 {
+        if node
+            .children()
+            .iter()
+            .any(|ch_id| check_accelerator_call_by_eid(ch_id, egraph))
+        {
+            -10.0
+        } else {
+            match node {
+                // We only consider accelerator calls and relay operators for now when
+                // extracting a model
+                glenside::language::Language::AcceleratorCall(_) => -(egraph.total_size() as f64),
+                glenside::language::Language::Access(_)
+                | glenside::language::Language::List(_)
+                | glenside::language::Language::Shape(_)
+                | glenside::language::Language::Usize(_)
+                | glenside::language::Language::AccessShape(_)
+                | glenside::language::Language::AcceleratorFunc(_)
+                | glenside::language::Language::Symbol(_)
+                | glenside::language::Language::RelayOperatorCall(_)
+                | glenside::language::Language::PadType(_)
+                | glenside::language::Language::Int32(_)
+                | glenside::language::Language::AccessTensor(_) => 1.0,
+                glenside::language::Language::RelayOperator(op) => match op {
+                    glenside::language::RelayOperator::RelayReshape
+                    | glenside::language::RelayOperator::RelayBatchFlatten => 1.0,
+                    glenside::language::RelayOperator::RelayAdd
+                    | glenside::language::RelayOperator::RelayMaximum
+                    | glenside::language::RelayOperator::RelayMinimum
+                    | glenside::language::RelayOperator::RelayMean
+                    | glenside::language::RelayOperator::RelayMultiply
+                    | glenside::language::RelayOperator::RelayErf
+                    | glenside::language::RelayOperator::RelayReLU
+                    | glenside::language::RelayOperator::RelaySoftmax
+                    | glenside::language::RelayOperator::RelayBiasAdd
+                    | glenside::language::RelayOperator::RelaySigmoid
+                    | glenside::language::RelayOperator::RelayLeakyReLU => 2.0,
+                    glenside::language::RelayOperator::RelayDense => 3.0,
+                    glenside::language::RelayOperator::RelayConv1D
+                    | glenside::language::RelayOperator::RelayConv2D
+                    | glenside::language::RelayOperator::RelayUpSampling
+                    | glenside::language::RelayOperator::RelayBatchNormInference
+                    | glenside::language::RelayOperator::RelayAvgPool2D
+                    | glenside::language::RelayOperator::RelayGlobalAvgPool2D
+                    | glenside::language::RelayOperator::RelayMaxPool2D => 4.0,
+                },
+                glenside::language::Language::AccessTranspose(_)
+                | glenside::language::Language::RelayKernelLayout(_)
+                | glenside::language::Language::RelayActivationLayout(_)
+                | glenside::language::Language::NotNanFloat64(_)
+                | glenside::language::Language::AccessPad(_)
+                | glenside::language::Language::AccessFlatten(_)
+                | glenside::language::Language::AccessWindows(_)
+                | glenside::language::Language::AccessBroadcast(_)
+                | glenside::language::Language::AccessSqueeze(_) => 2.0,
+
+                glenside::language::Language::AccessInsertAxis(_)
+                | glenside::language::Language::AccessCartesianProduct(_) => 5.0,
+
+                glenside::language::Language::Compute(_) => 1.0,
+                glenside::language::Language::AccessReshape(_) => 10000.0,
+                glenside::language::Language::ComputeType(compute_type) => {
+                    match compute_type {
+                        glenside::language::ComputeType::ReLU
+                        | glenside::language::ComputeType::ReduceMean
+                        | glenside::language::ComputeType::ElementwiseAdd
+                        | glenside::language::ComputeType::ElementwiseMul
+                        | glenside::language::ComputeType::DotProduct
+                        | glenside::language::ComputeType::ReduceMax => 10000.0,
+                        _ => 100.0,
+                    }
+                }
+                glenside::language::Language::AccessPair(_) => 10000.0,
+                _ => 500.0,
+            }
+        }
 }
 
 fn filter_nodes(
@@ -251,10 +352,16 @@ fn filter_nodes(
             false
         };
     if contains_accel_call {
-        return node
+        let result = node
             .children()
             .iter()
             .any(|cid| check_accelerator_call_by_eid(cid, egraph));
+        if !result {
+            debug!("Say no to {:?} because it's not an accelerator call from {:?}", node, &egraph[id]);
+            return false;
+        } else {
+            return true;
+        }
     }
     if egraph[id].nodes.iter().any(|expr| match expr {
         &glenside::language::Language::RelayOperatorCall(_) => true,
