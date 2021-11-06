@@ -147,20 +147,42 @@ fn main() {
             .run(&rewrites);
         info!("EqSat Complete");
         // propagate accelerator calls
-        let analysis_worklist = &runner.egraph.analysis_update_worklist(|a| {
+        let mut analysis_worklist = runner.egraph.analysis_update_worklist(|a, _p| {
             match a {
                 glenside::language::MyAnalysisData::AccessPattern(access) => access.contains_accelerator_calls,
                 _ => false,
             }
         });
-        for (ids, _ref_id) in analysis_worklist.iter() {
-            for id in ids.iter().cloned() {
-                let analysis_data = &mut runner.egraph[id].data;
-                match analysis_data {
-                    glenside::language::MyAnalysisData::AccessPattern(access) => access.contains_accelerator_calls = true,
-                    _ => ()
+        while analysis_worklist.len() > 0 {
+            for (ids, _ref_id) in analysis_worklist.iter() {
+                for id in ids.iter().cloned() {
+                    let analysis_data = &mut runner.egraph[id].data;
+                    match analysis_data {
+                        glenside::language::MyAnalysisData::AccessPattern(access) => {
+                            access.contains_accelerator_calls = true;
+                        }
+                        _ => ()
+                    }
                 }
             }
+            analysis_worklist.clear();
+            analysis_worklist.extend(runner.egraph.analysis_update_worklist(|a, parents| {
+                match a {
+                    glenside::language::MyAnalysisData::AccessPattern(access) => {
+                        if access.contains_accelerator_calls {
+                            parents.iter().map(|x| x.1).any(|pid| {
+                                match &runner.egraph[pid].data {
+                                    glenside::language::MyAnalysisData::AccessPattern(access) => !access.contains_accelerator_calls,
+                                    _ => false,
+                                }
+                            })
+                        } else {
+                            false
+                        }
+                    }
+                    _ => false,
+                }
+            }));
         }
         if !use_ilp {
             info!("Extraction without ILP");
@@ -169,6 +191,7 @@ fn main() {
             save_expr_and_analysis(output_file, analysis_data_file, &env, &best);
         } else {
             info!("Extracting with ILP solver");
+            // egg ilp extraction
             struct LpAcceleratorCostFn;
             impl LpCostFunction<glenside::language::Language, MyAnalysis> for LpAcceleratorCostFn {
                 fn node_cost(&mut self, egraph: &EGraph<glenside::language::Language, MyAnalysis>, _eclass: egg::Id, enode: &glenside::language::Language) -> f64 {
@@ -179,6 +202,7 @@ fn main() {
             let expr = extractor.solve(id);
             save_expr_and_analysis(output_file, analysis_data_file, &env, &expr);
             /*
+
             // The following extraction strategy is borrowed from Glenside ISCA demo
             #[cfg(feature = "cplex")]
             {
