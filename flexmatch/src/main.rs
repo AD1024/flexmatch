@@ -1,6 +1,6 @@
 mod rewrites;
 
-use egg::{EGraph, Extractor, Language, LpCostFunction, LpExtractor, RecExpr, Runner};
+use egg::{EGraph, Extractor, Language, RecExpr, Runner};
 use glenside::{
     extraction::AcceleratorCostFunction,
     language::{serialize_analysis_data, MyAnalysis, MyAnalysisData, RelayOperator},
@@ -131,7 +131,7 @@ fn main() {
             name_to_shape: env.clone(),
         });
         info!("Merging equivalent expressions");
-        let (id, id_map) = egraph.add_expr_with_record(&expr);
+        let (root_expr, id_map) = egraph.add_expr_with_record(&expr);
         for (left, right) in equiv_worklist {
             if let (Some(&new_left), Some(&new_right)) = (id_map.get(&left), id_map.get(&right)) {
                 egraph.union(new_left, new_right);
@@ -146,6 +146,7 @@ fn main() {
             .with_iter_limit(100)
             .run(&rewrites);
         info!("EqSat Complete");
+        let root_expr = runner.egraph.find(root_expr);
         // propagate accelerator calls
         let mut analysis_worklist = runner.egraph.analysis_update_worklist(|a, _p| {
             match a {
@@ -186,12 +187,13 @@ fn main() {
         }
         if !use_ilp {
             info!("Extraction without ILP");
-            let extractor = Extractor::new(&runner.egraph, AcceleratorCostFunction {});
-            let (_cost, best) = extractor.find_best(id);
+            let extractor = Extractor::new(&runner.egraph, AcceleratorCostFunction(runner.egraph.total_size() as f64));
+            let (_cost, best) = extractor.find_best(root_expr);
             save_expr_and_analysis(output_file, analysis_data_file, &env, &best);
         } else {
-            info!("Extracting with ILP solver");
+            // info!("Extracting with ILP solver");
             // egg ilp extraction
+            /*
             struct LpAcceleratorCostFn;
             impl LpCostFunction<glenside::language::Language, MyAnalysis> for LpAcceleratorCostFn {
                 fn node_cost(&mut self, egraph: &EGraph<glenside::language::Language, MyAnalysis>, _eclass: egg::Id, enode: &glenside::language::Language) -> f64 {
@@ -200,8 +202,7 @@ fn main() {
             }
             let extractor = LpExtractor::new(&runner.egraph, LpAcceleratorCostFn {});
             let expr = extractor.solve(id);
-            save_expr_and_analysis(output_file, analysis_data_file, &env, &expr);
-            /*
+            save_expr_and_analysis(output_file, analysis_data_file, &env, &expr); */
 
             // The following extraction strategy is borrowed from Glenside ISCA demo
             #[cfg(feature = "cplex")]
@@ -221,14 +222,15 @@ fn main() {
                     .unwrap();
                 // Deterministic time limit in "ticks"
                 cplex_env
-                    .set_param(EnvParam::DetTimeLimit(100000.0))
+                    .set_param(EnvParam::DetTimeLimit(600000.0))
                     .unwrap();
-                info!("Root eclass analysis: {:?}", runner.egraph[id].data);
+                info!("Root eclass analysis: {:?}", runner.egraph[root_expr].data);
+                info!("Root eclass nodes: {:?}", runner.egraph[root_expr].nodes);
                 let mut model = glenside::extraction::ilp::create_generic_egraph_lp_model(
                     &cplex_env,
                     &runner.egraph,
-                    |node, id, egraph| true,
-                    &[id],
+                    |node, id, egraph| true && filter_nodes(node, id, egraph),
+                    &[root_expr],
                     "ilp-extraction",
                 );
                 let mut costs = Constraint::new(
@@ -242,9 +244,9 @@ fn main() {
                 for (_, var) in model.topo_sort_vars.iter() {
                     costs.add_wvar(WeightedVariable::new_idx(*var, 0.0));
                 }
-                for (&node, var) in model.bn_vars.iter() {
-                    let weight = get_node_weights(node, &runner.egraph);
-                    costs.add_wvar(WeightedVariable::new_idx(*var, weight));
+                for (&_, var) in model.bn_vars.iter() {
+                    // let weight = get_node_weights(node, &runner.egraph);
+                    costs.add_wvar(WeightedVariable::new_idx(*var, 1.0));
                 }
                 model
                     .problem
@@ -268,7 +270,7 @@ fn main() {
                 save_egraph_as_recexpr(&expr, &mut rec_expr);
                 info!("Save RecExpr to {:?}", output_file);
                 save_expr_and_analysis(output_file, analysis_data_file, &env, &rec_expr);
-            } */
+            }
         }
     }
 }
