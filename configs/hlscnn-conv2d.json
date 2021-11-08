@@ -9,6 +9,6 @@
         "hlscnn-conv2d": "ilacnn"
     },
     "debug_functions": {
-        "hlscnn-conv2d": "nn.conv2d"
+        "hlscnn-conv2d": "RelayOperators.RelayConv2D"
     }
 }

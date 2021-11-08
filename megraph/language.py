@@ -87,6 +87,7 @@ class ComputeType(enum.Enum):
     Sqrt = 'sqrt'
     ElementwiseDiv = 'elementwise-div'
     ElementwiseMul = 'elementwise-mul'
+    ElementwiseAdd = 'elementwise-add'
 
 class RelayActivationLayout(enum.Enum):
     NCHW = 'NCHW'
@@ -337,7 +338,8 @@ class RecExprCompiler:
                 ComputeType.Negative: lambda: relay.negative(ch_vars[0]),
                 ComputeType.Sqrt: lambda: relay.sqrt(ch_vars[0]),
                 ComputeType.ElementwiseMul: lambda: relay.multiply(ch_vars[0][0], ch_vars[0][1]),
-                ComputeType.ElementwiseDiv: lambda: relay.divide(ch_vars[0][0], ch_vars[0][1])
+                ComputeType.ElementwiseDiv: lambda: relay.divide(ch_vars[0][0], ch_vars[0][1]),
+                ComputeType.ElementwiseAdd: lambda: relay.nn.bias_add(ch_vars[0][0], ch_vars[0][1]),
             }.get(compute_type, None)
             if func:
                 return func()
@@ -346,7 +348,7 @@ class RecExprCompiler:
         elif isinstance(enode, AcceleratorCall):
             func = str(enode.symbol)
             if self.use_debug_func:
-                return self.accelerator_func_lib[func](*ch_vars[:-1])
+                return self.accelerator_func_lib[func](*ch_vars)
             else:
                 # In Glenside, the last parameter to accelerator-call is the inferred type
                 inferred_type = self.eclass_analysis[index]['relay_shape']
@@ -497,6 +499,7 @@ def downcast(enode: ENode):
         'sqrt': ComputeType.Sqrt,
         'elementwise-div': ComputeType.ElementwiseDiv,
         'elementwise-mul': ComputeType.ElementwiseMul,
+        'elementwise-add': ComputeType.ElementwiseAdd,
     }.get(symbol, None)
     if lang:
         return Compute(lang, enode.children)

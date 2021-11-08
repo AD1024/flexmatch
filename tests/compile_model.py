@@ -5,6 +5,7 @@ import sys
 import tvm
 from tvm import relay
 from tvm.relay import nn
+from megraph.language import RelayOperators
 
 def main(relay_file, output_filename, model_json, data_json, *configs, debug=False):
     home_dir = os.environ.get('FLEXMATCH_HOME')

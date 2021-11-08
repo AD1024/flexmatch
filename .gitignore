@@ -5,4 +5,6 @@ __pycache__
 !tests/models
 tests/params/
 .pkl_memoize_py3
-*/lpex1.lp
+*.lp
+*.log
+*.txt
