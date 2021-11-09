@@ -1,4 +1,5 @@
 from functools import reduce
+from numpy import random
 import tvm
 import enum
 import resource, sys
@@ -58,7 +59,9 @@ class RelayOperators(enum.Enum):
         if self.value[0] == relay.nn.conv2d:
             data_layout = x[-2].value
             kernel_layout = x[-1].value
-            return self.value[0](x[0], x[1], strides=tuple(x[2]), padding=tuple(x[3]),
+            # Strides in Glenside includes the batch dimension, which is
+            # not the case in relay
+            return self.value[0](x[0], x[1], strides=tuple(x[2][1:]), padding=tuple(x[3]),
                                 groups=int(x[4]), channels=int(x[5]), kernel_size=(int(x[6][1]), int(x[6][2])),
                                 data_layout=data_layout, kernel_layout=kernel_layout)
         x = list(map(lambda x: relay.const(x) if isinstance(x, float) else x, x))
@@ -454,7 +457,7 @@ def access_window(data_shape: List[int], kernel_shape: List[int], strides: List[
     assert access_axis >= 0
     # begin with 0 each time (probably not, so that we could get rid of paddings?)
     starts = [0 for _ in range(len(data_shape))]
-    meta_var = relay.var('data', type_annotation=relay.TensorType(data_shape))
+    meta_var = relay.var(f'access_window_var_{random.randint(0, 2**31)}', type_annotation=relay.TensorType(data_shape))
     return relay.Function([meta_var], _access_window(meta_var, access_axis, 0, data_shape, kernel_shape, starts, strides))
 
 def access_slice(data: relay.Expr, data_shape: List[int], axis: int, begin: int, end: int):
@@ -472,7 +475,7 @@ def downcast(enode: ENode):
         'relay-batch-norm-inference': RelayOperators.RelayBatchNormInference,
         'relay-softmax':    RelayOperators.RelaySoftMax,
         'relay-relu':       RelayOperators.RelayReLU,
-        'relay-leaky_relu': RelayOperators.RelayLeakyReLU,
+        'relay-leaky-relu': RelayOperators.RelayLeakyReLU,
         'relay-max-pool2d': RelayOperators.RelayMaxPool2D,
         'relay-global-avg-pool2d': RelayOperators.RelayGlobalAvgPool2D,
         'relay-avg-pool2d': RelayOperators.RelayAvgPool2D,

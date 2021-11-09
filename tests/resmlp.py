@@ -1,5 +1,6 @@
 # Res-MLP implementation taken from https://github.com/lucidrains/res-mlp-pytorch/blob/7a5b5276cd9270ad8131f77dfe4e6f56fe65fb3f/res_mlp_pytorch/res_mlp_pytorch.py
 import torch
+import argparse
 from torch import nn, einsum
 from einops.layers.torch import Rearrange, Reduce
 
@@ -60,3 +61,46 @@ def ResMLP(*, image_size, patch_size, dim, depth, num_classes, expansion_factor=
         Reduce("b n c -> b c", "mean"),
         nn.Linear(dim, num_classes)
     )
+
+def main(depth):
+    import os
+    import tvm
+    from tvm import relay
+    from tvm.relay import ExprMutator
+    class RenameMutator(ExprMutator):
+        def __init__(self):
+            super().__init__()
+            self.var_map = dict()
+        
+        def visit_var(self, var):
+            if var in self.var_map:
+                return self.var_map[var]
+            else:
+                if '.' in var.name_hint:
+                    new_name = var.name_hint.replace('.', '_')
+                    new_var = relay.Var(new_name, type_annotation=var.type_annotation)
+                    self.var_map[var] = new_var
+                    return new_var
+                else:
+                    return var
+    model = ResMLP(
+                image_size = 32,
+                patch_size = 16,
+                dim = 64,
+                depth = 12,
+                num_classes = 32)
+    inputs = [torch.randn(1, 3, 32, 32)]
+    input_names = ["input{}".format(idx) for idx, inp in enumerate(inputs)]
+    input_shapes = list(zip(input_names, [inp.shape for inp in inputs]))
+    trace = torch.jit.trace(model, [input.clone() for input in inputs])
+    mod, _ = relay.frontend.from_pytorch(trace, input_shapes, {})
+    mod['main'] = RenameMutator().visit(mod['main'])
+    with open(os.path.join(os.environ['FLEXMATCH_HOME'],
+            'tests', 'models', f'resmlp-depth-{depth}.relay'), 'w') as fp:
+        fp.write(mod.astext())
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--depth', dest='depth', type=int, required=True, help='Depth of ResMLP model')
+    args = parser.parse_args()
+    main(args.depth)
