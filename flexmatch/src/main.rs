@@ -61,6 +61,7 @@ fn save_expr_and_analysis(
     rec_expr_file: PathBuf,
     analysis_data_file: PathBuf,
     input_shapes: &HashMap<String, Vec<usize>>,
+    input_dtypes: &HashMap<String, glenside::language::DataType>,
     best: &egg::RecExpr<glenside::language::Language>,
 ) {
     info!("Saving RecExpr to {:?}", rec_expr_file);
@@ -71,6 +72,7 @@ fn save_expr_and_analysis(
     // let _ = std::fs::write(raw_expr_file, best.to_string()).unwrap();
     let mut egraph = EGraph::new(MyAnalysis {
         name_to_shape: input_shapes.clone(),
+        name_to_dtype: input_dtypes.clone(),
     });
     let (_, id_map) = egraph.add_expr_with_record(&best);
     let mut native_map = HashMap::new();
@@ -121,17 +123,19 @@ fn main() {
         let module: tvm::ir::module::IRModule =
             tvm::ir::module::IRModule::parse("", relay_src).unwrap();
         info!("Compiling to Glenside");
-        let (expr, shape_info, equiv_worklist) = glenside::language::from_relay::from_relay(
-            &module,
-            false,
-            &vec![RelayOperator::RelaySigmoid],
-        );
+        let (expr, shape_info, dtype_info, equiv_worklist) =
+            glenside::language::from_relay::from_relay(
+                &module,
+                false,
+                &vec![RelayOperator::RelaySigmoid],
+            );
         let mut env = HashMap::default();
         for (name, shape) in &shape_info {
             env.insert(name.clone(), shape.clone());
         }
         let mut egraph = EGraph::new(MyAnalysis {
             name_to_shape: env.clone(),
+            name_to_dtype: dtype_info.iter().cloned().collect(),
         });
         info!("Merging equivalent expressions");
         let (root_expr, id_map) = egraph.add_expr_with_record(&expr);
@@ -198,7 +202,13 @@ fn main() {
                 AcceleratorCostFunction(runner.egraph.total_size() as f64),
             );
             let (_cost, best) = extractor.find_best(root_expr);
-            save_expr_and_analysis(output_file, analysis_data_file, &env, &best);
+            save_expr_and_analysis(
+                output_file,
+                analysis_data_file,
+                &env,
+                &dtype_info.into_iter().collect(),
+                &best,
+            );
         } else {
             // egg extraction
             // #[cfg(feature = "egg_ilp")]
@@ -273,11 +283,18 @@ fn main() {
                         &result.variables,
                         EGraph::new(MyAnalysis {
                             name_to_shape: env.clone(),
+                            name_to_dtype: dtype_info.iter().cloned().collect(),
                         }),
                     );
                 let mut rec_expr = RecExpr::default();
                 save_egraph_as_recexpr(&expr, &mut rec_expr);
-                save_expr_and_analysis(output_file, analysis_data_file, &env, &rec_expr);
+                save_expr_and_analysis(
+                    output_file,
+                    analysis_data_file,
+                    &env,
+                    &dtype_info.iter().cloned().collect(),
+                    &rec_expr,
+                );
             }
         }
     }
@@ -321,7 +338,7 @@ fn get_node_weights(node: &glenside::language::Language, total_size: f64) -> f64
         | glenside::language::Language::AccessSqueeze(_) => total_size / 10.0,
 
         glenside::language::Language::Compute(_)
-        | glenside::language::Language::AccessReshape(_) 
+        | glenside::language::Language::AccessReshape(_)
         | glenside::language::Language::ComputeType(_)
         | glenside::language::Language::AccessPair(_) => total_size,
         _ => total_size / 20.0,
