@@ -314,10 +314,16 @@ class RecExprCompiler:
         elif isinstance(enode, AccessSqueeze):
             return relay.squeeze(ch_vars[0], axis=[int(children_exprs[1])])
         elif isinstance(enode, AccessWindows):
-            key = (tuple(self.eclass_analysis[enode.children[0]]['relay_shape']), tuple(children_exprs[1]), tuple(children_exprs[2]))
-            if key not in self.access_window_memo:
-                self.access_window_memo[key] = access_window(self.eclass_analysis[enode.children[0]]['relay_shape'], children_exprs[1], children_exprs[2])
-            return self.access_window_memo[key](ch_vars[0])
+            # key = (tuple(self.eclass_analysis[enode.children[0]]['relay_shape']), tuple(children_exprs[1]), tuple(children_exprs[2]))
+            # if key not in self.access_window_memo:
+            #     self.access_window_memo[key] = access_window(self.eclass_analysis[enode.children[0]]['relay_shape'], children_exprs[1], children_exprs[2])
+            # return self.access_window_memo[key](ch_vars[0])
+            data = ch_vars[0]
+            kernel_shape = children_exprs[1]
+            strides = children_exprs[2]
+            data_shape = self.eclass_analysis[enode.children[0]]['relay_shape']
+            axis = len(data_shape) - len(kernel_shape)
+            return relay.windows(data, axis, kernel_shape, strides)
         elif isinstance(enode, AccessPair):
             return (ch_vars[0], ch_vars[1])
         elif isinstance(enode, AccessSlice):

@@ -16,7 +16,7 @@ def get_inputs(src):
         for var in mod['main'].params:
             shape = var.type_annotation.shape
             name_hint = var.name_hint
-            inputs[name_hint] = np.random.rand(*[int(x) for x in shape]).astype('float32')
+            inputs[name_hint] = np.random.rand(*[int(x) for x in shape]).astype('float32') / 100000.0
             # inputs.append(np.random.rand(*[int(x) for x in shape]).astype('float32'))
         return inputs
 
