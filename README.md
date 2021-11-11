@@ -33,9 +33,11 @@ python3 validate_compilation.py model ([--configs CONFIGS+] | [--defaults]) [--u
 - `--use-ilp`: Use CPLEX ILP Solver to extract the rewritten model
 - `--debug`: Use debug functions to replace accelerator calls for debug purposes
 
+Example: `python3 validate_compilation.py resnet18 --configs im2col vta-dense --debug`
+
 # Rewrite Config Structure
-- rewrites :: Dict[String, Array[Integer]]. rewrite rules to apply
-- composites :: Dict[String (accelerator func names), String]. Compiler composite region annotations
-- compiler :: Dict[String (accelerator func names), String]. which compiler to use
-- debug_functions :: Dict[String (accelerator func names), String]. debug functions for corresponding accelerator calls
-- out_dtypes :: Dict[String, String (dtype names)]. Output data type of the accelerator function.
+- rewrites :: `Dict[String, Array[Integer]]`. rewrite rules to apply
+- composites :: `Dict[String (accelerator func names), String]`. Compiler composite region annotations
+- compiler :: `Dict[String (accelerator func names), String]`. which compiler to use
+- debug_functions :: `Dict[String (accelerator func names), String]`. debug functions for corresponding accelerator calls
+- out_dtypes :: `Dict[String, String (dtype names)]`. Output data type of the accelerator function.
