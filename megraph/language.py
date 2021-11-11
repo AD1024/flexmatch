@@ -269,7 +269,6 @@ class RecExprCompiler:
         elif isinstance(enode, AccessTensor):
             return ch_vars[-1]
         elif isinstance(enode, AccessReshape):
-            print(children_exprs[1])
             return relay.reshape(ch_vars[0], children_exprs[1])
         elif isinstance(enode, AccessTranspose):
             return relay.transpose(ch_vars[0], axes=list(map(int, ch_vars[1])))
