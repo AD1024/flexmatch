@@ -18,3 +18,24 @@ Flexible Matching via Equality Saturation
     - Compiles the rewritten model back to a relay executable model and saves to a file
     - Optional argument: `--debug`; instead of inserting accelerator calls, if this argument is passed, the equivalent relay function will be generated
     - Example: `python3 compile_model.py models/resmlp.relay resmlp-rewritten.relay resmlp-rewritten.json resmlp-data.json linear-rewrites im2col-rewrites --debug`
+
+# End-to-end compilation validation
+```bash
+python3 validate_compilation.py model ([--configs CONFIGS+] | [--defaults]) [--use-ilp] [--debug]
+```
+- `model`: resnet18; efficientnet; max_pool2d; mobilenet; resmlp
+- `configs`: hlscnn-conv2d; flexasr-maxpool; im2col; vta-dense; linear-rewrites
+    - hlscnn-conv2d: `Conv2D` to HLSCNN
+    - flexasr-maxpool: `Max_pool2D` to FlexASR
+    - im2col: Convolutions to matmuls
+    - linear-rewrites: `nn.Linear` to FlexASR
+- `--defaults`: if turned oon, use default configs
+- `--use-ilp`: Use CPLEX ILP Solver to extract the rewritten model
+- `--debug`: Use debug functions to replace accelerator calls for debug purposes
+
+# Rewrite Config Structure
+- rewrites :: Dict[String, Array[Integer]]. rewrite rules to apply
+- composites :: Dict[String (accelerator func names), String]. Compiler composite region annotations
+- compiler :: Dict[String (accelerator func names), String]. which compiler to use
+- debug_functions :: Dict[String (accelerator func names), String]. debug functions for corresponding accelerator calls
+- out_dtypes :: Dict[String, String (dtype names)]. Output data type of the accelerator function.
