@@ -27,6 +27,7 @@ struct RewriteConfig {
     composites: HashMap<String, String>,
     compilers: HashMap<String, String>,
     debug_functions: HashMap<String, String>,
+    out_dtypes: HashMap<String, String>,
 }
 
 fn read_configs(flexmatch_home: &PathBuf, config_files: &[String]) -> Vec<RewriteConfig> {
@@ -111,6 +112,7 @@ fn main() {
                 if rewrite_set.contains(rws) {
                     continue;
                 }
+                info!("Adding rewrite: {:?} with args {:?}", rws, rw_args);
                 rewrite_set.insert(rws.clone());
                 match rws.as_str() {
                     "im2col" => rewrites.extend(im2col_rewrites()),
@@ -195,6 +197,8 @@ fn main() {
                 },
             ));
         }
+        info!("Root eclass analysis: {:?}", runner.egraph[root_expr].data);
+        info!("Root eclass nodes: {:?}", runner.egraph[root_expr].nodes);
         if !use_ilp {
             info!("Extraction without ILP");
             let extractor = Extractor::new(
@@ -210,25 +214,6 @@ fn main() {
                 &best,
             );
         } else {
-            // egg extraction
-            // #[cfg(feature = "egg_ilp")]
-            // {
-            //     use egg::{LpCostFunction, LpExtractor};
-            //     struct LpAcceleratorCostFn;
-            //     impl LpCostFunction<glenside::language::Language, MyAnalysis> for LpAcceleratorCostFn {
-            //         fn node_cost(&mut self, egraph: &EGraph<glenside::language::Language, MyAnalysis>, eclass: egg::Id, enode: &glenside::language::Language) -> f64 {
-            //             if filter_nodes(enode, eclass, egraph) {
-            //                 get_node_weights(enode, egraph.total_size() as f64)
-            //             } else {
-            //                 (egraph.total_size() as f64) * 5.0
-            //             }
-            //         }
-            //     }
-            //     let extractor = LpExtractor::new(&runner.egraph, LpAcceleratorCostFn);
-            //     let (expr, _) = extractor.solve_multiple_using(&[root_expr], good_lp::solvers::lp_solvers::LpSolver(lp_solvers::solvers::Cplex::default()));
-            //     save_expr_and_analysis(output_file, analysis_data_file, &env, &expr);
-            //     exit(0);
-            // }
             // The following extraction strategy is borrowed from Glenside ISCA demo
             #[cfg(feature = "cplex")]
             {
@@ -243,8 +228,6 @@ fn main() {
                 cplex_env
                     .set_param(EnvParam::DetTimeLimit(6000000.0))
                     .unwrap();
-                info!("Root eclass analysis: {:?}", runner.egraph[root_expr].data);
-                info!("Root eclass nodes: {:?}", runner.egraph[root_expr].nodes);
                 let mut model = glenside::extraction::ilp::create_generic_egraph_lp_model(
                     &cplex_env,
                     &runner.egraph,
@@ -311,8 +294,11 @@ fn check_accelerator_call_by_eid(
 }
 
 fn get_node_weights(node: &glenside::language::Language, total_size: f64) -> f64 {
+    if let glenside::language::Language::AcceleratorCall(_) = node {
+        debug!("Accelerator-call encountered");
+    }
     match node {
-        glenside::language::Language::AcceleratorCall(_) => -total_size,
+        glenside::language::Language::AcceleratorCall(_) => -total_size * 10.0,
         glenside::language::Language::List(_)
         | glenside::language::Language::Shape(_)
         | glenside::language::Language::RelayKernelLayout(_)
@@ -335,6 +321,7 @@ fn get_node_weights(node: &glenside::language::Language, total_size: f64) -> f64
         | glenside::language::Language::AccessWindows(_)
         | glenside::language::Language::AccessBroadcast(_)
         | glenside::language::Language::AccessInsertAxis(_)
+        | glenside::language::Language::AccessSlice(_)
         | glenside::language::Language::AccessSqueeze(_) => total_size / 10.0,
 
         glenside::language::Language::Compute(_)

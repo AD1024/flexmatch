@@ -19,7 +19,7 @@ env_logger = "0.9.0"
 git = "https://github.com/gussmith23/glenside"
 branch = "3la-pldi-flexmatch-eval"
 default-features = false
-features = ["tvm"]
+features = ["tvm", "cplex"]
 
 [dependencies.egg]
 git = "https://github.com/AD1024/egg"
@@ -27,7 +27,7 @@ branch = "3la-mod"
 
 [dependencies.tvm]
 git = "ssh://git@github.com/uwsampl/3la-tvm.git"
-rev = "f336b159fa62686e13ee89b0fa9cb808905ac8fc"
+rev = "84779a298e4a4ddfd79426e9e9bd787a17100c67"
 
 [dependencies.rplex]
 optional = true

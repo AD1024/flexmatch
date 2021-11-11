@@ -13,12 +13,14 @@ def main(relay_file, output_filename, model_json, data_json, *configs, debug=Fal
         compilers = dict()
         composites = dict()
         debug_funcs = dict()
+        out_dtypes = dict()
         for config in configs:
             try:
                 with open(os.path.join(home_dir, 'configs', f'{config}.json'), 'r') as fp:
                     cfg = json.load(fp)
                     compilers.update(cfg.get('compilers', {}))
                     composites.update(cfg.get('composites', {}))
+                    out_dtypes.update(cfg.get('out_dtypes', {}))
                     debug_funcs.update(
                         dict(map(lambda pi: (pi[0], eval(pi[1])),
                         cfg.get('debug_functions', {}).items()))
@@ -39,12 +41,12 @@ def main(relay_file, output_filename, model_json, data_json, *configs, debug=Fal
             shape_dict[args.name_hint] = tuple(args.type_annotation.shape)
         
         recexpr_compiler = megraph.RecExprCompiler(composites, compilers, debug_funcs)
-        compiled_expr = recexpr_compiler.to_relay_expr(expr_data, shape_dict, analysis_data, use_debug_func=debug)
+        compiled_expr = recexpr_compiler.to_relay_expr(expr_data, shape_dict, analysis_data, out_dtypes, use_debug_func=debug)
         mod = tvm.ir.IRModule.from_expr(compiled_expr)
         # print(mod)
         mod = relay.transform.InferType()(mod)
-        mod = relay.transform.LambdaLift()(mod)
-        mod = relay.transform.FoldConstant()(mod)
+        # mod = relay.transform.LambdaLift()(mod)
+        # mod = relay.transform.FoldConstant()(mod)
         # mod = relay.transform.EliminateCommonSubexpr()(mod)
         # mod = relay.transform.FuseOps()(mod)
         with open(output_filename, 'w') as fp:

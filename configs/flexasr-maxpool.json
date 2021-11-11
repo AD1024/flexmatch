@@ -11,12 +11,15 @@
         "simplify-reduce-max": []
     },
     "composites": {
-        "flexasr-maxpool": "ilaflex.max_pool"
+        "flex-maxpool": "ilaflex.max_pool"
     },
     "compilers": {
-        "flexasr-maxpool": "ilaflex"
+        "flex-maxpool": "ilaflex"
     },
     "debug_functions": {
-        "flexasr-maxpool": "nn.max_pool2d"
+        "flex-maxpool": "lambda x: relay.expand_dims(relay.max(x, axis=0), axis=0)"
+    },
+    "out_dtypes": {
+        "flex-maxpool": "float32"
     }
 }

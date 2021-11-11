@@ -10,5 +10,8 @@
     },
     "debug_functions": {
         "hlscnn-conv2d": "RelayOperators.RelayConv2D"
+    },
+    "out_dtypes": {
+        "hlscnn-conv2d": "float32"
     }
 }

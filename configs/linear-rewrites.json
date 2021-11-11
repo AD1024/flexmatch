@@ -12,5 +12,8 @@
     },
     "debug_functions": {
         "flex-linear": "lambda x, w, b: nn.bias_add(nn.dense(x, w), b)"
+    },
+    "out_dtypes": {
+        "flex-linear": "float32"
     }
 }

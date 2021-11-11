@@ -1,4 +1,4 @@
-use egg::{rewrite, Rewrite};
+use egg::Rewrite;
 use glenside::language::rewrites::*;
 use glenside::language::{Language, MyAnalysis};
 

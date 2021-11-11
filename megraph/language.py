@@ -61,6 +61,9 @@ class RelayOperators(enum.Enum):
             kernel_layout = x[-1].value
             # Strides in Glenside includes the batch dimension, which is
             # not the case in relay
+            # TODO: Assuming data is NCHW and kernel is OHWI
+            # which means changing to another layout can break the
+            # compliation (b/c of the `kernel_size` argument)
             return self.value[0](x[0], x[1], strides=tuple(x[2][1:]), padding=tuple(x[3]),
                                 groups=int(x[4]), channels=int(x[5]), kernel_size=(int(x[6][1]), int(x[6][2])),
                                 data_layout=data_layout, kernel_layout=kernel_layout)
@@ -77,12 +80,14 @@ class AcceleratorFunc(enum.Enum):
     VTADense   = 'vta-dense'
     VTAConv1D  = 'vta-conv1d'
     HLSCNNConv2D = 'hlscnn-conv2d'
+    FlexMaxPool = 'flex-maxpool'
 
     def __str__(self):
         return self.value
 
 class PadType(enum.Enum):
     ZeroPadding = 'zero-padding'
+    MinPadding = 'min-padding'
 
 class ComputeType(enum.Enum):
     Relu = 'relu'
@@ -91,6 +96,7 @@ class ComputeType(enum.Enum):
     ElementwiseDiv = 'elementwise-div'
     ElementwiseMul = 'elementwise-mul'
     ElementwiseAdd = 'elementwise-add'
+    ReduceMax = 'reduce-max'
 
 class RelayActivationLayout(enum.Enum):
     NCHW = 'NCHW'
@@ -253,7 +259,7 @@ class RecExprCompiler:
         elif isinstance(enode, Shape):
             return tuple(map(int, children_exprs))
         elif isinstance(enode, TupleGetItem):
-            return relay.TupleGetItem(ch_vars[0], *ch_vars[1:])
+            return relay.TupleGetItem(ch_vars[0], int(children_exprs[1]))
         elif isinstance(enode, ConstructTuple):
             return relay.Tuple(ch_vars)
         elif isinstance(enode, AccessInsertAxis):
@@ -263,6 +269,7 @@ class RecExprCompiler:
         elif isinstance(enode, AccessTensor):
             return ch_vars[-1]
         elif isinstance(enode, AccessReshape):
+            print(children_exprs[1])
             return relay.reshape(ch_vars[0], children_exprs[1])
         elif isinstance(enode, AccessTranspose):
             return relay.transpose(ch_vars[0], axes=list(map(int, ch_vars[1])))
@@ -272,8 +279,12 @@ class RecExprCompiler:
             return children_exprs[0]
         elif isinstance(enode, AccessFlatten):
             access_pattern = self.eclass_analysis[enode.children[0]]
-            newshape=[reduce(lambda x, y: x * y, access_pattern['shape']),
-                      reduce(lambda x, y: x * y, access_pattern['item_shape'])]
+            newshape = []
+            if access_pattern['shape'] != []:
+                newshape += [reduce(lambda x, y: x * y, access_pattern['shape'])]
+            if access_pattern['item_shape'] != []:
+                newshape += [reduce(lambda x, y: x * y, access_pattern['item_shape'])]
+            # print(newshape, self.eclass_analysis[index]['relay_shape'])
             return relay.reshape(ch_vars[0], newshape)
         elif isinstance(enode, AccessLiteral) or isinstance(enode, LiteralNode):
             return children_exprs[0]
@@ -307,6 +318,8 @@ class RecExprCompiler:
             if isinstance(pad_type, PadType):
                 if pad_type == PadType.ZeroPadding:
                     return relay.nn.pad(ch_vars[0], pad_width, pad_value=0)
+                elif pad_type == PadType.MinPadding:
+                    return relay.nn.pad(ch_vars[0], pad_width, pad_value=relay.min(ch_vars[0]))
                 else:
                     raise Exception(f'Unkonw PadType: {str(pad_type)}')
             else:
@@ -349,6 +362,8 @@ class RecExprCompiler:
                 ComputeType.ElementwiseMul: lambda: relay.multiply(ch_vars[0][0], ch_vars[0][1]),
                 ComputeType.ElementwiseDiv: lambda: relay.divide(ch_vars[0][0], ch_vars[0][1]),
                 ComputeType.ElementwiseAdd: lambda: relay.nn.bias_add(ch_vars[0][0], ch_vars[0][1]),
+                ComputeType.ReduceMax: lambda: relay.max(ch_vars[0], [i for i in range(len(self.eclass_analysis[enode.children[0]]['shape']),
+                                                                                       len(self.eclass_analysis[enode.children[0]]['relay_shape']))]),
             }.get(compute_type, None)
             if func:
                 return func()
@@ -361,7 +376,7 @@ class RecExprCompiler:
             else:
                 # In Glenside, the last parameter to accelerator-call is the inferred type
                 inferred_type = self.eclass_analysis[index]['relay_shape']
-                accelerator_call = relay.accelerator_call(func, inferred_type)
+                accelerator_call = relay.accelerator_call(func, inferred_type, out_dtype=self.out_dtypes[func])
                 composite_name = self.composite_lib[func]
                 compiler_name = self.compiler_lib[func]
                 ch_vars = list(filter(lambda x: isinstance(x, relay.Expr), ch_vars))
@@ -380,7 +395,7 @@ class RecExprCompiler:
         else:
             raise Exception(f'{type(enode)} not implemented')
     
-    def to_relay_expr(self, expr_data, input_shapes, analysis_data=dict(), use_debug_func=False):
+    def to_relay_expr(self, expr_data, input_shapes, analysis_data=dict(), out_dtypes=dict(), use_debug_func=False):
         self.region_counter = 0
         self.var_count = 0
         self._id_map.clear()
@@ -391,6 +406,7 @@ class RecExprCompiler:
         self.input_shapes = input_shapes
         self.eclass_analysis = analysis_data
         self.use_debug_func = use_debug_func
+        self.out_dtypes = out_dtypes
         if len(self.nodes) == 0:
             return None
         else:
@@ -507,6 +523,7 @@ def downcast(enode: ENode):
         'negative': ComputeType.Negative,
         'sqrt': ComputeType.Sqrt,
         'elementwise-div': ComputeType.ElementwiseDiv,
+        'reduce-max': ComputeType.ReduceMax,
         'elementwise-mul': ComputeType.ElementwiseMul,
         'elementwise-add': ComputeType.ElementwiseAdd,
     }.get(symbol, None)
@@ -528,6 +545,7 @@ def downcast(enode: ENode):
         'vta-dense':   AcceleratorFunc.VTADense,
         'vta-conv1d':  AcceleratorFunc.VTAConv1D,
         'hlscnn-conv2d': AcceleratorFunc.HLSCNNConv2D,
+        'flex-maxpool': AcceleratorFunc.FlexMaxPool,
     }.get(symbol)
     if lang is not None:
         return AcceleratorCall(lang, enode.children)
@@ -551,6 +569,7 @@ def downcast(enode: ENode):
         'access':               lambda: Access,
         'access-flatten':       lambda: AccessFlatten,
         'zero-padding':         lambda: lambda *_: PadTypeNode(PadType.ZeroPadding),
+        'min-padding':          lambda: lambda *_: PadTypeNode(PadType.MinPadding),
         'access-windows':       lambda: AccessWindows,
         'access-slice':         lambda: AccessSlice,
         'access-pair':          lambda: AccessPair,
