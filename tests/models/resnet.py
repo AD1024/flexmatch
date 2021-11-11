@@ -3,7 +3,7 @@ import sys
 import tvm.relay
 import tvm.relay.testing
 
-def main(batch, num_classes, num_layers, image_shape=(3, 32, 32)):
+def main(batch, num_classes, num_layers, image_shape=(3, 224, 224)):
     model = tvm.relay.testing.resnet.get_net(batch, num_classes, num_layers, image_shape=image_shape)
     mod = tvm.ir.IRModule.from_expr(model.body)
     mod = tvm.relay.transform.InferType()(mod)
