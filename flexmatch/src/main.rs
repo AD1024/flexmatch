@@ -310,7 +310,10 @@ fn get_node_weights(node: &glenside::language::Language, total_size: f64) -> f64
         | glenside::language::Language::Symbol(_)
         | glenside::language::Language::PadType(_)
         | glenside::language::Language::Int32(_)
+        | glenside::language::Language::Uint8(_)
+        | glenside::language::Language::ConstantTensor(_)
         | glenside::language::Language::Literal(_)
+        | glenside::language::Language::AccessLiteral(_)
         | glenside::language::Language::AccessTensor(_) => 1.0,
         glenside::language::Language::RelayOperatorCall(_) => total_size / 100.0,
         glenside::language::Language::RelayOperator(_) => 1.0,
