@@ -40,4 +40,4 @@ Example: `python3 validate_compilation.py resnet18 --configs im2col vta-dense --
 - composites :: `Dict[String (accelerator func names), String]`. Compiler composite region annotations
 - compiler :: `Dict[String (accelerator func names), String]`. which compiler to use
 - debug_functions :: `Dict[String (accelerator func names), String]`. debug functions for corresponding accelerator calls
-- out_dtypes :: `Dict[String, String (dtype names)]`. Output data type of the accelerator function.
+- out_dtypes :: `Dict[String (accelerator func names), String (dtype names)]`. Output data type of the accelerator function.
