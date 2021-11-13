@@ -28,6 +28,10 @@ def run_file(src, params):
         mod = tvm.parser.fromtext(relay_src)
         mod = relay.transform.InferType()(mod)
         inputs = [params[x.name_hint] for x in mod['main'].params]
+        with relay.quantize.qconfig(global_scale=8.0, skip_dense_layer=False):
+            mod = relay.quantize.quantize(mod, params=params)
+            mod = relay.qnn.transform.CanonicalizeOps()(mod)
+        print(mod)
         # with tvm.transform.PassContext(opt_level=0):
         for target, dev in tvm.testing.enabled_targets():
             # relay_graph, lib, params = relay.build(mod, target=target, params=params)

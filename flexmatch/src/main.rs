@@ -1,6 +1,6 @@
 mod rewrites;
 
-use egg::{EGraph, Extractor, Language, RecExpr, Runner};
+use egg::{EGraph, Extractor, Language, Runner};
 use glenside::{
     extraction::AcceleratorCostFunction,
     language::{serialize_analysis_data, MyAnalysis, MyAnalysisData, RelayOperator},
@@ -46,7 +46,7 @@ fn read_configs(flexmatch_home: &PathBuf, config_files: &[String]) -> Vec<Rewrit
 
 fn save_egraph_as_recexpr(
     egraph: &EGraph<glenside::language::Language, MyAnalysis>,
-    rec_expr: &mut RecExpr<glenside::language::Language>,
+    rec_expr: &mut egg::RecExpr<glenside::language::Language>,
 ) {
     let mut expr_map: BTreeMap<egg::Id, glenside::language::Language> = BTreeMap::new();
     for eclass in egraph.classes() {
@@ -269,7 +269,7 @@ fn main() {
                             name_to_dtype: dtype_info.iter().cloned().collect(),
                         }),
                     );
-                let mut rec_expr = RecExpr::default();
+                let mut rec_expr = egg::RecExpr::default();
                 save_egraph_as_recexpr(&expr, &mut rec_expr);
                 save_expr_and_analysis(
                     output_file,
