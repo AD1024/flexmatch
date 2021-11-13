@@ -1,12 +1,10 @@
 import tvm
 import numpy as np
+import os
 from tvm import relay
 from tvm.relay import *
 from tvm.relay import nn
-from tvm.relay.op.nn.nn import dense
 from tvm.runtime.ndarray import cpu
-
-MAX_INT8 = 2.0 ** 7
 
 def round_up(x: Expr):
     return cast(left_shift(const(2, 'int32'), cast(relay.log2(relay.ceil(x)), 'int32')), 'float32')
@@ -25,10 +23,11 @@ def quantize_dense(data, weights, nbits):
     return cast(act, 'int8')
 
 class VTAQuantize(relay.ExprMutator):
-    def __init__(self, calibration_data=[], ops=[]):
+    def __init__(self, calibration_data=[], ops=[], nbits=8):
         super().__init__()
         self.calibration = calibration_data.copy()
         self.ops = ops
+        self.MAX_VALUE = 2.0 ** (nbits - 1)
     
     def get_dtype(self, x):
         if isinstance(x, relay.Var):
@@ -51,7 +50,7 @@ class VTAQuantize(relay.ExprMutator):
         args = [self.visit(x) for x in call.args]
         data = args[0]
         weights = args[1]
-        quant_range = const(MAX_INT8, 'float32')
+        quant_range = const(self.MAX_VALUE, 'float32')
         data_range = bound(data)
         weights_range = bound(weights)
         rounded_up_data_rang = round_up(data_range)
@@ -62,7 +61,7 @@ class VTAQuantize(relay.ExprMutator):
         q_weights = cast(clip(weights / rounded_up_w_range * quant_range, -128, 127), 'int8')
         q_data = cast(clip(data / rounded_up_data_rang * quant_range, -128, 127), 'int8')
         # NOTE: R_act need to be estimzated using a calibration set
-        factor = S_act / R_act * const(MAX_INT8, 'float32')
+        factor = S_act / R_act * quant_range
         nbits = -cast(log2(factor), 'int32')
         S_data_inv = rounded_up_data_rang / quant_range
         S_w_inv = rounded_up_w_range / quant_range
@@ -83,6 +82,7 @@ class CalibrationMutator():
             
             def reset(self):
                 self.aggregate = []
+                self.aggregate_names = []
     
             def visit_call(self, call):
                 op = call.op
@@ -103,18 +103,22 @@ class CalibrationMutator():
         self.counter.visit(expr)
         return tvm.ir.IRModule.from_expr(Tuple(self.counter.aggregate)), self.counter.aggregate_names
 
-def get_model():
-    data = relay.var('data', type_annotation=relay.TensorType((4, 4)))
-    weights_1 = relay.const(np.random.random((2, 4)) * 1)
-    weights_2 = relay.const(np.random.random((3, 2)) * 1)
-    a = relay.multiply(data, relay.const(4.0))
-    b = relay.nn.dense(a, weights_1)
-    c = relay.nn.relu(b)
-    d = relay.nn.dense(c, weights_2)
-    e = relay.nn.softmax(d)
-    f = relay.nn.dense(e, relay.const(np.random.random((4, 3)) * 2))
-    g = relay.nn.softmax(f)
-    return tvm.ir.IRModule.from_expr(g)
+def get_model(src):
+    # Prepare a model
+    # data = relay.var('data', type_annotation=relay.TensorType((4, 4)))
+    # weights_1 = relay.const(np.random.random((2, 4)) * 1)
+    # weights_2 = relay.const(np.random.random((3, 2)) * 1)
+    # a = relay.multiply(data, relay.const(4.0))
+    # b = relay.nn.dense(a, weights_1)
+    # c = relay.nn.relu(b)
+    # d = relay.nn.dense(c, weights_2)
+    # e = relay.nn.relu(d)
+    # f = relay.nn.dense(e, relay.const(np.random.random((4, 3)) * 2))
+    # g = relay.nn.relu(f)
+    # return tvm.ir.IRModule.from_expr(d)
+    with open(os.path.join('models', src)) as fp:
+        src = fp.read()
+        return tvm.parser.fromtext(src)
 
 def get_inputs(mod, scale):
     mod = relay.transform.InferType()(mod)
@@ -137,12 +141,11 @@ def calibrate(mod, repr_dataset, ops):
     for datum in repr_dataset:
         result = graph_rt(**datum)
         calibration_data = [x + [np.max(y) - np.min(y)] for x, y in zip(calibration_data, map(lambda x: x.asnumpy(), result))]
-    return list(zip(agg_ops, map(np.mean, calibration_data)))
-            
+    return list(zip(agg_ops, map(np.mean, calibration_data)))    
 
-def main():
-    mod = get_model()
-    inputs = [get_inputs(mod, 1) for _ in range(10)]
+def main(src):
+    mod = get_model(src)
+    inputs = [get_inputs(mod, 0.1) for _ in range(10)]
     cali_dataset = inputs[0:len(inputs):2]
     mod = relay.transform.InferType()(mod)
     calibrations = calibrate(mod, cali_dataset, ['nn.dense'])
@@ -160,4 +163,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('model', type=str, help='Name of the model under ./models')
+    args = parser.parse_args()
+    main(args.model)
