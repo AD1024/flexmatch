@@ -66,10 +66,8 @@ def test_relay_model(mod, params):
 def get_cali_data():
     total = len(testloader)
     for idx, (inp, _) in enumerate(testloader):
-        if idx > total / 4:
+        if idx > total / 100:
             break
-        if idx % 100 == 0:
-            print(f'Calibration WIP: {idx}')
         yield {'input0': inp.cpu().numpy()}
 
 if __name__ == '__main__':
@@ -80,7 +78,6 @@ if __name__ == '__main__':
     parser.add_argument('--quantize', required=False, dest='quantize', action='store_true')
     args = parser.parse_args()
     param_file = 'params/final_mobilenet_cifar10_400_epochs.pth'
-    # test_relay_model(mod, params)
     if args.save_model:
         mod, params = get_relay_model(param_file)
         mod = relay.transform.InferType()(mod)
@@ -97,10 +94,13 @@ if __name__ == '__main__':
         if not args.relay_model:
             raise Exception('relay model not set')
         with open(args.relay_model, 'r') as fp:
-            mod = tvm.parser.fromtext(fp.read())
+            relay_src = fp.read()
+            mod = tvm.parser.fromtext(relay_src)
             if args.quantize:
                 cali_dataset = get_cali_data()
                 calibrations = quant_utils.calibrate(mod, params, cali_dataset, ['nn.dense'])
+                mod = tvm.parser.fromtext(relay_src)
                 expr = quant_utils.VTAQuantize(calibrations, ['nn.dense']).visit(mod['main'].body)
                 mod = tvm.ir.IRModule.from_expr(expr)
+                mod = relay.transform.InferType()(mod)
             test_relay_model(mod, params)

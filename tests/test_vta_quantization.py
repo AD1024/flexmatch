@@ -1,4 +1,5 @@
 import torch
+import tqdm
 import tvm
 import logging
 import numpy as np
@@ -21,15 +22,15 @@ def quantize_dense(data, weights, nbits):
     # (S_act / R_act * MAX_INT8) is a power of 2
     # implement in terms of right_shift
     act = right_shift(act, nbits)
-    act = clip(act, 0, 255)
-    return cast(act, 'uint8')
+    act = clip(act, 0, 127)
+    return cast(act, 'int8')
 
 class VTAQuantize(relay.ExprMutator):
     def __init__(self, calibration_data=[], ops=[]):
         super().__init__()
         self.calibration = calibration_data.copy()
         self.ops = ops
-        self.MAX_VALUE = 2.0 ** 8 - 1
+        self.MAX_VALUE = 2 ** 7
         self.counter = 0
     
     def get_dtype(self, x):
@@ -46,12 +47,12 @@ class VTAQuantize(relay.ExprMutator):
         op = call.op
         if op.name not in self.ops:
             return relay.Call(call.op, list(map(self.visit, call.args)), call.attrs, type_args=call.type_args, span=call.span)
+        args = [self.visit(x) for x in call.args]
         if len(self.calibration):
-            R_act, self.calibration = const(self.calibration[0][1], 'float32'), self.calibration[1:]
+            R_act = round_up(const(self.calibration[self.counter][1], 'float32'))
+            self.counter += 1
         else:
             raise Exception('incomplete calibration data')
-        self.counter += 1
-        args = [self.visit(x) for x in call.args]
         data = args[0]
         weights = args[1]
         quant_range = const(self.MAX_VALUE, 'float32')
@@ -62,8 +63,8 @@ class VTAQuantize(relay.ExprMutator):
         S_data = data_range / quant_range
         S_w = weights_range / quant_range
         S_act = S_data * S_w
-        q_weights = cast(clip(weights / rounded_up_w_range * quant_range, 0, 255), 'uint8')
-        q_data = cast(clip(data / rounded_up_data_rang * quant_range, 0, 255), 'uint8')
+        q_weights = cast(clip(weights / rounded_up_w_range * quant_range, 0, 127), 'int8')
+        q_data = cast(clip(data / rounded_up_data_rang * quant_range, 0, 127), 'int8')
         # NOTE: R_act need to be estimzated using a calibration set
         factor = S_act / R_act * quant_range
         nbits = -cast(log2(factor), 'int32')
@@ -126,7 +127,7 @@ def get_model(src):
     data = relay.var('data', type_annotation=relay.TensorType((4, 4)))
     weights_1 = relay.const(np.random.random((2, 4)) * 1)
     weights_2 = relay.const(np.random.random((3, 2)) * 1)
-    a = relay.multiply(data, relay.const(4.0))
+    a = relay.multiply(data, relay.const(64.0))
     b = relay.nn.dense(a, weights_1)
     c = relay.nn.relu(b)
     d = relay.nn.dense(c, weights_2)
@@ -160,11 +161,14 @@ def calibrate(mod, params, repr_dataset, ops):
         graph_rt = graph_executor.create(relay_graph, lib, device=cpu(0))
         graph_rt.set_input(**params)
         calibration_data = [list()] * len(agg_ops)
-        for datum in repr_dataset:
+        for datum in tqdm.tqdm(repr_dataset):
             graph_rt.run(**datum)
             result = [graph_rt.get_output(i).asnumpy() for i in range(len(agg_ops))]
-            calibration_data = [x + [np.max(y) - np.min(y)] for x, y in zip(calibration_data, result)]
-        return list(zip(agg_ops, map(np.mean, calibration_data)))    
+            for i, res in zip(range(len(calibration_data)), result):
+                calibration_data[i].append((np.max(res), np.min(res)))
+        return list(zip(agg_ops, map(lambda cali: np.mean(list(map(lambda x: x[0], cali)))
+                                                - np.mean(list(map(lambda x: x[1], cali))),
+                                    calibration_data)))    
 
 def main(src):
     mod = get_model(src)
