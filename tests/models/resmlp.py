@@ -67,22 +67,7 @@ def main(depth):
     import tvm
     from tvm import relay
     from tvm.relay import ExprMutator
-    class RenameMutator(ExprMutator):
-        def __init__(self):
-            super().__init__()
-            self.var_map = dict()
-        
-        def visit_var(self, var):
-            if var in self.var_map:
-                return self.var_map[var]
-            else:
-                if '.' in var.name_hint:
-                    new_name = var.name_hint.replace('.', '_')
-                    new_var = relay.Var(new_name, type_annotation=var.type_annotation)
-                    self.var_map[var] = new_var
-                    return new_var
-                else:
-                    return var
+    from utils import RenameMutator
     model = ResMLP(
                 image_size = 32,
                 patch_size = 16,
@@ -94,7 +79,7 @@ def main(depth):
     input_shapes = list(zip(input_names, [inp.shape for inp in inputs]))
     trace = torch.jit.trace(model, [input.clone() for input in inputs])
     mod, _ = relay.frontend.from_pytorch(trace, input_shapes, {})
-    mod['main'] = RenameMutator().visit(mod['main'])
+    mod['main'] = RenameMutator({'.': '_'}).visit(mod['main'])
     with open(os.path.join(os.environ['FLEXMATCH_HOME'],
             'tests', 'models', f'resmlp-depth-{depth}.relay'), 'w') as fp:
         fp.write(mod.astext())

@@ -6,6 +6,7 @@ DEFAULT_CONFIGS = {
     'max_pool2d': ['flexasr-maxpool'],
     'resnet18': ['hlscnn-conv2d'],
     'mobilenet': ['hlscnn-conv2d', 'linear-rewrites'],
+    'mobilenetv2': ['im2col', 'vta-dense'],
     'resmlp': ['linear-rewrites'],
     'efficientnet': ['hlscnn-conv2d']
 }

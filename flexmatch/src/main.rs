@@ -129,7 +129,7 @@ fn main() {
             glenside::language::from_relay::from_relay(
                 &module,
                 false,
-                &vec![RelayOperator::RelaySigmoid],
+                &vec![RelayOperator::RelaySigmoid, RelayOperator::RelayAvgPool2D],
             );
         let mut env = HashMap::default();
         for (name, shape) in &shape_info {

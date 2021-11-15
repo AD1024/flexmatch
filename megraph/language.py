@@ -67,6 +67,10 @@ class RelayOperators(enum.Enum):
             return self.value[0](x[0], x[1], strides=tuple(x[2][1:]), padding=tuple(x[3]),
                                 groups=int(x[4]), channels=int(x[5]), kernel_size=(int(x[6][1]), int(x[6][2])),
                                 data_layout=data_layout, kernel_layout=kernel_layout)
+        if self.value[0] == relay.nn.avg_pool2d:
+            assert(len(x) == 5)
+            data_layout = x[-1].value
+            return nn.avg_pool2d(x[0], pool_size=x[1], strides=x[2], padding=x[3], layout=data_layout)
         x = list(map(lambda x: relay.const(x) if isinstance(x, float) else x, x))
         try:
             return self.value[0](*x)
