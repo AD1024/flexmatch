@@ -10,7 +10,8 @@ from tvm.relay import nn
 from tvm.runtime.ndarray import cpu
 
 def round_up(x: Expr):
-    return cast(left_shift(const(2, 'int32'), cast(relay.log2(relay.ceil(x)), 'int32')), 'float32')
+    # return cast(left_shift(const(2, 'int32'), cast(relay.log2(relay.ceil(x)), 'int32')), 'float32')
+    return power(const(2, 'float32'), ceil(log2(x)))
 
 def bound(e):
     return relay.max(e) - relay.min(e)
@@ -22,16 +23,23 @@ def quantize_dense(data, weights, nbits, max_val):
     # (S_act / R_act * MAX_INT8) is a power of 2
     # implement in terms of right_shift
     act = right_shift(act, nbits)
-    act = clip(act, 0, max_val)
+    act = clip(act, -max_val, max_val)
     return cast(act, 'int8')
 
+# def zero_point(data, scale, max_val):
+#     data_zp = const(0, 'float32') - relay.min(data) / scale
+#     return cast(clip(data_zp, 0, max_val), 'int8')
 class VTAQuantize(relay.ExprMutator):
-    def __init__(self, calibration_data=[], ops=[]):
+    def __init__(self, calibration_data=[], ops=[], layerwise=False, nbits=2):
         super().__init__()
         self.calibration = calibration_data.copy()
         self.ops = ops
         self.MAX_VALUE = 2 ** 7
         self.counter = 0
+        self.layerwise = layerwise
+        self.layers = []
+        self.bindings = {}
+        self.nbits = nbits
     
     def get_dtype(self, x):
         if isinstance(x, relay.Var):
@@ -42,19 +50,31 @@ class VTAQuantize(relay.ExprMutator):
             return x.checked_type.dtype
         else:
             raise Exception(f'cannot get type for {x}')
+    
+    def visit_var(self, var):
+        return self.bindings.get(var, var)
+
+    def visit_let(self, let):
+        new_val = self.visit(let.value)
+        self.bindings[let.var] = new_val
+        new_body = self.visit(let.body)
+        return new_body
 
     def visit_call(self, call):
         op = call.op
         if op.name not in self.ops:
             return relay.Call(call.op, list(map(self.visit, call.args)), call.attrs, type_args=call.type_args, span=call.span)
         args = [self.visit(x) for x in call.args]
-        if len(self.calibration):
-            R_act = const(self.calibration[self.counter][1], 'float32')
-            self.counter += 1
-        else:
-            raise Exception('incomplete calibration data')
         data = args[0]
         weights = args[1]
+        if not self.layerwise:
+            if len(self.calibration):
+                R_act = const(self.calibration[self.counter][1], 'float32')
+                self.counter += 1
+            else:
+                raise Exception('incomplete calibration data')
+        else:
+            R_act = round_up(bound(nn.dense(data, weights)))
         quant_range = const(self.MAX_VALUE, 'float32')
         data_range = bound(data)
         weights_range = bound(weights)
@@ -63,18 +83,20 @@ class VTAQuantize(relay.ExprMutator):
         S_data = data_range / quant_range
         S_w = weights_range / quant_range
         S_act = S_data * S_w
-        q_weights = cast(clip(weights / rounded_up_w_range * quant_range, 0, self.MAX_VALUE), 'int8')
-        q_data = cast(clip(data / rounded_up_data_range * quant_range, 0, self.MAX_VALUE), 'int8')
+        q_data = cast(clip(data / rounded_up_data_range * quant_range, -self.MAX_VALUE + 1, self.MAX_VALUE - 1), 'int8')
+        q_weights = cast(clip(weights / rounded_up_w_range * quant_range, -self.MAX_VALUE + 1, self.MAX_VALUE - 1), 'int8')
         # NOTE: R_act need to be estimzated using a calibration set
-        # R_act = bound(nn.dense(data, weights))
         factor = S_act / R_act * quant_range
-        nbits = -cast(log2(factor), 'int32')
+        # nbits = -cast(floor(log2(factor)), 'int32')
+        nbits = const(self.nbits, 'int32')
         S_data_inv = rounded_up_data_range / quant_range
         S_w_inv = rounded_up_w_range / quant_range
-        expr = quantize_dense(q_data, q_weights, nbits, self.MAX_VALUE)
+        expr = quantize_dense(q_data, q_weights, nbits, self.MAX_VALUE - 1)
         expr = left_shift(cast(expr, 'int32'), nbits)
         expr = cast(expr, 'float32')
         expr = multiply(expr, S_data_inv * S_w_inv)
+        if self.layerwise:
+            self.layers.append(expr)
         return expr
 
 class CalibrationMutator():
@@ -123,8 +145,7 @@ class CalibrationMutator():
         self.counter.visit(expr)
         return tvm.ir.IRModule.from_expr(Tuple(self.counter.aggregate)), self.counter.aggregate_names
 
-def get_model(src):
-    # Prepare a model
+def get_test_workload():
     data = relay.var('data', type_annotation=relay.TensorType((4, 4)))
     weights_1 = relay.const(np.random.random((2, 4)) * 1)
     weights_2 = relay.const(np.random.random((3, 2)) * 1)
@@ -135,7 +156,10 @@ def get_model(src):
     e = relay.nn.relu(d)
     f = relay.nn.dense(e, relay.const(np.random.random((4, 3)) * 2))
     g = relay.nn.relu(f)
-    return tvm.ir.IRModule.from_expr(b)
+    return tvm.ir.IRModule.from_expr(g)
+
+def get_model(src):
+    # Prepare a model
     with open(src) as fp:
         src = fp.read()
         return tvm.parser.fromtext(src)
@@ -153,6 +177,22 @@ def run_mod(mod, inputs):
     exe = build_module.create_executor('graph', mod=mod, device=cpu(0)).evaluate()
     result = exe(**inputs)
     return result
+
+def lockstep_layerwise(mod, src, inputs):
+    ref_mod, ops = CalibrationMutator(['nn.dense']).calibrate_mode(mod)
+    quantizer = VTAQuantize(ops=['nn.dense'], layerwise=True)
+    mod = get_model(src)
+    quantizer.visit(mod['main'].body)
+    expr = Tuple(quantizer.layers)
+    qmod_layerwise = tvm.ir.IRModule.from_expr(expr)
+    qmod_layerwise = relay.transform.InferType()(qmod_layerwise)
+    for inp in inputs:
+        ref_result = run_mod(ref_mod, inp)
+        qmod_layer_results = run_mod(qmod_layerwise, inp)
+        assert(len(ref_result) == len(qmod_layer_results))
+        for (i, (ref, quant)) in enumerate(zip(ref_result, qmod_layer_results)):
+            print(ref, '\n', quant)
+            print(f'Layer {i} ({ops[i]}) relative error:\n', np.abs(ref.asnumpy() - quant.asnumpy()) / ref.asnumpy())
 
 def calibrate(mod, params, repr_dataset, ops):
     logging.info('Starting calibration')
@@ -172,22 +212,27 @@ def calibrate(mod, params, repr_dataset, ops):
                                     calibration_data)))    
 
 def main(src):
-    mod = get_model(src)
+    mod = get_test_workload()
     inputs = [get_inputs(mod, 0.1) for _ in range(10)]
     ref_output = [run_mod(mod, inp).asnumpy() for inp in inputs]
     cali_dataset = inputs[0:len(inputs)]
     mod = relay.transform.InferType()(mod)
     calibrations = calibrate(mod, {}, cali_dataset, ['nn.dense'])
-    expr = VTAQuantize(calibrations, ['nn.dense']).visit(mod['main'].body)
-    qmod = tvm.ir.IRModule.from_expr(expr)
-    qmod = relay.transform.InferType()(qmod)
-    qmod = relay.transform.EliminateCommonSubexpr()(qmod)
-    for i, inp in enumerate(inputs):
-        quant_result = run_mod(qmod, inp).asnumpy()
-        print('==============================================')
-        print(f'ref:\n{ref_output[i]}')
-        print(f'quant:\n{quant_result}')
-        print(f'Input {i} difference:\n{np.abs(ref_output[i] - quant_result) / ref_output[i]}')
+    ref = run_mod(mod, inputs[0]).asnumpy()
+    for nbits in range(2, 11):
+        expr = VTAQuantize(calibrations, ['nn.dense'], nbits=nbits).visit(mod['main'].body)
+        qmod = tvm.ir.IRModule.from_expr(expr)
+        qmod = relay.transform.InferType()(qmod)
+        qmod = relay.transform.EliminateCommonSubexpr()(qmod)
+        res = run_mod(qmod, inputs[0]).asnumpy()
+        print(f'quantized with nbits={nbits}:\n{res}')
+        print(f'rel error: {(ref - res) / ref}')
+    # for i, inp in enumerate(inputs):
+    #     quant_result = run_mod(qmod, inp).asnumpy()
+    #     print('==============================================')
+    #     print(f'ref:\n{ref_output[i]}')
+    #     print(f'quant:\n{quant_result}')
+    #     print(f'Input {i} difference:\n{np.abs(ref_output[i] - quant_result) / ref_output[i]}')
 
 
 if __name__ == '__main__':

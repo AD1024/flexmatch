@@ -1,4 +1,6 @@
+import logging
 import os
+import tqdm
 import tvm
 import numpy as np
 import torch
@@ -64,11 +66,46 @@ def test_relay_model(mod, params):
         print(f'Final accuracy: {correct / total}')
 
 def get_cali_data():
+    logging.info('Calibration:')
     total = len(testloader)
-    for idx, (inp, _) in enumerate(testloader):
-        if idx > total / 100:
-            break
+    for (inp, _) in tqdm.tqdm(testloader, total=total):
         yield {'input0': inp.cpu().numpy()}
+
+def _bind_params(func, params):
+    """Bind the params to the expression."""
+    name_dict = {}
+    for arg in func.params:
+        name = arg.name_hint
+        if name in name_dict:
+            name_dict[name] = None
+        else:
+            name_dict[name] = arg
+    bind_dict = {}
+    for k, v in params.items():
+        if k not in name_dict:
+            continue
+        arg = name_dict[k]
+        if arg is None:
+            raise ValueError("Multiple args in the function have name %s" % k)
+        bind_dict[arg] = relay.expr.const(v)
+    return relay.expr.bind(func, bind_dict)
+
+def run_with_relay_quantization(mod, params):
+    BASE_CFG = {
+        "skip_conv_layers": [],
+        "skip_dense_layers": False,
+        "dtype_input": "int8",
+        "dtype_weight": "int8",
+        "dtype_activation": "int32",
+    }
+    mod['main'] = models.utils.LetInliner().visit(mod['main'])
+    mod['main'] = _bind_params(mod['main'], params)
+    mod = relay.transform.InferType()(mod)
+    mod = relay.transform.FoldConstant()(mod)
+    mod['main'] = models.utils.AlterDense().visit(mod['main'])
+    with relay.quantize.qconfig(**BASE_CFG, weight_scale='power2', calibration_mode='kl_divergence', skip_dense_layer=False):
+        qmod = relay.quantize.quantize(mod, params=params, dataset=list(get_cali_data()))
+    test_relay_model(qmod, None)
 
 if __name__ == '__main__':
     import argparse
@@ -77,8 +114,10 @@ if __name__ == '__main__':
     parser.add_argument('--relay-model', required=False, dest='relay_model')
     parser.add_argument('--quantize', required=False, dest='quantize', action='store_true')
     parser.add_argument('--layerwise', required=False, dest='layerwise_debug', action='store_true')
+    parser.add_argument('--params', required=True, dest='params')
     args = parser.parse_args()
-    param_file = 'params/final_mobilenet_cifar10_400_epochs.pth'
+    # param_file = 'params/final_mobilenet_cifar10_400_epochs.pth'
+    param_file = args.params
     if args.save_model:
         mod, params = get_relay_model(param_file)
         mod = relay.transform.InferType()(mod)
@@ -101,10 +140,11 @@ if __name__ == '__main__':
                 inp = [{'input0': next(enumerate(testloader))[1][0], **params}]
                 quant_utils.lockstep_layerwise(mod,  args.relay_model, inp)
             elif args.quantize:
-                cali_dataset = get_cali_data()
-                calibrations = quant_utils.calibrate(mod, params, cali_dataset, ['nn.dense'])
-                mod = tvm.parser.fromtext(relay_src)
-                expr = quant_utils.VTAQuantize(calibrations, ['nn.dense']).visit(mod['main'].body)
-                mod = tvm.ir.IRModule.from_expr(expr)
-                mod = relay.transform.InferType()(mod)
-                test_relay_model(mod, params)
+                run_with_relay_quantization(mod, params)
+                # cali_dataset = get_cali_data()
+                # calibrations = quant_utils.calibrate(mod, params, cali_dataset, ['nn.dense'])
+                # mod = tvm.parser.fromtext(relay_src)
+                # expr = quant_utils.VTAQuantize(calibrations, ['nn.dense']).visit(mod['main'].body)
+                # mod = tvm.ir.IRModule.from_expr(expr)
+                # mod = relay.transform.InferType()(mod)
+                # test_relay_model(mod, params)
