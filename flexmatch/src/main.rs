@@ -215,6 +215,7 @@ fn main() {
             );
         } else {
             // The following extraction strategy is borrowed from Glenside ISCA demo
+            /* 
             #[cfg(feature = "cplex")]
             {
                 use rplex::*;
@@ -278,7 +279,7 @@ fn main() {
                     &dtype_info.iter().cloned().collect(),
                     &rec_expr,
                 );
-            }
+            } */
         }
     }
 }
