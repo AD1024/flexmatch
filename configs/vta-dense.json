@@ -12,6 +12,6 @@
         "vta-dense": "nn.dense"
     },
     "out_dtypes": {
-        "vta-dense": "int32"
+        "vta-dense": "float32"
     }
 }

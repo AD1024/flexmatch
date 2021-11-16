@@ -1,6 +1,8 @@
 import subprocess
 import sys
 import argparse
+import tvm
+from tvm.relay.testing import op_summary
 
 DEFAULT_CONFIGS = {
     'max_pool2d': ['flexasr-maxpool'],
@@ -52,10 +54,27 @@ def run_comparison(model, compiled):
         exit(1)
     print('Passed!')
 
-def run_model(model, configs, use_ilp, debug):
+def get_offload_stats(model):
+    with open(model) as fp:
+        src = fp.read()
+        mod = tvm.parser.fromtext(src)
+        print(f'ALL overloads: {op_summary.count_all_overloads(mod)}')
+        print(f'ALL Ops: {op_summary.count_all_ops(mod)}')
+        print(f'ALL Ops in overloads = {op_summary.count_all_ops_in_overloads(mod)} * #ops per pattern')
+
+def run_model(model, configs, use_ilp, debug, get_stats):
+    print(f'Step 1: Run EqSat with {" ".join(configs)}')
     (model_json, data_json) = run_eqsat(model, configs, use_ilp)
+    print(f'Step 2: Compiling back to Relay with {model_json} and {data_json}')
     compiled = compile_model(model, model_json, data_json, configs, debug)
-    run_comparison(model, compiled)
+    if get_stats:
+        print('Vanilla relay:')
+        get_offload_stats(f'./models/{model}.relay')
+        print('EqSat model:')
+        get_offload_stats(compiled)
+    else:
+        print('Step 3: Running numeric comparisons')
+        run_comparison(model, compiled)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -64,6 +83,7 @@ if __name__ == '__main__':
     parser.add_argument('--default', required=False, dest='use_default', action='store_true', help='use pre-set config')
     parser.add_argument('--use-ilp', required=False, dest='use_ilp', action='store_true', help='use ILP extraction')
     parser.add_argument('--debug', required=False, dest='debug', action='store_true', help='use debug function to substitute accelerator calls')
+    parser.add_argument('--get-stats', required=False, dest='get_stats', action='store_true')
     args = parser.parse_args()
     if args.use_default:
         if args.configs:
@@ -75,4 +95,5 @@ if __name__ == '__main__':
     run_model(args.model,
               args.configs if not args.use_default else DEFAULT_CONFIGS[args.model],
               args.use_ilp,
-              args.debug)
+              args.debug,
+              args.get_stats)

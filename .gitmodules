@@ -1,3 +1,0 @@
-[submodule "tests/models/BERT"]
-	path = tests/models/BERT
-	url = git@github.com:codertimo/BERT-pytorch.git

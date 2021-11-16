@@ -47,6 +47,8 @@ def main(lhs_src, rhs_src):
     inputs = get_inputs(lhs_src)
     lhs_res = run_file(lhs_src, inputs)
     rhs_res = run_file(rhs_src, inputs)
+    print(lhs_res)
+    print(rhs_res)
     tvm.testing.assert_allclose(lhs_res.asnumpy(), rhs_res.asnumpy())
 
 if __name__ == '__main__':

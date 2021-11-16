@@ -6,7 +6,6 @@ pub fn get_rewrite_from_string(name: &String, args: &Box<[i32]>) -> Rewrite<Lang
     match name.as_str() {
         "bubble-reshape-through-cartesian-product" => bubble_reshape_through_cartesian_product(),
         "flatten-unflatten-all-accesses" => flatten_unflatten_any_access(),
-        "bubble-reshape-through-linear" => bubble_reshape_through_linear_generalized(),
         "access-reshape-to-relay" => access_reshape_to_relay(),
         "bubble-reshape-through-compute-dot-product" => {
             bubble_reshape_through_compute_dot_product()
@@ -45,5 +44,5 @@ pub fn im2col_rewrites() -> Vec<Rewrite<Language, MyAnalysis>> {
 }
 
 pub fn linear_rewrites() -> Vec<Rewrite<Language, MyAnalysis>> {
-    vec![bubble_reshape_through_linear_generalized()]
+    bubble_reshape_through_linear_generalized()
 }
