@@ -69,7 +69,9 @@ def test_relay_model(mod, params):
 def get_cali_data():
     logging.info('Calibration:')
     total = len(testloader)
-    for (inp, _) in tqdm.tqdm(testloader, total=total):
+    for idx, (inp, _) in enumerate(tqdm.tqdm(testloader, total=total)):
+        if idx > total:
+            break
         yield {'input0': inp.cpu().numpy()}
 
 def bind_params(func, params):
@@ -118,6 +120,7 @@ if __name__ == '__main__':
     parser.add_argument('--quantize', required=False, dest='quantize', action='store_true')
     parser.add_argument('--layerwise', required=False, dest='layerwise_debug', action='store_true')
     parser.add_argument('--params', required=True, dest='params')
+    parser.add_argument('--calibrate', required=False, dest='calibrate', action='store_true')
     args = parser.parse_args()
     # param_file = 'params/final_mobilenet_cifar10_400_epochs.pth'
     param_file = args.params
@@ -144,10 +147,12 @@ if __name__ == '__main__':
                 quant_utils.lockstep_layerwise(mod,  args.relay_model, inp)
             elif args.quantize:
                 # run_with_relay_quantization(mod, params)
-                # cali_dataset = get_cali_data()
-                # calibrations = quant_utils.calibrate(mod, params, cali_dataset, ['nn.dense'])
-                # mod = tvm.parser.fromtext(relay_src)
-                expr = quant_utils.VTAQuantize([], ['nn.dense']).visit(mod['main'].body)
+                calibration_data = []
+                if args.calibrate:
+                    cali_dataset = get_cali_data()
+                    calibration_data = quant_utils.calibrate(mod, params, cali_dataset, ['nn.dense'])
+                    mod = tvm.parser.fromtext(relay_src)
+                expr = quant_utils.VTAQuantize(calibration_data, ['nn.dense']).visit(mod['main'].body)
                 mod = tvm.ir.IRModule.from_expr(expr)
                 mod = relay.transform.InferType()(mod)
                 test_relay_model(mod, params)

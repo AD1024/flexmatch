@@ -1,3 +1,4 @@
+import math
 import torch
 import tqdm
 import tvm
@@ -85,7 +86,12 @@ class VTAQuantize(relay.ExprMutator):
         weights = args[1]
         qdata, S_data = self.quantize(data)
         qweight, S_w = self.quantize(weights)
-        _, S_ref = self.quantize(nn.dense(data, weights))
+        if self.calibration:
+            S_ref = const(self.calibration[self.counter][1], 'float32')
+            self.counter += 1
+        else:
+            # debug use
+            _, S_ref = self.quantize(nn.dense(data, weights))
         # return qdata
         qact = nn.dense(qdata, qweight, out_dtype='int32')
         S_act = S_data * S_w / S_ref
@@ -225,6 +231,10 @@ def lockstep_layerwise(mod, src, inputs):
             print(f'Layer {i} ({ops[i]}) relative error:\n', np.abs(ref.asnumpy() - quant.asnumpy()) / ref.asnumpy())
 
 def calibrate(mod, params, repr_dataset, ops):
+    def quantize(data):
+        scale_p = np.max(data) / 127
+        scale_n = np.min(data) / -127
+        return float(scale_p) if scale_p > scale_n else float(scale_n)
     logging.info('Starting calibration')
     calibrate_mod, agg_ops = CalibrationMutator(ops).calibrate_mode(mod)
     quantizer = VTAQuantize(nbits=8)
@@ -237,8 +247,8 @@ def calibrate(mod, params, repr_dataset, ops):
             graph_rt.run(**datum)
             result = [graph_rt.get_output(i).asnumpy() for i in range(len(agg_ops))]
             for i, res in zip(range(len(calibration_data)), reversed(result)):
-                calibration_data[i].append(quantizer.quantize(res)[1])
-        return list(zip(agg_ops, map(np.mean), calibration_data))   
+                calibration_data[i].append(quantize(res))
+        return list(zip(agg_ops, map(np.mean, calibration_data)))
 
 def main(src):
     mod = get_test_workload()
