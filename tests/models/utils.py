@@ -53,3 +53,14 @@ class AlterDense(relay.ExprMutator):
             return relay.transpose(relay.Call(call.op, [args[1], args[0]], call.attrs, call.type_args, call.span))
         else:
             return relay.Call(call.op, args, call.attrs, call.type_args, call.span)
+
+class RemoveAnnotations(relay.ExprMutator):
+    def __init__(self):
+        super().__init__()
+    
+    def visit_call(self, call):
+        args = [self.visit(x) for x in call.args]
+        if call.op.name == 'annotation.stop_fusion':
+            return args[0]
+        else:
+            return relay.Call(call.op, args, call.attrs, call.type_args, call.span)

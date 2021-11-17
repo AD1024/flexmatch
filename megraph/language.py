@@ -39,6 +39,10 @@ class RelayOperators(enum.Enum):
     RelayErf      = relay.erf,
     RelayConv1D   = relay.nn.conv1d,
     RelayConv2D   = relay.nn.conv2d,
+    RelayCast     = relay.cast,
+    RelayLeftShift = relay.left_shift,
+    RelayRightShift = relay.right_shift,
+    RelayClip = relay.clip,
 
     def __call__(self, *x):
         # print(self.value, x)
@@ -517,6 +521,10 @@ def downcast(enode: ENode):
         'relay-erf':      RelayOperators.RelayErf,
         'relay-conv1d':   RelayOperators.RelayConv1D,
         'relay-conv2d':   RelayOperators.RelayConv2D,
+        'relay-cast':     RelayOperators.RelayCast,
+        'relay-clip':     RelayOperators.RelayClip,
+        'relay-left-shift': RelayOperators.RelayLeftShift,
+        'relay-right-shift': RelayOperators.RelayRightShift,
     }.get(symbol, None)
     if lang is not None:
         return RelayOperatorCall(lang, enode.children)

@@ -30,11 +30,12 @@ def quantize_dense(data, weights, nbits, max_val):
 #     data_zp = const(0, 'float32') - relay.min(data) / scale
 #     return cast(clip(data_zp, 0, max_val), 'int8')
 class VTAQuantize(relay.ExprMutator):
-    def __init__(self, calibration_data=[], ops=[], layerwise=False, nbits=2):
+    def __init__(self, calibration_data=[], ops=[], layerwise=False, nbits=8):
         super().__init__()
         self.calibration = calibration_data.copy()
         self.ops = ops
-        self.MAX_VALUE = 2 ** 7
+        self.MAX_VALUE = 2 ** (nbits - 1) - 1
+        self.MIN_VALUE = -(2 ** (nbits - 1)) + 1
         self.counter = 0
         self.layerwise = layerwise
         self.layers = []
@@ -59,6 +60,18 @@ class VTAQuantize(relay.ExprMutator):
         self.bindings[let.var] = new_val
         new_body = self.visit(let.body)
         return new_body
+    
+    def quantize(self, data):
+        scale_p = relay.max(data) / const(self.MAX_VALUE, 'float32')
+        scale_n = relay.min(data) / const(self.MIN_VALUE, 'float32')
+        scale = relay.maximum(scale_p, scale_n)
+        # return scale, scale
+        qdata = relay.round(data / scale)
+        return cast(qdata, 'int8'), scale
+    
+    def dequantize_uniform(self, data, scale):
+        # Need to implement in terms of * and >>
+        return clip(cast(data, 'float32') * scale, self.MIN_VALUE, self.MAX_VALUE)
 
     def visit_call(self, call):
         op = call.op
@@ -67,14 +80,26 @@ class VTAQuantize(relay.ExprMutator):
         args = [self.visit(x) for x in call.args]
         data = args[0]
         weights = args[1]
-        if not self.layerwise:
-            if len(self.calibration):
-                R_act = const(self.calibration[self.counter][1], 'float32')
-                self.counter += 1
-            else:
-                raise Exception('incomplete calibration data')
-        else:
-            R_act = round_up(bound(nn.dense(data, weights)))
+        qdata, S_data = self.quantize(data)
+        qweight, S_w = self.quantize(weights)
+        # return qdata
+        qact = nn.dense(qdata, qweight, out_dtype='int32')
+        S_act = S_data * S_w
+        expr = self.dequantize_uniform(qact, S_act)
+        expr = cast(expr, 'float32')
+        # return qdata
+        if self.layerwise:
+            self.layers.append(expr)
+        return expr
+        # if not self.layerwise:
+        #     if len(self.calibration):
+        #         R_act = const(self.calibration[self.counter][1], 'float32')
+        #         self.counter += 1
+        #     else:
+        #         raise Exception('incomplete calibration data')
+        # else:
+        #     R_act = round_up(bound(nn.dense(data, weights)))
+        '''
         quant_range = const(self.MAX_VALUE, 'float32')
         data_range = bound(data)
         weights_range = bound(weights)
@@ -95,9 +120,10 @@ class VTAQuantize(relay.ExprMutator):
         expr = left_shift(cast(expr, 'int32'), nbits)
         expr = cast(expr, 'float32')
         expr = multiply(expr, S_data_inv * S_w_inv)
-        if self.layerwise:
-            self.layers.append(expr)
-        return expr
+        '''
+        # if self.layerwise:
+        #     self.layers.append(expr)
+        # return expr
 
 class CalibrationMutator():
     def __init__(self, ops):
@@ -219,20 +245,19 @@ def main(src):
     mod = relay.transform.InferType()(mod)
     calibrations = calibrate(mod, {}, cali_dataset, ['nn.dense'])
     ref = run_mod(mod, inputs[0]).asnumpy()
-    for nbits in range(2, 11):
-        expr = VTAQuantize(calibrations, ['nn.dense'], nbits=nbits).visit(mod['main'].body)
-        qmod = tvm.ir.IRModule.from_expr(expr)
-        qmod = relay.transform.InferType()(qmod)
-        qmod = relay.transform.EliminateCommonSubexpr()(qmod)
-        res = run_mod(qmod, inputs[0]).asnumpy()
-        print(f'quantized with nbits={nbits}:\n{res}')
-        print(f'rel error: {(ref - res) / ref}')
-    # for i, inp in enumerate(inputs):
-    #     quant_result = run_mod(qmod, inp).asnumpy()
-    #     print('==============================================')
-    #     print(f'ref:\n{ref_output[i]}')
-    #     print(f'quant:\n{quant_result}')
-    #     print(f'Input {i} difference:\n{np.abs(ref_output[i] - quant_result) / ref_output[i]}')
+    expr = VTAQuantize(calibrations, ['nn.dense'], nbits=8).visit(mod['main'].body)
+    qmod = tvm.ir.IRModule.from_expr(expr)
+    qmod = relay.transform.InferType()(qmod)
+    qmod = relay.transform.EliminateCommonSubexpr()(qmod)
+    res = run_mod(qmod, inputs[0]).asnumpy()
+    # print(f'quantized with nbits={8}:\n{res}')
+    # print(f'rel error: {(ref - res) / ref}')
+    for i, inp in enumerate(inputs):
+        quant_result = run_mod(qmod, inp).asnumpy()
+        print('==============================================')
+        print(f'ref:\n{ref_output[i]}')
+        print(f'quant:\n{quant_result}')
+        print(f'Input {i} difference:\n{np.abs(ref_output[i] - quant_result) / ref_output[i]}')
 
 
 if __name__ == '__main__':

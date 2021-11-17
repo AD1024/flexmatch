@@ -24,3 +24,6 @@ python3 validate_compilation.py resnet20 --configs linear-rewrites --get-stats
 python3 validate_compilation.py resnet20 --configs hlscnn-conv2d --get-stats
 # ResNet20 on VTA
 python3 validate_compilation.py resnet20 --configs im2col vta-dense --get-stats
+
+# Q-MobileNet on VTA (quantize after matching)
+python3 validate_compilation.py mobilenetv2 --configs im2col vta-dense --get-stats

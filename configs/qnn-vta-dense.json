@@ -1,0 +1,17 @@
+{
+    "rewrites": {
+        "vta-dense-rewrite": []
+    },
+    "composites": {
+        "vta-dense": "ilavta.dense"
+    },
+    "compilers": {
+        "vta-dense": "ilavata"
+    },
+    "debug_functions": {
+        "vta-dense": "lambda x,w: nn.dense(x, w, out_dtype='int32')"
+    },
+    "out_dtypes": {
+        "vta-dense": "int32"
+    }
+}
