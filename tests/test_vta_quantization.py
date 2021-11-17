@@ -8,6 +8,9 @@ from tvm.contrib import graph_executor
 from tvm.relay import *
 from tvm.relay import nn
 from tvm.runtime.ndarray import cpu
+import sys
+
+sys.setrecursionlimit(65535)
 
 def round_up(x: Expr):
     # return cast(left_shift(const(2, 'int32'), cast(relay.log2(relay.ceil(x)), 'int32')), 'float32')
@@ -82,15 +85,16 @@ class VTAQuantize(relay.ExprMutator):
         weights = args[1]
         qdata, S_data = self.quantize(data)
         qweight, S_w = self.quantize(weights)
+        _, S_ref = self.quantize(nn.dense(data, weights))
         # return qdata
         qact = nn.dense(qdata, qweight, out_dtype='int32')
-        S_act = S_data * S_w
+        S_act = S_data * S_w / S_ref
         expr = self.dequantize_uniform(qact, S_act)
-        expr = cast(expr, 'float32')
+        expr = cast(expr, 'int8')
         # return qdata
         if self.layerwise:
             self.layers.append(expr)
-        return expr
+        return relay.multiply(cast(expr, 'float32'), S_ref)
         # if not self.layerwise:
         #     if len(self.calibration):
         #         R_act = const(self.calibration[self.counter][1], 'float32')
@@ -223,6 +227,7 @@ def lockstep_layerwise(mod, src, inputs):
 def calibrate(mod, params, repr_dataset, ops):
     logging.info('Starting calibration')
     calibrate_mod, agg_ops = CalibrationMutator(ops).calibrate_mode(mod)
+    quantizer = VTAQuantize(nbits=8)
     with tvm.transform.PassContext(opt_level=3):
         relay_graph, lib, params = relay.build(calibrate_mod, params=params, target='llvm')
         graph_rt = graph_executor.create(relay_graph, lib, device=cpu(0))
@@ -232,10 +237,8 @@ def calibrate(mod, params, repr_dataset, ops):
             graph_rt.run(**datum)
             result = [graph_rt.get_output(i).asnumpy() for i in range(len(agg_ops))]
             for i, res in zip(range(len(calibration_data)), reversed(result)):
-                calibration_data[i].append((np.max(res), np.min(res)))
-        return list(zip(agg_ops, map(lambda cali: np.mean(list(map(lambda x: x[0], cali)))
-                                                - np.mean(list(map(lambda x: x[1], cali))),
-                                    calibration_data)))    
+                calibration_data[i].append(quantizer.quantize(res)[1])
+        return list(zip(agg_ops, map(np.mean), calibration_data))   
 
 def main(src):
     mod = get_test_workload()
