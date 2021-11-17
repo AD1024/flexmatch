@@ -30,7 +30,7 @@ transform_test = transforms.Compose([
 testset = torchvision.datasets.CIFAR10(
     root='./data', train=False, download=True, transform=transform_test)
 testloader = torch.utils.data.DataLoader(
-    testset, batch_size=1, shuffle=False, num_workers=2)
+    testset, batch_size=1, shuffle=True, num_workers=2)
 
 classes = ('plane', 'car', 'bird', 'cat', 'deer',
            'dog', 'frog', 'horse', 'ship', 'truck')
@@ -68,7 +68,7 @@ def test_relay_model(mod, params):
 
 def get_cali_data():
     logging.info('Calibration:')
-    total = len(testloader)
+    total = len(testloader) // 100
     for idx, (inp, _) in enumerate(tqdm.tqdm(testloader, total=total)):
         if idx > total:
             break
@@ -142,12 +142,9 @@ if __name__ == '__main__':
         with open(args.relay_model, 'r') as fp:
             relay_src = fp.read()
             mod = tvm.parser.fromtext(relay_src)
-            if args.layerwise_debug:
-                inp = [{'input0': next(enumerate(testloader))[1][0], **params}]
-                quant_utils.lockstep_layerwise(mod,  args.relay_model, inp)
-            elif args.quantize:
+            calibration_data = []
+            if args.quantize:
                 # run_with_relay_quantization(mod, params)
-                calibration_data = []
                 if args.calibrate:
                     cali_dataset = get_cali_data()
                     calibration_data = quant_utils.calibrate(mod, params, cali_dataset, ['nn.dense'])
@@ -155,4 +152,8 @@ if __name__ == '__main__':
                 expr = quant_utils.VTAQuantize(calibration_data, ['nn.dense']).visit(mod['main'].body)
                 mod = tvm.ir.IRModule.from_expr(expr)
                 mod = relay.transform.InferType()(mod)
+            if args.layerwise_debug:
+                inp = [{'input0': next(enumerate(testloader))[1][0], **params}]
+                quant_utils.lockstep_layerwise(mod, calibration_data, args.relay_model, [{'input0': inp} for inp in map(lambda x: x[0][0], zip(testloader, range(1)))], params=params)
+            else:
                 test_relay_model(mod, params)

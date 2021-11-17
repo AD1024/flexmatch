@@ -86,7 +86,7 @@ class VTAQuantize(relay.ExprMutator):
         weights = args[1]
         qdata, S_data = self.quantize(data)
         qweight, S_w = self.quantize(weights)
-        if self.calibration:
+        if len(self.calibration):
             S_ref = const(self.calibration[self.counter][1], 'float32')
             self.counter += 1
         else:
@@ -98,9 +98,10 @@ class VTAQuantize(relay.ExprMutator):
         expr = self.dequantize_uniform(qact, S_act)
         expr = cast(expr, 'int8')
         # return qdata
+        expr = relay.multiply(cast(expr, 'float32'), S_ref)
         if self.layerwise:
             self.layers.append(expr)
-        return relay.multiply(cast(expr, 'float32'), S_ref)
+        return expr
         # if not self.layerwise:
         #     if len(self.calibration):
         #         R_act = const(self.calibration[self.counter][1], 'float32')
@@ -209,26 +210,30 @@ def get_inputs(mod, scale):
         inputs[name_hint] = np.random.rand(*[int(x) for x in shape]).astype('float32') * scale
     return inputs
 
-def run_mod(mod, inputs):
-    exe = build_module.create_executor('graph', mod=mod, device=cpu(0)).evaluate()
-    result = exe(**inputs)
-    return result
+def run_mod(mod, inputs, params, num_ops):
+    with tvm.transform.PassContext(opt_level=3):
+        relay_graph, lib, params = relay.build(mod, params=params, target='llvm')
+        graph_rt = graph_executor.create(relay_graph, lib, device=cpu(0))
+        graph_rt.set_input(**params)
+        graph_rt.run(**inputs)
+        result = [graph_rt.get_output(i).asnumpy() for i in range(num_ops)]
+        return result
 
-def lockstep_layerwise(mod, src, inputs):
-    ref_mod, ops = CalibrationMutator(['nn.dense']).calibrate_mode(mod)
-    quantizer = VTAQuantize(ops=['nn.dense'], layerwise=True)
-    mod = get_model(src)
-    quantizer.visit(mod['main'].body)
+def lockstep_layerwise(mod, calibration, src, inputs, params):
+    ref_mod, ops = CalibrationMutator(['nn.dense']).calibrate_mode(get_model(src))
+    num_ops = len(ops)
+    quantizer = VTAQuantize(calibration, ops=['nn.dense'], layerwise=True)
+    quantizer.visit(get_model(src)['main'].body)
     expr = Tuple(quantizer.layers)
     qmod_layerwise = tvm.ir.IRModule.from_expr(expr)
     qmod_layerwise = relay.transform.InferType()(qmod_layerwise)
     for inp in inputs:
-        ref_result = run_mod(ref_mod, inp)
-        qmod_layer_results = run_mod(qmod_layerwise, inp)
+        ref_result = run_mod(ref_mod, inp, params, num_ops)
+        qmod_layer_results = run_mod(qmod_layerwise, inp, params, num_ops)
         assert(len(ref_result) == len(qmod_layer_results))
         for (i, (ref, quant)) in enumerate(zip(ref_result, qmod_layer_results)):
-            print(ref, '\n', quant)
-            print(f'Layer {i} ({ops[i]}) relative error:\n', np.abs(ref.asnumpy() - quant.asnumpy()) / ref.asnumpy())
+            print(f'Ref: {ref}', '\n', f'Quant: {quant}')
+            print(f'Layer {i} ({ops[i]}) relative error:\n', np.abs(ref - quant) / ref)
 
 def calibrate(mod, params, repr_dataset, ops):
     def quantize(data):
