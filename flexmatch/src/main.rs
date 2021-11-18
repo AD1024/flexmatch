@@ -68,9 +68,7 @@ fn save_expr_and_analysis(
     info!("Saving RecExpr to {:?}", rec_expr_file);
     let json_dump = best.serialize();
     let output_file = PathBuf::from(env::current_dir().unwrap()).join(rec_expr_file);
-    // let raw_expr_file = PathBuf::from(env::current_dir().unwrap()).join("raw_expr_dump.txt");
     let _ = std::fs::write(output_file, json_dump.to_string()).unwrap();
-    // let _ = std::fs::write(raw_expr_file, best.to_string()).unwrap();
     let mut egraph = EGraph::new(MyAnalysis {
         name_to_shape: input_shapes.clone(),
         name_to_dtype: input_dtypes.clone(),
@@ -129,7 +127,13 @@ fn main() {
             glenside::language::from_relay::from_relay(
                 &module,
                 false,
-                &vec![RelayOperator::RelaySigmoid, RelayOperator::RelayAvgPool2D],
+                &vec![
+                    RelayOperator::RelaySigmoid,
+                    RelayOperator::RelayAvgPool2D,
+                    RelayOperator::RelayTanh,
+                    RelayOperator::RelayLogSoftmax,
+                    RelayOperator::RelayAdd,
+                ],
             );
         let mut env = HashMap::default();
         for (name, shape) in &shape_info {
@@ -215,7 +219,7 @@ fn main() {
             );
         } else {
             // The following extraction strategy is borrowed from Glenside ISCA demo
-            /* 
+            /*
             #[cfg(feature = "cplex")]
             {
                 use rplex::*;

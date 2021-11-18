@@ -37,17 +37,17 @@ def main(relay_file, output_filename, model_json, data_json, *configs, debug=Fal
             analysis_data = json.load(fp)
             analysis_data = dict(map(lambda pi: (int(pi[0]), pi[1]), analysis_data.items()))
         shape_dict = dict()
+        dtype_dict = dict()
         for args in source_model['main'].params:
             shape_dict[args.name_hint] = tuple(args.type_annotation.shape)
-        
+            dtype_dict[args.name_hint] = args.type_annotation.dtype
         recexpr_compiler = megraph.RecExprCompiler(composites, compilers, debug_funcs)
-        compiled_expr = recexpr_compiler.to_relay_expr(expr_data, shape_dict, analysis_data, out_dtypes, use_debug_func=debug)
+        compiled_expr = recexpr_compiler.to_relay_expr(expr_data, shape_dict, dtype_dict, analysis_data, out_dtypes, use_debug_func=debug)
         mod = tvm.ir.IRModule.from_expr(compiled_expr)
-        # print(mod)
         mod = relay.transform.InferType()(mod)
         # mod = relay.transform.LambdaLift()(mod)
-        # mod = relay.transform.FoldConstant()(mod)
-        # mod = relay.transform.EliminateCommonSubexpr()(mod)
+        mod = relay.transform.FoldConstant()(mod)
+        mod = relay.transform.EliminateCommonSubexpr()(mod)
         # mod = relay.transform.FuseOps()(mod)
         with open(output_filename, 'w') as fp:
             fp.write(mod.astext())

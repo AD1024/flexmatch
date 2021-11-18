@@ -23,11 +23,11 @@ features = ["tvm"]
 
 [dependencies.egg]
 git = "https://github.com/AD1024/egg"
-branch = "3la-mod"
+rev = "b8f902f554cc476c397e4fd9c7bea229f946d2a9"
 
 [dependencies.tvm]
 git = "ssh://git@github.com/uwsampl/3la-tvm.git"
-rev = "dd181ed49d0c02f9896e7b99a7c4cc8143f26a37"
+rev = "0f37c4d4385bf47d0858c04328733caac283dc89"
 
 [dependencies.rplex]
 optional = true

@@ -43,9 +43,24 @@ class RelayOperators(enum.Enum):
     RelayLeftShift = relay.left_shift,
     RelayRightShift = relay.right_shift,
     RelayClip = relay.clip,
+    RelayTanh = relay.tanh,
+    RelayRound = relay.round,
+    RelayTake = relay.take,
+    RelayDropout = relay.nn.dropout,
+    RelayStack = relay.stack,
+    RelayLogSoftmax = relay.nn.log_softmax,
 
     def __call__(self, *x):
-        # print(self.value, x)
+        # Handle special case of relay operator calls
+        # could be mitigated by spliting parameters from attributes in glenside
+        if self.value[0] == relay.stack:
+            return relay.stack([x[:-1]], axis=int(x[-1]))
+        if self.value[0] == relay.nn.log_softmax:
+            return relay.nn.log_softmax(x[0], axis=int(x[1]))
+        if self.value[0] == relay.nn.dropout:
+            return relay.nn.dropout_raw(x[0], rate=float(x[1]))
+        if self.value[0] == relay.take:
+            return relay.take(x[0], x[1], axis=int(x[2]))
         if self.value[0] == relay.mean:
             return self.value[0](x[0], axis=int(x[1]))
         if self.value[0] == relay.nn.bias_add:
@@ -263,7 +278,9 @@ class RecExprCompiler:
         elif isinstance(enode, Literal):
             return float(enode.symbol)
         elif isinstance(enode, Symbol):
-            return self.next_var(index, use_symbol=enode.symbol, shape=relay.TensorType(self.input_shapes[enode.symbol]))
+            assert(enode.symbol in self.input_shapes and enode.symbol in self.input_dtypes)
+            return self.next_var(index, use_symbol=enode.symbol,
+                                shape=relay.TensorType(self.input_shapes[enode.symbol], dtype=self.input_dtypes[enode.symbol]))
         elif isinstance(enode, Shape):
             return tuple(map(int, children_exprs))
         elif isinstance(enode, TupleGetItem):
@@ -378,14 +395,17 @@ class RecExprCompiler:
                 raise Exception(f'Unrecognized compute type: {compute_type}')
         elif isinstance(enode, AcceleratorCall):
             func = str(enode.symbol)
+            # the last argument is the output shape by convention
+            assert(isinstance(children_exprs[-1], tuple))
             if self.use_debug_func:
-                return self.accelerator_func_lib[func](*ch_vars)
+                return self.accelerator_func_lib[func](*ch_vars[:-1])
             else:
                 # In Glenside, the last parameter to accelerator-call is the inferred type
                 inferred_type = self.eclass_analysis[index]['relay_shape']
                 accelerator_call = relay.accelerator_call(func, inferred_type, out_dtype=self.out_dtypes[func])
                 composite_name = self.composite_lib[func]
                 compiler_name = self.compiler_lib[func]
+                ch_vars = list(map(lambda x: relay.const(x) if isinstance(x, float) or isinstance(x, int) else x, ch_vars))
                 ch_vars = list(filter(lambda x: isinstance(x, relay.Expr), ch_vars))
                 inner_args = [relay.Var(f'inner_arg_{i}') for i in range(len(ch_vars))]
                 inner_func = relay.Function(inner_args, accelerator_call, ret_type=relay.TensorType(inferred_type))
@@ -402,7 +422,7 @@ class RecExprCompiler:
         else:
             raise Exception(f'{type(enode)} not implemented')
     
-    def to_relay_expr(self, expr_data, input_shapes, analysis_data=dict(), out_dtypes=dict(), use_debug_func=False):
+    def to_relay_expr(self, expr_data, input_shapes, input_dtypes, analysis_data=dict(), out_dtypes=dict(), use_debug_func=False):
         self.region_counter = 0
         self.var_count = 0
         self._id_map.clear()
@@ -411,6 +431,7 @@ class RecExprCompiler:
         self.nodes.clear()
         self._load_json(expr_data)
         self.input_shapes = input_shapes
+        self.input_dtypes = input_dtypes
         self.eclass_analysis = analysis_data
         self.use_debug_func = use_debug_func
         self.out_dtypes = out_dtypes
@@ -525,6 +546,12 @@ def downcast(enode: ENode):
         'relay-clip':     RelayOperators.RelayClip,
         'relay-left-shift': RelayOperators.RelayLeftShift,
         'relay-right-shift': RelayOperators.RelayRightShift,
+        'relay-take': RelayOperators.RelayTake,
+        'relay-stack': RelayOperators.RelayStack,
+        'relay-dropout': RelayOperators.RelayDropout,
+        'relay-tanh': RelayOperators.RelayTanh,
+        'relay-log-softmax': RelayOperators.RelayLogSoftmax,
+        'relay-round': RelayOperators.RelayRound,
     }.get(symbol, None)
     if lang is not None:
         return RelayOperatorCall(lang, enode.children)

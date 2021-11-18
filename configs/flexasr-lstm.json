@@ -1,0 +1,17 @@
+{
+    "rewrites": {
+        "flex-lstm": []
+    },
+    "composites": {
+        "flex-lstm": "ilaflex.lstm"
+    },
+    "compilers": {
+        "flex-lstm": "ilaflex"
+    },
+    "debug_functions": {
+        "flex-lstm": "lambda *inputs: tvm.parser.fromtext(open('./models/lstm-for-pldi-pattern.relay').read())['main'](*inputs)"
+    },
+    "out_dtypes": {
+        "flex-lstm": "float32"
+    }
+}
