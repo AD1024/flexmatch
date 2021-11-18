@@ -1,0 +1,40 @@
+#[version = "0.0.5"]
+def @main(%data: Tensor[(2, 2), float32], %weights: Tensor[(2, 2), float32]) -> Tensor[(2, 2), float32] {
+  %7 = max(%data) /* ty=float32 */;
+  %8 = min(%data) /* ty=float32 */;
+  %9 = divide(%7, 127f /* ty=float32 */) /* ty=float32 */;
+  %10 = divide(%8, -127f /* ty=float32 */) /* ty=float32 */;
+  %11 = maximum(%9, %10) /* ty=float32 */;
+  %12 = divide(%data, %11) /* ty=Tensor[(2, 2), float32] */;
+  %13 = round(%12) /* ty=Tensor[(2, 2), float32] */;
+  %14 = max(%weights) /* ty=float32 */;
+  %15 = min(%weights) /* ty=float32 */;
+  %16 = divide(%14, 127f /* ty=float32 */) /* ty=float32 */;
+  %17 = divide(%15, -127f /* ty=float32 */) /* ty=float32 */;
+  %18 = maximum(%16, %17) /* ty=float32 */;
+  %19 = divide(%weights, %18) /* ty=Tensor[(2, 2), float32] */;
+  %20 = round(%19) /* ty=Tensor[(2, 2), float32] */;
+  %21 = nn.dense(%data, %weights, units=None) /* ty=Tensor[(2, 2), float32] */;
+  %22 = max(%21) /* ty=float32 */;
+  %23 = min(%21) /* ty=float32 */;
+  %24 = divide(%22, 127f /* ty=float32 */) /* ty=float32 */;
+  %25 = divide(%23, -127f /* ty=float32 */) /* ty=float32 */;
+  %26 = cast(%13, dtype="int8") /* ty=Tensor[(2, 2), int8] */;
+  %27 = cast(%20, dtype="int8") /* ty=Tensor[(2, 2), int8] */;
+  %28 = maximum(%24, %25) /* ty=float32 */;
+  %29 = fn (%outer_arg_0: Tensor[(2, 2), int8], %outer_arg_1: Tensor[(2, 2), int8], %outer_arg_2: float32, %outer_arg_3: float32, %outer_arg_4: float32, Compiler="ilavta", Primitive=1, global_symbol="ilavta.dense_0") -> Tensor[(2, 2), int8] {
+    %6 = fn (%data1: Tensor[(2, 2), int8], %weights1: Tensor[(2, 2), int8], %s_data: float32, %s_w: float32, %s_act: float32, Composite="ilavta.dense") -> Tensor[(2, 2), int8] {
+      %0 = nn.dense(%data1, %weights1, units=None, out_dtype="int32") /* ty=Tensor[(2, 2), int32] */;
+      %1 = multiply(%s_data, %s_w) /* ty=float32 */;
+      %2 = cast(%0, dtype="float32") /* ty=Tensor[(2, 2), float32] */;
+      %3 = divide(%1, %s_act) /* ty=float32 */;
+      %4 = multiply(%2, %3) /* ty=Tensor[(2, 2), float32] */;
+      %5 = clip(%4, a_min=-127f, a_max=127f) /* ty=Tensor[(2, 2), float32] */;
+      cast(%5, dtype="int8") /* ty=Tensor[(2, 2), int8] */
+    };
+    %6(%outer_arg_0, %outer_arg_1, %outer_arg_2, %outer_arg_3, %outer_arg_4) /* ty=Tensor[(2, 2), int8] */
+  };
+  %30 = %29(%26, %27, %11, %18, %28) /* ty=Tensor[(2, 2), int8] */;
+  %31 = cast(%30, dtype="float32") /* ty=Tensor[(2, 2), float32] */;
+  multiply(%31, %28) /* ty=Tensor[(2, 2), float32] */
+}
