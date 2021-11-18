@@ -49,12 +49,15 @@ class RelayOperators(enum.Enum):
     RelayDropout = relay.nn.dropout,
     RelayStack = relay.stack,
     RelayLogSoftmax = relay.nn.log_softmax,
+    RelaySplit = relay.split,
 
     def __call__(self, *x):
         # Handle special case of relay operator calls
         # could be mitigated by spliting parameters from attributes in glenside
+        if self.value[0] == relay.split:
+            return relay.split(x[0], indices_or_sections=int(x[1]), axis=int(x[2])).tuple_value
         if self.value[0] == relay.stack:
-            return relay.stack([x[:-1]], axis=int(x[-1]))
+            return relay.stack(x[:-1], axis=int(x[-1]))
         if self.value[0] == relay.nn.log_softmax:
             return relay.nn.log_softmax(x[0], axis=int(x[1]))
         if self.value[0] == relay.nn.dropout:
@@ -161,6 +164,9 @@ class AccessTensor(ENode):
     pass
 
 class AccessTranspose(ENode):
+    pass
+
+class AccessConcat(ENode):
     pass
 
 class ListNode(ENode):
@@ -278,7 +284,8 @@ class RecExprCompiler:
         elif isinstance(enode, Literal):
             return float(enode.symbol)
         elif isinstance(enode, Symbol):
-            assert(enode.symbol in self.input_shapes and enode.symbol in self.input_dtypes)
+            if not (enode.symbol in self.input_shapes and enode.symbol in self.input_dtypes):
+                raise Exception(f'{enode.symbol} is not a proper symbol')
             return self.next_var(index, use_symbol=enode.symbol,
                                 shape=relay.TensorType(self.input_shapes[enode.symbol], dtype=self.input_dtypes[enode.symbol]))
         elif isinstance(enode, Shape):
@@ -287,6 +294,8 @@ class RecExprCompiler:
             return relay.TupleGetItem(ch_vars[0], int(children_exprs[1]))
         elif isinstance(enode, ConstructTuple):
             return relay.Tuple(ch_vars)
+        elif isinstance(enode, AccessConcat):
+            return relay.concatenate([ch_vars[0], ch_vars[1]], axis=int(children_exprs[2]))
         elif isinstance(enode, AccessInsertAxis):
             if not isinstance(ch_vars[0], relay.Expr):
                 ch_vars[0] = relay.const(ch_vars[0])
@@ -552,6 +561,7 @@ def downcast(enode: ENode):
         'relay-tanh': RelayOperators.RelayTanh,
         'relay-log-softmax': RelayOperators.RelayLogSoftmax,
         'relay-round': RelayOperators.RelayRound,
+        'relay-split': RelayOperators.RelaySplit,
     }.get(symbol, None)
     if lang is not None:
         return RelayOperatorCall(lang, enode.children)
@@ -611,6 +621,7 @@ def downcast(enode: ENode):
         'access-windows':       lambda: AccessWindows,
         'access-slice':         lambda: AccessSlice,
         'access-pair':          lambda: AccessPair,
+        'access-concatenate':   lambda: AccessConcat,
         'literal':              lambda: LiteralNode,
         'list':                 lambda: ListNode
     }.get(symbol, lambda: Symbol)()(enode.symbol, enode.children)

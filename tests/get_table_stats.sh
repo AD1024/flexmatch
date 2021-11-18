@@ -27,3 +27,10 @@ python3 validate_compilation.py resnet20 --configs im2col vta-dense --get-stats
 
 # Q-MobileNet on VTA (quantize after matching)
 python3 validate_compilation.py mobilenetv2 --configs im2col vta-dense --get-stats
+
+# LSTM on FlexASR
+python3 validate_compilation.py lstm-for-pldi --configs flexasr-lstm --get-stats
+# LSTM on HLSCNN
+python3 validate_compilation.py lstm-for-pldi --configs hlscnn-conv2d --get-stats
+# LSTM on VTA
+python3 validate_compilation.py lstm-for-pldi --configs vta-dense --get-stats  
