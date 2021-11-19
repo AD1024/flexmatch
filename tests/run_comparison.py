@@ -44,9 +44,11 @@ def run_file(src, params):
         relay_src = fp.read()
         start = time.time()
         mod = tvm.parser.fromtext(relay_src)
-        mod = relay.transform.InferType()(mod)
+        # This line is necessary to validate some models.....and it causes some
+        #models to fail. Needs more investigation.
+        #mod = tvm.ir.IRModule.from_expr(LetInliner().visit(mod["main"]))
         mod = relay.transform.SimplifyInference()(mod)
-        mod = tvm.ir.IRModule.from_expr(LetInliner().visit(mod["main"]))
+        mod = relay.transform.InferType()(mod)
         inputs = [params[x.name_hint] for x in mod['main'].params]
         for target, dev in tvm.testing.enabled_targets():
             # relay_graph, lib, params = relay.build(mod, target=target, params=params)
