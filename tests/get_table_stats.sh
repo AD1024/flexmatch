@@ -7,11 +7,11 @@ python3 validate_compilation.py efficientnet --configs hlscnn-conv2d --get-stats
 python3 validate_compilation.py efficientnet --configs im2col vta-dense --get-stats
 
 # MobileNet on FlexASR
-python3 validate_compilation.py mobilenet --configs im2col linear-rewrites --get-stats 
+python3 validate_compilation.py mobilenetv2 --configs im2col linear-rewrites --get-stats 
 # MobileNet on HLSCNN
-python3 validate_compilation.py mobilenet --configs hlscnn-conv2d --get-stats
+python3 validate_compilation.py mobilenetv2 --configs hlscnn-conv2d --get-stats
 # MobileNet on VTA
-python3 validate_compilation.py mobilenet --configs im2col vta-dense --get-stats
+python3 validate_compilation.py mobilenetv2 --configs im2col vta-dense --get-stats
 
 # ResMLP on FlexASR
 python3 validate_compilation.py resmlp --configs im2col linear-rewrites --get-stats
