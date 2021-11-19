@@ -29,6 +29,8 @@ pub fn get_rewrite_from_string(name: &String, args: &Box<[i32]>) -> Rewrite<Lang
         "hlscnn-conv2d" => conv2d_on_hlscnn(),
         "vta-dense-rewrite" => dot_product_with_vta(),
         "flexasr-maxpool" => flexasr_maxpool(),
+        "glenside_matmul_to_relay_dense" => glenside_matmul_to_relay_dense(),
+        "add_bias_add_to_dense" => add_bias_add_to_dense(),
         _ => {
             eprintln!("{} not implemented", name);
             todo!()

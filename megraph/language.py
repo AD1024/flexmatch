@@ -53,10 +53,13 @@ class RelayOperators(enum.Enum):
     RelayLayerNorm = relay.nn.layer_norm,
     RelayBatchMatmul = relay.nn.batch_matmul,
     RelayStridedSlice = relay.strided_slice,
+    RelayZeros = relay.zeros,
 
     def __call__(self, *x):
         # Handle special case of relay operator calls
         # could be mitigated by spliting parameters from attributes in glenside
+        if self.value[0] == relay.zeros:
+            return relay.zeros(shape=x[0], dtype="float32")
         if self.value[0] == relay.nn.layer_norm:
             return relay.nn.layer_norm(x[0], gamma=x[1], beta=x[2])
         if self.value[0] == relay.split:
@@ -570,6 +573,7 @@ def downcast(enode: ENode):
         'relay-layer-norm': RelayOperators.RelayLayerNorm,
         'relay-batch-matmul': RelayOperators.RelayBatchMatmul,
         'relay-strided-slice': RelayOperators.RelayStridedSlice,
+        'relay-zeros': RelayOperators.RelayZeros,
     }.get(symbol, None)
     if lang is not None:
         return RelayOperatorCall(lang, enode.children)
