@@ -1,9 +1,9 @@
 mod rewrites;
 
-use egg::{EGraph, Extractor, Language, Runner};
+use egg::{Id, CostFunction, Analysis, EGraph, Extractor, Language as LanguageTrait, Runner};
 use glenside::{
     extraction::AcceleratorCostFunction,
-    language::{serialize_analysis_data, MyAnalysis, MyAnalysisData, RelayOperator},
+    language::{ComputeType,Language, serialize_analysis_data, MyAnalysis, MyAnalysisData, RelayOperator},
 };
 use rewrites::{get_rewrite_from_string, im2col_rewrites, linear_rewrites};
 use serde::Deserialize;
@@ -204,11 +204,97 @@ fn main() {
         }
         info!("Root eclass analysis: {:?}", runner.egraph[root_expr].data);
         info!("Root eclass nodes: {:?}", runner.egraph[root_expr].nodes);
+pub struct NewAcceleratorCostFunction(pub f64);
+
+impl CostFunction<Language> for NewAcceleratorCostFunction {
+    type Cost = f64;
+    fn cost<C>(&mut self, enode: &Language, mut costs: C) -> Self::Cost
+    where
+        C: FnMut(Id) -> Self::Cost,
+    {
+        if let Language::AcceleratorCall(_) = &enode {
+            return 0.0;
+        }
+        let base_cost: f64 = match enode {
+            Language::RelayOperator(glenside::language::RelayOperator::RelayBatchMatmul) => 100000000000.,
+
+            // We only consider accelerator calls and relay operators for now when
+            // extracting a model
+            Language::Access(_)
+            | Language::List(_)
+            | Language::Shape(_)
+            | Language::Usize(_)
+            | Language::AccessLiteral(_)
+            | Language::Literal(_)
+            | Language::AcceleratorCall(_)
+            | Language::AccessShape(_)
+            | Language::AcceleratorFunc(_)
+            | Language::Symbol(_)
+            | Language::RelayOperator(_)
+            | Language::PadType(_)
+            | Language::Int32(_)
+            | Language::Uint8(_)
+            | Language::Int64(_)
+            | Language::Int8(_)
+
+            | Language::ConstructTuple(_)
+            | Language::ConstantTensor(_)
+            | Language::TupleGetItem(_)
+            | Language::DataType(_)
+            | Language::AccessTensor(_) => 0.0,
+            Language::RelayOperatorCall(_) => self.0 / 2.0,
+            Language::AccessTranspose(_)
+            | Language::RelayKernelLayout(_)
+            | Language::RelayActivationLayout(_)
+            | Language::NotNanFloat64(_)
+            | Language::AccessPad(_)
+            | Language::AccessFlatten(_)
+            | Language::AccessWindows(_)
+            | Language::AccessInsertAxis(_)
+            | Language::AccessSqueeze(_) => 1.0,
+
+            Language::Compute(_) => 1.0,
+            Language::AccessReshape(_) => self.0,
+            Language::ComputeType(compute_type) => match compute_type {
+                ComputeType::DotProduct
+                | ComputeType::Softmax
+                | ComputeType::ReLU
+                | ComputeType::ReduceSum
+                | ComputeType::ReduceMean => self.0,
+                _ => 1.0,
+            },
+            Language::AccessCartesianProduct(_)
+            | Language::Slice(_)
+            | Language::MoveAxis(_)
+            | Language::MapDotProduct(_)
+            | Language::BsgSystolicArray(_)
+            | Language::SystolicArray(_)
+            | Language::AccessBroadcast(_)
+            | Language::SystolicArrayConv2dIm2colNchwOihwWithBlocking(_)
+            | Language::SystolicArrayConv2dIm2colNhwcHwioWithBlocking(_)
+            | Language::SystolicArrayConv2dNchwOihwWithBlocking(_)
+            | Language::SystolicArrayConv2dNhwcHwioWithBlocking(_)
+            | Language::SystolicArrayWithBlocking(_)
+            | Language::ShapeOf(_)
+            | Language::SliceShape(_)
+            | Language::ShapeInsertAxis(_)
+            | Language::ShapeRemoveAxis(_)
+            | Language::Concatenate(_)
+            | Language::ElementwiseAdd(_)
+            | Language::AccessSlice(_)
+            | Language::CartesianProduct(_)
+            | Language::AccessConcatenate(_)
+            | Language::AccessShiftRight(_)
+            | Language::AccessPair(_) => self.0 * 100.0,
+        };
+        enode.fold(base_cost, |sum, id| sum + costs(id))
+    }
+}
         if !use_ilp {
             info!("Extraction without ILP");
             let extractor = Extractor::new(
                 &runner.egraph,
-                AcceleratorCostFunction(runner.egraph.total_size() as f64),
+                NewAcceleratorCostFunction(runner.egraph.total_size() as f64),
             );
             let (_cost, best) = extractor.find_best(root_expr);
             save_expr_and_analysis(
