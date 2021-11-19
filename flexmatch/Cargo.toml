@@ -17,7 +17,7 @@ env_logger = "0.9.0"
 
 [dependencies.glenside]
 git = "https://github.com/gussmith23/glenside"
-branch = "3la-pldi-flexmatch-eval"
+rev = "76ab6b6525da89a28a109e038c8b5545e0f4fc1f"
 default-features = false
 features = ["tvm"]
 
@@ -27,7 +27,7 @@ rev = "b8f902f554cc476c397e4fd9c7bea229f946d2a9"
 
 [dependencies.tvm]
 git = "ssh://git@github.com/uwsampl/3la-tvm.git"
-rev = "0f37c4d4385bf47d0858c04328733caac283dc89"
+rev = "8185bdfe61ef3e5579867393eb52669bb8daebb2"
 
 [dependencies.rplex]
 optional = true
