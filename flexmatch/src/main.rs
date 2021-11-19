@@ -156,7 +156,7 @@ fn main() {
         let mut runner = Runner::<_, _, ()>::new(MyAnalysis::default())
             .with_egraph(egraph)
             .with_time_limit(std::time::Duration::from_secs(5))
-            .with_node_limit(100000)
+            .with_node_limit(1000000)
             .with_iter_limit(45)
             .run(&rewrites);
         info!("EqSat Complete");
