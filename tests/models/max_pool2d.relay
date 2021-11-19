@@ -1,0 +1,4 @@
+#[version = "0.0.5"]
+def @main(%data: Tensor[(5, 7, 256, 256), float32]) -> Tensor[(5, 7, 241, 241), float32] {
+  nn.max_pool2d(%data, pool_size=[16, 16], padding=[0, 0, 0, 0]) /* ty=Tensor[(5, 7, 241, 241), float32] */
+}

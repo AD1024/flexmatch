@@ -1,0 +1,459 @@
+#[version = "0.0.5"]
+type tensor_int32_t {
+  tensor_nil_int32,
+  tensor0_int32(int32),
+  tensor1_int32(Tensor[(?), int32]),
+  tensor2_int32(Tensor[(?, ?), int32]),
+  tensor3_int32(Tensor[(?, ?, ?), int32]),
+  tensor4_int32(Tensor[(?, ?, ?, ?), int32]),
+  tensor5_int32(Tensor[(?, ?, ?, ?, ?), int32]),
+  tensor6_int32(Tensor[(?, ?, ?, ?, ?, ?), int32]),
+}
+
+type tensor_uint8_t {
+  tensor_nil_uint8,
+  tensor0_uint8(uint8),
+  tensor1_uint8(Tensor[(?), uint8]),
+  tensor2_uint8(Tensor[(?, ?), uint8]),
+  tensor3_uint8(Tensor[(?, ?, ?), uint8]),
+  tensor4_uint8(Tensor[(?, ?, ?, ?), uint8]),
+  tensor5_uint8(Tensor[(?, ?, ?, ?, ?), uint8]),
+  tensor6_uint8(Tensor[(?, ?, ?, ?, ?, ?), uint8]),
+}
+
+type tensor_float32_t {
+  tensor_nil_float32,
+  tensor0_float32(float32),
+  tensor1_float32(Tensor[(?), float32]),
+  tensor2_float32(Tensor[(?, ?), float32]),
+  tensor3_float32(Tensor[(?, ?, ?), float32]),
+  tensor4_float32(Tensor[(?, ?, ?, ?), float32]),
+  tensor5_float32(Tensor[(?, ?, ?, ?, ?), float32]),
+  tensor6_float32(Tensor[(?, ?, ?, ?, ?, ?), float32]),
+}
+
+type tensor_int8_t {
+  tensor_nil_int8,
+  tensor0_int8(int8),
+  tensor1_int8(Tensor[(?), int8]),
+  tensor2_int8(Tensor[(?, ?), int8]),
+  tensor3_int8(Tensor[(?, ?, ?), int8]),
+  tensor4_int8(Tensor[(?, ?, ?, ?), int8]),
+  tensor5_int8(Tensor[(?, ?, ?, ?, ?), int8]),
+  tensor6_int8(Tensor[(?, ?, ?, ?, ?, ?), int8]),
+}
+
+type tensor_float16_t {
+  tensor_nil_float16,
+  tensor0_float16(float16),
+  tensor1_float16(Tensor[(?), float16]),
+  tensor2_float16(Tensor[(?, ?), float16]),
+  tensor3_float16(Tensor[(?, ?, ?), float16]),
+  tensor4_float16(Tensor[(?, ?, ?, ?), float16]),
+  tensor5_float16(Tensor[(?, ?, ?, ?, ?), float16]),
+  tensor6_float16(Tensor[(?, ?, ?, ?, ?, ?), float16]),
+}
+
+type List[A] {
+  Cons(A, List[A]),
+  Nil,
+}
+
+type tensor_int16_t {
+  tensor_nil_int16,
+  tensor0_int16(int16),
+  tensor1_int16(Tensor[(?), int16]),
+  tensor2_int16(Tensor[(?, ?), int16]),
+  tensor3_int16(Tensor[(?, ?, ?), int16]),
+  tensor4_int16(Tensor[(?, ?, ?, ?), int16]),
+  tensor5_int16(Tensor[(?, ?, ?, ?, ?), int16]),
+  tensor6_int16(Tensor[(?, ?, ?, ?, ?, ?), int16]),
+}
+
+type Option[A] {
+  Some(A),
+  None,
+}
+
+type Tree[A] {
+  Rose(A, List[Tree[A]]),
+}
+
+type tensor_int64_t {
+  tensor_nil_int64,
+  tensor0_int64(int64),
+  tensor1_int64(Tensor[(?), int64]),
+  tensor2_int64(Tensor[(?, ?), int64]),
+  tensor3_int64(Tensor[(?, ?, ?), int64]),
+  tensor4_int64(Tensor[(?, ?, ?, ?), int64]),
+  tensor5_int64(Tensor[(?, ?, ?, ?, ?), int64]),
+  tensor6_int64(Tensor[(?, ?, ?, ?, ?, ?), int64]),
+}
+
+type tensor_uint16_t {
+  tensor_nil_uint16,
+  tensor0_uint16(uint16),
+  tensor1_uint16(Tensor[(?), uint16]),
+  tensor2_uint16(Tensor[(?, ?), uint16]),
+  tensor3_uint16(Tensor[(?, ?, ?), uint16]),
+  tensor4_uint16(Tensor[(?, ?, ?, ?), uint16]),
+  tensor5_uint16(Tensor[(?, ?, ?, ?, ?), uint16]),
+  tensor6_uint16(Tensor[(?, ?, ?, ?, ?, ?), uint16]),
+}
+
+type tensor_float64_t {
+  tensor_nil_float64,
+  tensor0_float64(float64),
+  tensor1_float64(Tensor[(?), float64]),
+  tensor2_float64(Tensor[(?, ?), float64]),
+  tensor3_float64(Tensor[(?, ?, ?), float64]),
+  tensor4_float64(Tensor[(?, ?, ?, ?), float64]),
+  tensor5_float64(Tensor[(?, ?, ?, ?, ?), float64]),
+  tensor6_float64(Tensor[(?, ?, ?, ?, ?, ?), float64]),
+}
+
+def @main(%input0: Tensor[(1, 3, 32, 32), float32], %v1_weight: Tensor[(64, 768), float32], %v1_bias: Tensor[(64), float32], %v2_0_affine_g: Tensor[(1, 1, 64), float32], %v2_0_affine_b: Tensor[(1, 1, 64), float32], %v2_0_fn_weight: Tensor[(4, 4, 1), float32], %v2_0_fn_bias: Tensor[(4), float32], %v2_0_scale: Tensor[(1, 1, 64), float32], %v2_1_affine_g: Tensor[(1, 1, 64), float32], %v2_1_affine_b: Tensor[(1, 1, 64), float32], %v2_1_fn_0_weight: Tensor[(256, 64), float32], %v2_1_fn_0_bias: Tensor[(256), float32], %v2_1_fn_2_weight: Tensor[(64, 256), float32], %v2_1_fn_2_bias: Tensor[(64), float32], %v2_1_scale: Tensor[(1, 1, 64), float32], %v3_0_affine_g: Tensor[(1, 1, 64), float32], %v3_0_affine_b: Tensor[(1, 1, 64), float32], %v3_0_fn_weight: Tensor[(4, 4, 1), float32], %v3_0_fn_bias: Tensor[(4), float32], %v3_0_scale: Tensor[(1, 1, 64), float32], %v3_1_affine_g: Tensor[(1, 1, 64), float32], %v3_1_affine_b: Tensor[(1, 1, 64), float32], %v3_1_fn_0_weight: Tensor[(256, 64), float32], %v3_1_fn_0_bias: Tensor[(256), float32], %v3_1_fn_2_weight: Tensor[(64, 256), float32], %v3_1_fn_2_bias: Tensor[(64), float32], %v3_1_scale: Tensor[(1, 1, 64), float32], %v4_0_affine_g: Tensor[(1, 1, 64), float32], %v4_0_affine_b: Tensor[(1, 1, 64), float32], %v4_0_fn_weight: Tensor[(4, 4, 1), float32], %v4_0_fn_bias: Tensor[(4), float32], %v4_0_scale: Tensor[(1, 1, 64), float32], %v4_1_affine_g: Tensor[(1, 1, 64), float32], %v4_1_affine_b: Tensor[(1, 1, 64), float32], %v4_1_fn_0_weight: Tensor[(256, 64), float32], %v4_1_fn_0_bias: Tensor[(256), float32], %v4_1_fn_2_weight: Tensor[(64, 256), float32], %v4_1_fn_2_bias: Tensor[(64), float32], %v4_1_scale: Tensor[(1, 1, 64), float32], %v5_0_affine_g: Tensor[(1, 1, 64), float32], %v5_0_affine_b: Tensor[(1, 1, 64), float32], %v5_0_fn_weight: Tensor[(4, 4, 1), float32], %v5_0_fn_bias: Tensor[(4), float32], %v5_0_scale: Tensor[(1, 1, 64), float32], %v5_1_affine_g: Tensor[(1, 1, 64), float32], %v5_1_affine_b: Tensor[(1, 1, 64), float32], %v5_1_fn_0_weight: Tensor[(256, 64), float32], %v5_1_fn_0_bias: Tensor[(256), float32], %v5_1_fn_2_weight: Tensor[(64, 256), float32], %v5_1_fn_2_bias: Tensor[(64), float32], %v5_1_scale: Tensor[(1, 1, 64), float32], %v6_0_affine_g: Tensor[(1, 1, 64), float32], %v6_0_affine_b: Tensor[(1, 1, 64), float32], %v6_0_fn_weight: Tensor[(4, 4, 1), float32], %v6_0_fn_bias: Tensor[(4), float32], %v6_0_scale: Tensor[(1, 1, 64), float32], %v6_1_affine_g: Tensor[(1, 1, 64), float32], %v6_1_affine_b: Tensor[(1, 1, 64), float32], %v6_1_fn_0_weight: Tensor[(256, 64), float32], %v6_1_fn_0_bias: Tensor[(256), float32], %v6_1_fn_2_weight: Tensor[(64, 256), float32], %v6_1_fn_2_bias: Tensor[(64), float32], %v6_1_scale: Tensor[(1, 1, 64), float32], %v7_0_affine_g: Tensor[(1, 1, 64), float32], %v7_0_affine_b: Tensor[(1, 1, 64), float32], %v7_0_fn_weight: Tensor[(4, 4, 1), float32], %v7_0_fn_bias: Tensor[(4), float32], %v7_0_scale: Tensor[(1, 1, 64), float32], %v7_1_affine_g: Tensor[(1, 1, 64), float32], %v7_1_affine_b: Tensor[(1, 1, 64), float32], %v7_1_fn_0_weight: Tensor[(256, 64), float32], %v7_1_fn_0_bias: Tensor[(256), float32], %v7_1_fn_2_weight: Tensor[(64, 256), float32], %v7_1_fn_2_bias: Tensor[(64), float32], %v7_1_scale: Tensor[(1, 1, 64), float32], %v8_0_affine_g: Tensor[(1, 1, 64), float32], %v8_0_affine_b: Tensor[(1, 1, 64), float32], %v8_0_fn_weight: Tensor[(4, 4, 1), float32], %v8_0_fn_bias: Tensor[(4), float32], %v8_0_scale: Tensor[(1, 1, 64), float32], %v8_1_affine_g: Tensor[(1, 1, 64), float32], %v8_1_affine_b: Tensor[(1, 1, 64), float32], %v8_1_fn_0_weight: Tensor[(256, 64), float32], %v8_1_fn_0_bias: Tensor[(256), float32], %v8_1_fn_2_weight: Tensor[(64, 256), float32], %v8_1_fn_2_bias: Tensor[(64), float32], %v8_1_scale: Tensor[(1, 1, 64), float32], %v9_0_affine_g: Tensor[(1, 1, 64), float32], %v9_0_affine_b: Tensor[(1, 1, 64), float32], %v9_0_fn_weight: Tensor[(4, 4, 1), float32], %v9_0_fn_bias: Tensor[(4), float32], %v9_0_scale: Tensor[(1, 1, 64), float32], %v9_1_affine_g: Tensor[(1, 1, 64), float32], %v9_1_affine_b: Tensor[(1, 1, 64), float32], %v9_1_fn_0_weight: Tensor[(256, 64), float32], %v9_1_fn_0_bias: Tensor[(256), float32], %v9_1_fn_2_weight: Tensor[(64, 256), float32], %v9_1_fn_2_bias: Tensor[(64), float32], %v9_1_scale: Tensor[(1, 1, 64), float32], %v10_0_affine_g: Tensor[(1, 1, 64), float32], %v10_0_affine_b: Tensor[(1, 1, 64), float32], %v10_0_fn_weight: Tensor[(4, 4, 1), float32], %v10_0_fn_bias: Tensor[(4), float32], %v10_0_scale: Tensor[(1, 1, 64), float32], %v10_1_affine_g: Tensor[(1, 1, 64), float32], %v10_1_affine_b: Tensor[(1, 1, 64), float32], %v10_1_fn_0_weight: Tensor[(256, 64), float32], %v10_1_fn_0_bias: Tensor[(256), float32], %v10_1_fn_2_weight: Tensor[(64, 256), float32], %v10_1_fn_2_bias: Tensor[(64), float32], %v10_1_scale: Tensor[(1, 1, 64), float32], %v11_0_affine_g: Tensor[(1, 1, 64), float32], %v11_0_affine_b: Tensor[(1, 1, 64), float32], %v11_0_fn_weight: Tensor[(4, 4, 1), float32], %v11_0_fn_bias: Tensor[(4), float32], %v11_0_scale: Tensor[(1, 1, 64), float32], %v11_1_affine_g: Tensor[(1, 1, 64), float32], %v11_1_affine_b: Tensor[(1, 1, 64), float32], %v11_1_fn_0_weight: Tensor[(256, 64), float32], %v11_1_fn_0_bias: Tensor[(256), float32], %v11_1_fn_2_weight: Tensor[(64, 256), float32], %v11_1_fn_2_bias: Tensor[(64), float32], %v11_1_scale: Tensor[(1, 1, 64), float32], %v12_0_affine_g: Tensor[(1, 1, 64), float32], %v12_0_affine_b: Tensor[(1, 1, 64), float32], %v12_0_fn_weight: Tensor[(4, 4, 1), float32], %v12_0_fn_bias: Tensor[(4), float32], %v12_0_scale: Tensor[(1, 1, 64), float32], %v12_1_affine_g: Tensor[(1, 1, 64), float32], %v12_1_affine_b: Tensor[(1, 1, 64), float32], %v12_1_fn_0_weight: Tensor[(256, 64), float32], %v12_1_fn_0_bias: Tensor[(256), float32], %v12_1_fn_2_weight: Tensor[(64, 256), float32], %v12_1_fn_2_bias: Tensor[(64), float32], %v12_1_scale: Tensor[(1, 1, 64), float32], %v13_0_affine_g: Tensor[(1, 1, 64), float32], %v13_0_affine_b: Tensor[(1, 1, 64), float32], %v13_0_fn_weight: Tensor[(4, 4, 1), float32], %v13_0_fn_bias: Tensor[(4), float32], %v13_0_scale: Tensor[(1, 1, 64), float32], %v13_1_affine_g: Tensor[(1, 1, 64), float32], %v13_1_affine_b: Tensor[(1, 1, 64), float32], %v13_1_fn_0_weight: Tensor[(256, 64), float32], %v13_1_fn_0_bias: Tensor[(256), float32], %v13_1_fn_2_weight: Tensor[(64, 256), float32], %v13_1_fn_2_bias: Tensor[(64), float32], %v13_1_scale: Tensor[(1, 1, 64), float32], %v14_g: Tensor[(1, 1, 64), float32], %v14_b: Tensor[(1, 1, 64), float32], %v16_weight: Tensor[(32, 64), float32], %v16_bias: Tensor[(32), float32]) {
+  %0 = reshape(%input0, newshape=[1, 3, 2, 16, 2, 16]);
+  %1 = transpose(%0, axes=[0, 2, 4, 3, 5, 1]);
+  %2 = reshape(%1, newshape=[1, 4, 768]);
+  %3 = transpose(%v1_weight, axes=[1, 0]);
+  %4 = reshape(%2, newshape=[-1, 768]);
+  %5 = transpose(%3, axes=[1, 0]);
+  %6 = nn.dense(%4, %5, units=None);
+  %7 = reshape(%6, newshape=[1, 4, 64]);
+  %8 = add(%7, %v1_bias);
+  %9 = multiply(%8, %v2_0_affine_g);
+  %10 = add(%9, %v2_0_affine_b);
+  %11 = nn.conv1d(%10, %v2_0_fn_weight, channels=4, kernel_size=[1]);
+  %12 = nn.bias_add(%11, %v2_0_fn_bias);
+  %13 = multiply(%12, %v2_0_scale);
+  %14 = add(%13, %8);
+  %15 = multiply(%14, %v2_1_affine_g);
+  %16 = add(%15, %v2_1_affine_b);
+  %17 = transpose(%v2_1_fn_0_weight, axes=[1, 0]);
+  %18 = reshape(%16, newshape=[-1, 64]);
+  %19 = transpose(%17, axes=[1, 0]);
+  %20 = nn.dense(%18, %19, units=None);
+  %21 = reshape(%20, newshape=[1, 4, 256]);
+  %22 = add(%21, %v2_1_fn_0_bias);
+  %23 = multiply(%22, 0.707107f);
+  %24 = erf(%23);
+  %25 = multiply(%24, 0.5f);
+  %26 = add(0.5f, %25);
+  %27 = multiply(%22, %26);
+  %28 = transpose(%v2_1_fn_2_weight, axes=[1, 0]);
+  %29 = reshape(%27, newshape=[-1, 256]);
+  %30 = transpose(%28, axes=[1, 0]);
+  %31 = nn.dense(%29, %30, units=None);
+  %32 = reshape(%31, newshape=[1, 4, 64]);
+  %33 = add(%32, %v2_1_fn_2_bias);
+  %34 = multiply(%33, %v2_1_scale);
+  %35 = add(%34, %14);
+  %36 = multiply(%35, %v3_0_affine_g);
+  %37 = add(%36, %v3_0_affine_b);
+  %38 = nn.conv1d(%37, %v3_0_fn_weight, channels=4, kernel_size=[1]);
+  %39 = nn.bias_add(%38, %v3_0_fn_bias);
+  %40 = multiply(%39, %v3_0_scale);
+  %41 = add(%40, %35);
+  %42 = multiply(%41, %v3_1_affine_g);
+  %43 = add(%42, %v3_1_affine_b);
+  %44 = transpose(%v3_1_fn_0_weight, axes=[1, 0]);
+  %45 = reshape(%43, newshape=[-1, 64]);
+  %46 = transpose(%44, axes=[1, 0]);
+  %47 = nn.dense(%45, %46, units=None);
+  %48 = reshape(%47, newshape=[1, 4, 256]);
+  %49 = add(%48, %v3_1_fn_0_bias);
+  %50 = multiply(%49, 0.707107f);
+  %51 = erf(%50);
+  %52 = multiply(%51, 0.5f);
+  %53 = add(0.5f, %52);
+  %54 = multiply(%49, %53);
+  %55 = transpose(%v3_1_fn_2_weight, axes=[1, 0]);
+  %56 = reshape(%54, newshape=[-1, 256]);
+  %57 = transpose(%55, axes=[1, 0]);
+  %58 = nn.dense(%56, %57, units=None);
+  %59 = reshape(%58, newshape=[1, 4, 64]);
+  %60 = add(%59, %v3_1_fn_2_bias);
+  %61 = multiply(%60, %v3_1_scale);
+  %62 = add(%61, %41);
+  %63 = multiply(%62, %v4_0_affine_g);
+  %64 = add(%63, %v4_0_affine_b);
+  %65 = nn.conv1d(%64, %v4_0_fn_weight, channels=4, kernel_size=[1]);
+  %66 = nn.bias_add(%65, %v4_0_fn_bias);
+  %67 = multiply(%66, %v4_0_scale);
+  %68 = add(%67, %62);
+  %69 = multiply(%68, %v4_1_affine_g);
+  %70 = add(%69, %v4_1_affine_b);
+  %71 = transpose(%v4_1_fn_0_weight, axes=[1, 0]);
+  %72 = reshape(%70, newshape=[-1, 64]);
+  %73 = transpose(%71, axes=[1, 0]);
+  %74 = nn.dense(%72, %73, units=None);
+  %75 = reshape(%74, newshape=[1, 4, 256]);
+  %76 = add(%75, %v4_1_fn_0_bias);
+  %77 = multiply(%76, 0.707107f);
+  %78 = erf(%77);
+  %79 = multiply(%78, 0.5f);
+  %80 = add(0.5f, %79);
+  %81 = multiply(%76, %80);
+  %82 = transpose(%v4_1_fn_2_weight, axes=[1, 0]);
+  %83 = reshape(%81, newshape=[-1, 256]);
+  %84 = transpose(%82, axes=[1, 0]);
+  %85 = nn.dense(%83, %84, units=None);
+  %86 = reshape(%85, newshape=[1, 4, 64]);
+  %87 = add(%86, %v4_1_fn_2_bias);
+  %88 = multiply(%87, %v4_1_scale);
+  %89 = add(%88, %68);
+  %90 = multiply(%89, %v5_0_affine_g);
+  %91 = add(%90, %v5_0_affine_b);
+  %92 = nn.conv1d(%91, %v5_0_fn_weight, channels=4, kernel_size=[1]);
+  %93 = nn.bias_add(%92, %v5_0_fn_bias);
+  %94 = multiply(%93, %v5_0_scale);
+  %95 = add(%94, %89);
+  %96 = multiply(%95, %v5_1_affine_g);
+  %97 = add(%96, %v5_1_affine_b);
+  %98 = transpose(%v5_1_fn_0_weight, axes=[1, 0]);
+  %99 = reshape(%97, newshape=[-1, 64]);
+  %100 = transpose(%98, axes=[1, 0]);
+  %101 = nn.dense(%99, %100, units=None);
+  %102 = reshape(%101, newshape=[1, 4, 256]);
+  %103 = add(%102, %v5_1_fn_0_bias);
+  %104 = multiply(%103, 0.707107f);
+  %105 = erf(%104);
+  %106 = multiply(%105, 0.5f);
+  %107 = add(0.5f, %106);
+  %108 = multiply(%103, %107);
+  %109 = transpose(%v5_1_fn_2_weight, axes=[1, 0]);
+  %110 = reshape(%108, newshape=[-1, 256]);
+  %111 = transpose(%109, axes=[1, 0]);
+  %112 = nn.dense(%110, %111, units=None);
+  %113 = reshape(%112, newshape=[1, 4, 64]);
+  %114 = add(%113, %v5_1_fn_2_bias);
+  %115 = multiply(%114, %v5_1_scale);
+  %116 = add(%115, %95);
+  %117 = multiply(%116, %v6_0_affine_g);
+  %118 = add(%117, %v6_0_affine_b);
+  %119 = nn.conv1d(%118, %v6_0_fn_weight, channels=4, kernel_size=[1]);
+  %120 = nn.bias_add(%119, %v6_0_fn_bias);
+  %121 = multiply(%120, %v6_0_scale);
+  %122 = add(%121, %116);
+  %123 = multiply(%122, %v6_1_affine_g);
+  %124 = add(%123, %v6_1_affine_b);
+  %125 = transpose(%v6_1_fn_0_weight, axes=[1, 0]);
+  %126 = reshape(%124, newshape=[-1, 64]);
+  %127 = transpose(%125, axes=[1, 0]);
+  %128 = nn.dense(%126, %127, units=None);
+  %129 = reshape(%128, newshape=[1, 4, 256]);
+  %130 = add(%129, %v6_1_fn_0_bias);
+  %131 = multiply(%130, 0.707107f);
+  %132 = erf(%131);
+  %133 = multiply(%132, 0.5f);
+  %134 = add(0.5f, %133);
+  %135 = multiply(%130, %134);
+  %136 = transpose(%v6_1_fn_2_weight, axes=[1, 0]);
+  %137 = reshape(%135, newshape=[-1, 256]);
+  %138 = transpose(%136, axes=[1, 0]);
+  %139 = nn.dense(%137, %138, units=None);
+  %140 = reshape(%139, newshape=[1, 4, 64]);
+  %141 = add(%140, %v6_1_fn_2_bias);
+  %142 = multiply(%141, %v6_1_scale);
+  %143 = add(%142, %122);
+  %144 = multiply(%143, %v7_0_affine_g);
+  %145 = add(%144, %v7_0_affine_b);
+  %146 = nn.conv1d(%145, %v7_0_fn_weight, channels=4, kernel_size=[1]);
+  %147 = nn.bias_add(%146, %v7_0_fn_bias);
+  %148 = multiply(%147, %v7_0_scale);
+  %149 = add(%148, %143);
+  %150 = multiply(%149, %v7_1_affine_g);
+  %151 = add(%150, %v7_1_affine_b);
+  %152 = transpose(%v7_1_fn_0_weight, axes=[1, 0]);
+  %153 = reshape(%151, newshape=[-1, 64]);
+  %154 = transpose(%152, axes=[1, 0]);
+  %155 = nn.dense(%153, %154, units=None);
+  %156 = reshape(%155, newshape=[1, 4, 256]);
+  %157 = add(%156, %v7_1_fn_0_bias);
+  %158 = multiply(%157, 0.707107f);
+  %159 = erf(%158);
+  %160 = multiply(%159, 0.5f);
+  %161 = add(0.5f, %160);
+  %162 = multiply(%157, %161);
+  %163 = transpose(%v7_1_fn_2_weight, axes=[1, 0]);
+  %164 = reshape(%162, newshape=[-1, 256]);
+  %165 = transpose(%163, axes=[1, 0]);
+  %166 = nn.dense(%164, %165, units=None);
+  %167 = reshape(%166, newshape=[1, 4, 64]);
+  %168 = add(%167, %v7_1_fn_2_bias);
+  %169 = multiply(%168, %v7_1_scale);
+  %170 = add(%169, %149);
+  %171 = multiply(%170, %v8_0_affine_g);
+  %172 = add(%171, %v8_0_affine_b);
+  %173 = nn.conv1d(%172, %v8_0_fn_weight, channels=4, kernel_size=[1]);
+  %174 = nn.bias_add(%173, %v8_0_fn_bias);
+  %175 = multiply(%174, %v8_0_scale);
+  %176 = add(%175, %170);
+  %177 = multiply(%176, %v8_1_affine_g);
+  %178 = add(%177, %v8_1_affine_b);
+  %179 = transpose(%v8_1_fn_0_weight, axes=[1, 0]);
+  %180 = reshape(%178, newshape=[-1, 64]);
+  %181 = transpose(%179, axes=[1, 0]);
+  %182 = nn.dense(%180, %181, units=None);
+  %183 = reshape(%182, newshape=[1, 4, 256]);
+  %184 = add(%183, %v8_1_fn_0_bias);
+  %185 = multiply(%184, 0.707107f);
+  %186 = erf(%185);
+  %187 = multiply(%186, 0.5f);
+  %188 = add(0.5f, %187);
+  %189 = multiply(%184, %188);
+  %190 = transpose(%v8_1_fn_2_weight, axes=[1, 0]);
+  %191 = reshape(%189, newshape=[-1, 256]);
+  %192 = transpose(%190, axes=[1, 0]);
+  %193 = nn.dense(%191, %192, units=None);
+  %194 = reshape(%193, newshape=[1, 4, 64]);
+  %195 = add(%194, %v8_1_fn_2_bias);
+  %196 = multiply(%195, %v8_1_scale);
+  %197 = add(%196, %176);
+  %198 = multiply(%197, %v9_0_affine_g);
+  %199 = add(%198, %v9_0_affine_b);
+  %200 = nn.conv1d(%199, %v9_0_fn_weight, channels=4, kernel_size=[1]);
+  %201 = nn.bias_add(%200, %v9_0_fn_bias);
+  %202 = multiply(%201, %v9_0_scale);
+  %203 = add(%202, %197);
+  %204 = multiply(%203, %v9_1_affine_g);
+  %205 = add(%204, %v9_1_affine_b);
+  %206 = transpose(%v9_1_fn_0_weight, axes=[1, 0]);
+  %207 = reshape(%205, newshape=[-1, 64]);
+  %208 = transpose(%206, axes=[1, 0]);
+  %209 = nn.dense(%207, %208, units=None);
+  %210 = reshape(%209, newshape=[1, 4, 256]);
+  %211 = add(%210, %v9_1_fn_0_bias);
+  %212 = multiply(%211, 0.707107f);
+  %213 = erf(%212);
+  %214 = multiply(%213, 0.5f);
+  %215 = add(0.5f, %214);
+  %216 = multiply(%211, %215);
+  %217 = transpose(%v9_1_fn_2_weight, axes=[1, 0]);
+  %218 = reshape(%216, newshape=[-1, 256]);
+  %219 = transpose(%217, axes=[1, 0]);
+  %220 = nn.dense(%218, %219, units=None);
+  %221 = reshape(%220, newshape=[1, 4, 64]);
+  %222 = add(%221, %v9_1_fn_2_bias);
+  %223 = multiply(%222, %v9_1_scale);
+  %224 = add(%223, %203);
+  %225 = multiply(%224, %v10_0_affine_g);
+  %226 = add(%225, %v10_0_affine_b);
+  %227 = nn.conv1d(%226, %v10_0_fn_weight, channels=4, kernel_size=[1]);
+  %228 = nn.bias_add(%227, %v10_0_fn_bias);
+  %229 = multiply(%228, %v10_0_scale);
+  %230 = add(%229, %224);
+  %231 = multiply(%230, %v10_1_affine_g);
+  %232 = add(%231, %v10_1_affine_b);
+  %233 = transpose(%v10_1_fn_0_weight, axes=[1, 0]);
+  %234 = reshape(%232, newshape=[-1, 64]);
+  %235 = transpose(%233, axes=[1, 0]);
+  %236 = nn.dense(%234, %235, units=None);
+  %237 = reshape(%236, newshape=[1, 4, 256]);
+  %238 = add(%237, %v10_1_fn_0_bias);
+  %239 = multiply(%238, 0.707107f);
+  %240 = erf(%239);
+  %241 = multiply(%240, 0.5f);
+  %242 = add(0.5f, %241);
+  %243 = multiply(%238, %242);
+  %244 = transpose(%v10_1_fn_2_weight, axes=[1, 0]);
+  %245 = reshape(%243, newshape=[-1, 256]);
+  %246 = transpose(%244, axes=[1, 0]);
+  %247 = nn.dense(%245, %246, units=None);
+  %248 = reshape(%247, newshape=[1, 4, 64]);
+  %249 = add(%248, %v10_1_fn_2_bias);
+  %250 = multiply(%249, %v10_1_scale);
+  %251 = add(%250, %230);
+  %252 = multiply(%251, %v11_0_affine_g);
+  %253 = add(%252, %v11_0_affine_b);
+  %254 = nn.conv1d(%253, %v11_0_fn_weight, channels=4, kernel_size=[1]);
+  %255 = nn.bias_add(%254, %v11_0_fn_bias);
+  %256 = multiply(%255, %v11_0_scale);
+  %257 = add(%256, %251);
+  %258 = multiply(%257, %v11_1_affine_g);
+  %259 = add(%258, %v11_1_affine_b);
+  %260 = transpose(%v11_1_fn_0_weight, axes=[1, 0]);
+  %261 = reshape(%259, newshape=[-1, 64]);
+  %262 = transpose(%260, axes=[1, 0]);
+  %263 = nn.dense(%261, %262, units=None);
+  %264 = reshape(%263, newshape=[1, 4, 256]);
+  %265 = add(%264, %v11_1_fn_0_bias);
+  %266 = multiply(%265, 0.707107f);
+  %267 = erf(%266);
+  %268 = multiply(%267, 0.5f);
+  %269 = add(0.5f, %268);
+  %270 = multiply(%265, %269);
+  %271 = transpose(%v11_1_fn_2_weight, axes=[1, 0]);
+  %272 = reshape(%270, newshape=[-1, 256]);
+  %273 = transpose(%271, axes=[1, 0]);
+  %274 = nn.dense(%272, %273, units=None);
+  %275 = reshape(%274, newshape=[1, 4, 64]);
+  %276 = add(%275, %v11_1_fn_2_bias);
+  %277 = multiply(%276, %v11_1_scale);
+  %278 = add(%277, %257);
+  %279 = multiply(%278, %v12_0_affine_g);
+  %280 = add(%279, %v12_0_affine_b);
+  %281 = nn.conv1d(%280, %v12_0_fn_weight, channels=4, kernel_size=[1]);
+  %282 = nn.bias_add(%281, %v12_0_fn_bias);
+  %283 = multiply(%282, %v12_0_scale);
+  %284 = add(%283, %278);
+  %285 = multiply(%284, %v12_1_affine_g);
+  %286 = add(%285, %v12_1_affine_b);
+  %287 = transpose(%v12_1_fn_0_weight, axes=[1, 0]);
+  %288 = reshape(%286, newshape=[-1, 64]);
+  %289 = transpose(%287, axes=[1, 0]);
+  %290 = nn.dense(%288, %289, units=None);
+  %291 = reshape(%290, newshape=[1, 4, 256]);
+  %292 = add(%291, %v12_1_fn_0_bias);
+  %293 = multiply(%292, 0.707107f);
+  %294 = erf(%293);
+  %295 = multiply(%294, 0.5f);
+  %296 = add(0.5f, %295);
+  %297 = multiply(%292, %296);
+  %298 = transpose(%v12_1_fn_2_weight, axes=[1, 0]);
+  %299 = reshape(%297, newshape=[-1, 256]);
+  %300 = transpose(%298, axes=[1, 0]);
+  %301 = nn.dense(%299, %300, units=None);
+  %302 = reshape(%301, newshape=[1, 4, 64]);
+  %303 = add(%302, %v12_1_fn_2_bias);
+  %304 = multiply(%303, %v12_1_scale);
+  %305 = add(%304, %284);
+  %306 = multiply(%305, %v13_0_affine_g);
+  %307 = add(%306, %v13_0_affine_b);
+  %308 = nn.conv1d(%307, %v13_0_fn_weight, channels=4, kernel_size=[1]);
+  %309 = nn.bias_add(%308, %v13_0_fn_bias);
+  %310 = multiply(%309, %v13_0_scale);
+  %311 = add(%310, %305);
+  %312 = multiply(%311, %v13_1_affine_g);
+  %313 = add(%312, %v13_1_affine_b);
+  %314 = transpose(%v13_1_fn_0_weight, axes=[1, 0]);
+  %315 = reshape(%313, newshape=[-1, 64]);
+  %316 = transpose(%314, axes=[1, 0]);
+  %317 = nn.dense(%315, %316, units=None);
+  %318 = reshape(%317, newshape=[1, 4, 256]);
+  %319 = add(%318, %v13_1_fn_0_bias);
+  %320 = multiply(%319, 0.707107f);
+  %321 = erf(%320);
+  %322 = multiply(%321, 0.5f);
+  %323 = add(0.5f, %322);
+  %324 = multiply(%319, %323);
+  %325 = transpose(%v13_1_fn_2_weight, axes=[1, 0]);
+  %326 = reshape(%324, newshape=[-1, 256]);
+  %327 = transpose(%325, axes=[1, 0]);
+  %328 = nn.dense(%326, %327, units=None);
+  %329 = reshape(%328, newshape=[1, 4, 64]);
+  %330 = add(%329, %v13_1_fn_2_bias);
+  %331 = multiply(%330, %v13_1_scale);
+  %332 = add(%331, %311);
+  %333 = multiply(%332, %v14_g);
+  %334 = add(%333, %v14_b);
+  %335 = reshape(%334, newshape=[1, 4, 64]);
+  %336 = mean(%335, axis=[1]);
+  %337 = transpose(%336, axes=[0, 1]);
+  %338 = transpose(%v16_weight, axes=[1, 0]);
+  %339 = reshape(%337, newshape=[1, 64]);
+  %340 = transpose(%338, axes=[1, 0]);
+  %341 = nn.dense(%339, %340, units=32);
+  add(%341, %v16_bias)
+}
