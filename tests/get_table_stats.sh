@@ -34,3 +34,10 @@ python3 validate_compilation.py lstm-for-pldi --configs flexasr-lstm --get-stats
 python3 validate_compilation.py lstm-for-pldi --configs hlscnn-conv2d --get-stats
 # LSTM on VTA
 python3 validate_compilation.py lstm-for-pldi --configs vta-dense --get-stats  
+
+# Transformer on FlexASR
+python3 validate_compilation.py transformer --configs flexasr-lstm linear-rewrites --get-stats
+# Transformer on HLSCNN
+python3 validate_compilation.py transformer --configs hlscnn-conv2d --get-stats
+# Transformer on VTA
+python3 validate_compilation.py transformer --configs vta-dense --get-stats

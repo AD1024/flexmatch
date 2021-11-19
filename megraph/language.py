@@ -58,7 +58,7 @@ class RelayOperators(enum.Enum):
         # Handle special case of relay operator calls
         # could be mitigated by spliting parameters from attributes in glenside
         if self.value[0] == relay.nn.layer_norm:
-            return relay.nn.layer_norm(x[0], gamma=float(x[1]), beta=float(x[2]))
+            return relay.nn.layer_norm(x[0], gamma=x[1], beta=x[2])
         if self.value[0] == relay.split:
             return relay.split(x[0], indices_or_sections=int(x[1]), axis=int(x[2])).tuple_value
         if self.value[0] == relay.stack:

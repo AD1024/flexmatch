@@ -133,6 +133,7 @@ fn main() {
                     RelayOperator::RelayTanh,
                     RelayOperator::RelayLogSoftmax,
                     RelayOperator::RelayAdd,
+                    RelayOperator::RelayStridedSlice,
                 ],
             );
         let mut env = HashMap::default();
