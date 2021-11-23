@@ -16,14 +16,15 @@ log = "0.4.14"
 env_logger = "0.9.0"
 
 [dependencies.glenside]
-git = "https://github.com/gussmith23/glenside"
-rev = "76ab6b6525da89a28a109e038c8b5545e0f4fc1f"
+# git = "https://github.com/AD1024/glenside"
+# rev = "76ab6b6525da89a28a109e038c8b5545e0f4fc1f"
+path = "../../glenside"
 default-features = false
 features = ["tvm"]
 
 [dependencies.egg]
 git = "https://github.com/AD1024/egg"
-rev = "b8f902f554cc476c397e4fd9c7bea229f946d2a9"
+branch = "550-unicall"
 
 [dependencies.tvm]
 git = "ssh://git@github.com/uwsampl/3la-tvm.git"
@@ -32,3 +33,6 @@ rev = "8185bdfe61ef3e5579867393eb52669bb8daebb2"
 [dependencies.rplex]
 optional = true
 git = "https://github.com/gussmith23/rplex"
+
+[dependencies.simge]
+path = "/home/dh63/cse550-project/simge"
