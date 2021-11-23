@@ -22,11 +22,12 @@ pub fn get_rewrite_from_string(name: &String, args: &Box<[i32]>) -> Rewrite<Lang
         "simplify-multiple-access-reshapes" => simplify_multiple_access_reshapes(),
         "bubble-access-through-access-transpose" => bubble_access_through_access_transpose(),
         "simplify-reduce-max" => simplify_reduce_max(),
+        "merge-region" => merge_region(),
 
         "flex-linear-rewrite" => linear_layer_accelerator_rewrites(),
-        "flex-linear-dense" => dot_product_to_linear(),
         "flex-lstm" => lstm_to_flexasr(),
         "hlscnn-conv2d" => conv2d_on_hlscnn(),
+        "vta-relu-rewrite" => relu_on_vta(),
         "vta-dense-rewrite" => dot_product_with_vta(),
         "flexasr-maxpool" => flexasr_maxpool(),
         "glenside_matmul_to_relay_dense" => glenside_matmul_to_relay_dense(),

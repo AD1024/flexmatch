@@ -8,7 +8,11 @@ use glenside::{
 use rewrites::{get_rewrite_from_string, im2col_rewrites, linear_rewrites};
 use serde::Deserialize;
 use serde_json;
-use simge::{from_glenside, memory::{DRAM, SRAM}, sim::*};
+use simge::{
+    from_glenside,
+    memory::{DRAM, SRAM},
+    sim::*,
+};
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
     env, fs,
@@ -135,6 +139,7 @@ fn main() {
                     RelayOperator::RelayLogSoftmax,
                     RelayOperator::RelayAdd,
                     RelayOperator::RelayStridedSlice,
+                    RelayOperator::RelayReLU,
                 ],
             );
         let mut env = HashMap::default();
@@ -212,17 +217,40 @@ fn main() {
                 AcceleratorCostFunction(runner.egraph.total_size() as f64),
             );
             let (_cost, best) = extractor.find_best(root_expr);
-            let mut operators = from_glenside::compile_instruction(
+            // println!("{:?}\n{}", best.nodes, best.pretty(10));
+            let mut new_egraph =
+                egg::EGraph::<glenside::language::Language, MyAnalysis>::new(MyAnalysis {
+                    name_to_shape: env.clone(),
+                    name_to_dtype: dtype_info.iter().cloned().collect(),
+                });
+            let (_, id_map) = new_egraph.add_expr_with_record(&best);
+            let (mut operators, _output_id) = from_glenside::compile_instruction(
                 &egg::Id::from(best.nodes.len() - 1),
-                &expr,
-                &mut HashSet::default(),
-                &runner.egraph,
+                &best,
+                &mut HashMap::default(),
+                &new_egraph,
+                &id_map.into_iter().collect(),
             );
             let mut simulator = JitSim {};
             let mut srams = HashMap::default();
-            let mut vta_sram = SRAM::new(20);
+            let vta_sram = SRAM::new(4);
             srams.insert("vta".into(), vta_sram);
-            simulator.run(&mut operators, &mut srams, &mut DRAM::new(), &mut HashSet::default());
+            // println!("Operators: {:?}", operators);
+            simulator.run(
+                &mut operators,
+                &mut srams,
+                &mut DRAM::new(),
+                &mut HashSet::default(),
+            );
+            info!(
+                "Round Trip on SRAM: {} = {}",
+                srams
+                    .iter()
+                    .map(|x| x.1.trip_count.to_string())
+                    .collect::<Vec<_>>()
+                    .join(" + "),
+                srams.iter().map(|x| x.1.trip_count).sum::<usize>()
+            );
             // save_expr_and_analysis(
             //     output_file,
             //     analysis_data_file,

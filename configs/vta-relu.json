@@ -1,0 +1,17 @@
+{
+    "rewrites": {
+        "vta-relu-rewrite": []
+    },
+    "composites": {
+        "vta-relu": "ilavta.relu"
+    },
+    "compilers": {
+        "vta-relu": "ilavata"
+    },
+    "debug_functions": {
+        "vta-relu": "nn.relu"
+    },
+    "out_dtypes": {
+        "vta-relu": "float32"
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "rewrites": {
+        "merge-region": []
+    },
+    "composites": {
+    },
+    "compilers": {
+    },
+    "debug_functions": {
+    },
+    "out_dtypes": {
+    }
+}
