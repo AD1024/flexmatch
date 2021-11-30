@@ -231,7 +231,7 @@ fn main() {
                 &new_egraph,
                 &id_map.into_iter().collect(),
             );
-            let mut simulator = JitSim {};
+            let mut simulator = JitSim::new(simge::heuristics::RandomEviction {});
             let mut srams = HashMap::default();
             let vta_sram = SRAM::new(4);
             srams.insert("vta".into(), vta_sram);
