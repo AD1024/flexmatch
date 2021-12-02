@@ -32,6 +32,10 @@ pub fn get_rewrite_from_string(name: &String, args: &Box<[i32]>) -> Rewrite<Lang
         "flexasr-maxpool" => flexasr_maxpool(),
         "glenside_matmul_to_relay_dense" => glenside_matmul_to_relay_dense(),
         "add_bias_add_to_dense" => add_bias_add_to_dense(),
+        "relu-on-accel" => relu_on_accel(),
+        "conv2d-on-accel" => conv2d_on_accel(),
+        "add-on-accel" => add_on_accel(),
+        "multiply-on-accel" => multiply_on_accel(),
         _ => {
             eprintln!("{} not implemented", name);
             todo!()

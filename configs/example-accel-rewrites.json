@@ -1,0 +1,32 @@
+{
+    "rewrites": {
+        "relu-on-accel": [],
+        "conv2d-on-accel": [],
+        "add-on-accel": [],
+        "multiply-on-accel": []
+    },
+    "composites": {
+        "relu-on-accel": "accel.relu",
+        "conv2d-on-accel": "accel.conv2d",
+        "add-on-accel": "accel.add",
+        "multiply-on-accel": "accel.multiply"
+    },
+    "compilers": {
+        "relu-on-accel": "accel",
+        "conv2d-on-accel": "accel",
+        "add-on-accel": "accel",
+        "multiply-on-accel": "accel"
+    },
+    "debug_functions": {
+        "relu-on-accel": "nn.relu",
+        "conv2d-on-accel": "nn.conv2d",
+        "add-on-accel": "relay.add",
+        "multiply-on-accel": "relay.multiply"
+    },
+    "out_dtypes": {
+        "relu-on-accel": "float32",
+        "conv2d-on-accel": "float32",
+        "add-on-accel": "float32",
+        "multiply-on-accel": "float32"
+    }
+}

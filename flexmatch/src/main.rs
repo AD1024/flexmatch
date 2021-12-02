@@ -35,6 +35,11 @@ struct RewriteConfig {
     out_dtypes: HashMap<String, String>,
 }
 
+#[derive(Deserialize, Clone, Debug)]
+struct SramConfigs {
+    srams: HashMap<String, usize>,
+}
+
 fn read_configs(flexmatch_home: &PathBuf, config_files: &[String]) -> Vec<RewriteConfig> {
     let mut result: Vec<RewriteConfig> = Vec::default();
     for config in config_files {
@@ -49,45 +54,6 @@ fn read_configs(flexmatch_home: &PathBuf, config_files: &[String]) -> Vec<Rewrit
     return result;
 }
 
-fn save_egraph_as_recexpr(
-    egraph: &EGraph<glenside::language::Language, MyAnalysis>,
-    rec_expr: &mut egg::RecExpr<glenside::language::Language>,
-) {
-    let mut expr_map: BTreeMap<egg::Id, glenside::language::Language> = BTreeMap::new();
-    for eclass in egraph.classes() {
-        assert_eq!(eclass.nodes.len(), 1);
-        expr_map.insert(eclass.id, eclass.nodes[0].clone());
-    }
-    for (_id, expr) in expr_map.into_iter() {
-        rec_expr.add(expr);
-    }
-}
-
-fn save_expr_and_analysis(
-    rec_expr_file: PathBuf,
-    analysis_data_file: PathBuf,
-    input_shapes: &HashMap<String, Vec<usize>>,
-    input_dtypes: &HashMap<String, glenside::language::DataType>,
-    best: &egg::RecExpr<glenside::language::Language>,
-) {
-    info!("Saving RecExpr to {:?}", rec_expr_file);
-    let json_dump = best.serialize();
-    let output_file = PathBuf::from(env::current_dir().unwrap()).join(rec_expr_file);
-    let _ = std::fs::write(output_file, json_dump.to_string()).unwrap();
-    let mut egraph = EGraph::new(MyAnalysis {
-        name_to_shape: input_shapes.clone(),
-        name_to_dtype: input_dtypes.clone(),
-    });
-    let (_, id_map) = egraph.add_expr_with_record(&best);
-    let mut native_map = HashMap::new();
-    for (k, v) in id_map.into_iter() {
-        native_map.insert(k, v);
-    }
-    let data_json_dump = serialize_analysis_data(&egraph, &native_map);
-    let data_output = PathBuf::from(env::current_dir().unwrap()).join(analysis_data_file);
-    let _ = std::fs::write(data_output, data_json_dump.to_string()).unwrap();
-}
-
 fn main() {
     env_logger::init();
     let args = env::args().collect::<Vec<_>>();
@@ -97,14 +63,21 @@ fn main() {
         exit(0);
     } else {
         let source_file = &args[1];
-        let output_file = PathBuf::from(&args[2]);
-        let analysis_data_file = PathBuf::from(&args[3]);
+        let sram_configs = PathBuf::from(&args[2]);
         let use_ilp = &args[args.len() - 1] == "--ilp";
         let config_files = if use_ilp {
-            &args[4..args.len() - 1]
+            &args[3..args.len() - 1]
         } else {
-            &args[4..]
+            &args[3..]
         };
+
+        let sram_config_path = flexmatch_home.join(Path::new("configs").join(sram_configs.clone()));
+        let mut sram_config = None;
+        if let Ok(content) = std::fs::read_to_string(sram_config_path) {
+            sram_config = Some(serde_json::from_str::<SramConfigs>(&content).unwrap());
+        } else {
+            panic!("failed to read {:?}", sram_configs);
+        }
 
         let aggregated_configs = read_configs(&flexmatch_home, config_files);
         let mut rewrites = vec![];
@@ -230,11 +203,14 @@ fn main() {
                 &mut HashMap::default(),
                 &new_egraph,
                 &id_map.into_iter().collect(),
-            );
-            let mut simulator = JitSim::new(simge::heuristics::RandomEviction {});
-            let mut srams = HashMap::default();
-            let vta_sram = SRAM::new(4);
-            srams.insert("vta".into(), vta_sram);
+            ).unwrap();
+            let mut simulator = JitSim::new(simge::heuristics::LRU::new());
+            let mut srams = sram_config.unwrap().srams
+                .into_iter()
+                .map(|sram| (sram.0, SRAM::new(sram.1)))
+                .collect::<HashMap<_, _>>();
+            // srams.insert("vta".into(), vta_sram);
+            // srams.insert("accel".into(), SRAM::new(1024));
             // println!("Operators: {:?}", operators);
             simulator.run(
                 &mut operators,
@@ -246,18 +222,11 @@ fn main() {
                 "Round Trip on SRAM: {} = {}",
                 srams
                     .iter()
-                    .map(|x| x.1.trip_count.to_string())
+                    .map(|x| format!("{}({})", x.1.trip_count, x.0))
                     .collect::<Vec<_>>()
                     .join(" + "),
                 srams.iter().map(|x| x.1.trip_count).sum::<usize>()
             );
-            // save_expr_and_analysis(
-            //     output_file,
-            //     analysis_data_file,
-            //     &env,
-            //     &dtype_info.into_iter().collect(),
-            //     &best,
-            // );
         } else {
             // The following extraction strategy is borrowed from Glenside ISCA demo
             /*
@@ -327,95 +296,4 @@ fn main() {
             } */
         }
     }
-}
-
-fn check_accelerator_call_by_eid(
-    ch_id: &egg::Id,
-    egraph: &EGraph<glenside::language::Language, MyAnalysis>,
-) -> bool {
-    match &egraph[*ch_id].data {
-        MyAnalysisData::AccessPattern(access) => access.contains_accelerator_calls,
-        _ => false,
-    }
-}
-
-fn get_node_weights(node: &glenside::language::Language, total_size: f64) -> f64 {
-    if let glenside::language::Language::AcceleratorCall(_) = node {
-        debug!("Accelerator-call encountered");
-    }
-    match node {
-        glenside::language::Language::AcceleratorCall(_) => -total_size * 10.0,
-        glenside::language::Language::List(_)
-        | glenside::language::Language::Shape(_)
-        | glenside::language::Language::RelayKernelLayout(_)
-        | glenside::language::Language::RelayActivationLayout(_)
-        | glenside::language::Language::Usize(_)
-        | glenside::language::Language::NotNanFloat64(_)
-        | glenside::language::Language::AccessShape(_)
-        | glenside::language::Language::AcceleratorFunc(_)
-        | glenside::language::Language::Symbol(_)
-        | glenside::language::Language::PadType(_)
-        | glenside::language::Language::Int32(_)
-        | glenside::language::Language::Uint8(_)
-        | glenside::language::Language::ConstantTensor(_)
-        | glenside::language::Language::Literal(_)
-        | glenside::language::Language::AccessLiteral(_)
-        | glenside::language::Language::AccessTensor(_) => 1.0,
-        glenside::language::Language::RelayOperatorCall(_) => total_size / 100.0,
-        glenside::language::Language::RelayOperator(_) => 1.0,
-        glenside::language::Language::AccessTranspose(_)
-        | glenside::language::Language::AccessPad(_)
-        | glenside::language::Language::Access(_)
-        | glenside::language::Language::AccessFlatten(_)
-        | glenside::language::Language::AccessWindows(_)
-        | glenside::language::Language::AccessBroadcast(_)
-        | glenside::language::Language::AccessInsertAxis(_)
-        | glenside::language::Language::AccessSlice(_)
-        | glenside::language::Language::AccessSqueeze(_) => total_size / 10.0,
-
-        glenside::language::Language::Compute(_)
-        | glenside::language::Language::AccessReshape(_)
-        | glenside::language::Language::ComputeType(_)
-        | glenside::language::Language::AccessPair(_) => total_size,
-        _ => total_size / 20.0,
-    }
-}
-
-fn filter_nodes(
-    node: &glenside::language::Language,
-    id: egg::Id,
-    egraph: &EGraph<glenside::language::Language, MyAnalysis>,
-) -> bool {
-    let id = egraph.find(id);
-    if let glenside::language::Language::AcceleratorCall(_) = &node {
-        return true;
-    }
-    if egraph[id].nodes.iter().any(|node| match node {
-        glenside::language::Language::AcceleratorCall(_) => true,
-        _ => false,
-    }) {
-        return false;
-    }
-    let contains_accel_call =
-        if let glenside::language::MyAnalysisData::AccessPattern(access) = &egraph[id].data {
-            access.contains_accelerator_calls
-        } else {
-            false
-        };
-    if contains_accel_call {
-        let result = node
-            .children()
-            .iter()
-            .any(|cid| check_accelerator_call_by_eid(&egraph.find(*cid), egraph));
-        if !result {
-            debug!(
-                "Say no to {:?} because it's not an accelerator call from {:?}",
-                node, &egraph[id]
-            );
-            return false;
-        } else {
-            return true;
-        }
-    }
-    return true;
 }
