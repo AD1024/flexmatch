@@ -1,9 +1,9 @@
 mod rewrites;
 
-use egg::{EGraph, Extractor, Language, Runner};
+use egg::{EGraph, Extractor, Runner};
 use glenside::{
     extraction::AcceleratorCostFunction,
-    language::{serialize_analysis_data, MyAnalysis, MyAnalysisData, RelayOperator},
+    language::{MyAnalysis, RelayOperator},
 };
 use rewrites::{get_rewrite_from_string, im2col_rewrites, linear_rewrites};
 use serde::Deserialize;
@@ -14,7 +14,7 @@ use simge::{
     sim::*,
 };
 use std::{
-    collections::{BTreeMap, HashMap, HashSet},
+    collections::{HashMap, HashSet},
     env, fs,
     path::{Path, PathBuf},
     process::exit,
