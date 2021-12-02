@@ -204,9 +204,11 @@ fn main() {
                 &mut HashMap::default(),
                 &new_egraph,
                 &id_map.into_iter().collect(),
-            ).unwrap();
+            )
+            .unwrap();
             let sram_config = sram_config.unwrap();
-            let mut srams = sram_config.srams
+            let mut srams = sram_config
+                .srams
                 .into_iter()
                 .map(|sram| (sram.0, SRAM::new(sram.1)))
                 .collect::<HashMap<_, _>>();
