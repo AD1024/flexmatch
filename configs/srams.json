@@ -2,5 +2,6 @@
     "srams": {
         "vta": 10,
         "accel": 40
-    }
+    },
+    "policy": "lru"
 }

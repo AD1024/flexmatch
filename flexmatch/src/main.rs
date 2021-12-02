@@ -38,6 +38,7 @@ struct RewriteConfig {
 #[derive(Deserialize, Clone, Debug)]
 struct SramConfigs {
     srams: HashMap<String, usize>,
+    policy: String,
 }
 
 fn read_configs(flexmatch_home: &PathBuf, config_files: &[String]) -> Vec<RewriteConfig> {
@@ -204,20 +205,31 @@ fn main() {
                 &new_egraph,
                 &id_map.into_iter().collect(),
             ).unwrap();
-            let mut simulator = JitSim::new(simge::heuristics::LRU::new());
-            let mut srams = sram_config.unwrap().srams
+            let sram_config = sram_config.unwrap();
+            let mut srams = sram_config.srams
                 .into_iter()
                 .map(|sram| (sram.0, SRAM::new(sram.1)))
                 .collect::<HashMap<_, _>>();
             // srams.insert("vta".into(), vta_sram);
             // srams.insert("accel".into(), SRAM::new(1024));
             // println!("Operators: {:?}", operators);
-            simulator.run(
-                &mut operators,
-                &mut srams,
-                &mut DRAM::new(),
-                &mut HashSet::default(),
-            );
+            if "lru" == sram_config.policy.as_str() {
+                let mut simulator = JitSim::new(simge::heuristics::LRU::new());
+                simulator.run(
+                    &mut operators,
+                    &mut srams,
+                    &mut DRAM::new(),
+                    &mut HashSet::default(),
+                );
+            } else if "random" == sram_config.policy.as_str() {
+                let mut simulator = JitSim::new(simge::heuristics::RandomEviction::new());
+                simulator.run(
+                    &mut operators,
+                    &mut srams,
+                    &mut DRAM::new(),
+                    &mut HashSet::default(),
+                );
+            }
             info!(
                 "Round Trip on SRAM: {} = {}",
                 srams
