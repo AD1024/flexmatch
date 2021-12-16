@@ -17,7 +17,7 @@ env_logger = "0.9.0"
 
 [dependencies.glenside]
 git = "https://github.com/gussmith23/glenside"
-rev = "76ab6b6525da89a28a109e038c8b5545e0f4fc1f"
+rev = "05c3eae7562aae4ff46dd4068dec9a8e9e6b99a2"
 default-features = false
 features = ["tvm"]
 
@@ -27,7 +27,7 @@ rev = "b8f902f554cc476c397e4fd9c7bea229f946d2a9"
 
 [dependencies.tvm]
 git = "ssh://git@github.com/uwsampl/3la-tvm.git"
-rev = "8185bdfe61ef3e5579867393eb52669bb8daebb2"
+rev = "24c9eb8aed209bba4427a880885708ad61b5a707"
 
 [dependencies.rplex]
 optional = true
