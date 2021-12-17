@@ -27,7 +27,7 @@ rev = "b8f902f554cc476c397e4fd9c7bea229f946d2a9"
 
 [dependencies.tvm]
 git = "ssh://git@github.com/uwsampl/3la-tvm.git"
-rev = "24c9eb8aed209bba4427a880885708ad61b5a707"
+rev = "6798378206845d2955cf6f2c891e81ee1ba6c6b0"
 
 [dependencies.rplex]
 optional = true
