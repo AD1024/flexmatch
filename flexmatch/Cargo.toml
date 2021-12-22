@@ -17,7 +17,7 @@ env_logger = "0.9.0"
 
 [dependencies.glenside]
 git = "https://github.com/gussmith23/glenside"
-rev = "1c3ffd79371b9ee041708a6f608e271b228b8a67"
+rev = "381ec3211bc8a76d424cbbbac21f6c8fadf8b841"
 default-features = false
 features = ["tvm"]
 
