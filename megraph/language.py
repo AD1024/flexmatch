@@ -377,7 +377,7 @@ class RecExprCompiler:
             strides = children_exprs[2]
             data_shape = self.eclass_analysis[enode.children[0]]['relay_shape']
             axis = len(data_shape) - len(kernel_shape)
-            return relay.windows(data, axis, kernel_shape, strides)
+            return relay.sliding_window(data, axis, kernel_shape, strides)
         elif isinstance(enode, AccessPair):
             return (ch_vars[0], ch_vars[1])
         elif isinstance(enode, AccessSlice):
