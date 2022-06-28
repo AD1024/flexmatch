@@ -41,3 +41,18 @@ python3 validate_compilation.py transformer --configs flexasr-lstm linear-rewrit
 python3 validate_compilation.py transformer --configs hlscnn-conv2d --get-stats
 # Transformer on VTA
 python3 validate_compilation.py transformer --configs vta-dense --get-stats
+
+# Resnet50 from tensorflow
+python3 validate_compilation.py resnet50_simplifyinference_from_tf.relay --configs flexasr-lstm linear-rewrites --get-stats
+python3 validate_compilation.py resnet50_simplifyinference_from_tf.relay --configs hlscnn-conv2d --get-stats
+python3 validate_compilation.py resnet50_simplifyinference_from_tf.relay --configs vta-dense --get-stats
+
+# Resnet50 from pytorch
+python3 validate_compilation.py resnet50_simplifyinference_from_pytorch.relay --configs flexasr-lstm linear-rewrites --get-stats
+python3 validate_compilation.py resnet50_simplifyinference_from_pytorch.relay --configs hlscnn-conv2d --get-stats
+python3 validate_compilation.py resnet50_simplifyinference_from_pytorch.relay --configs vta-dense --get-stats
+
+# Resnet50 from onnx
+python3 validate_compilation.py resnet50_simplifyinference_from_onnx.relay --configs flexasr-lstm linear-rewrites --get-stats
+python3 validate_compilation.py resnet50_simplifyinference_from_onnx.relay --configs hlscnn-conv2d --get-stats
+python3 validate_compilation.py resnet50_simplifyinference_from_onnx.relay --configs vta-dense --get-stats
