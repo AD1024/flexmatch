@@ -1,11 +1,3 @@
 __pycache__
-*.json
-!configs/*.json
-*.relay
-!tests/models
-tests/params/
 .pkl_memoize_py3
-*.lp
-*.log
-*.txt
 tests/data
