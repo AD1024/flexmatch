@@ -76,7 +76,7 @@ class RelayOperators(enum.Enum):
         if self.value[0] == relay.take:
             return relay.take(x[0], x[1], axis=int(x[2]))
         if self.value[0] == relay.mean:
-            return self.value[0](x[0], axis=x[1])
+            return self.value[0](x[0], axis=x[1], keepdims=int(x[2]) == 1)
         if self.value[0] == relay.nn.bias_add:
             return self.value[0](x[0], x[1], axis=int(x[2]))
         if self.value[0] == relay.nn.batch_norm:
@@ -84,7 +84,10 @@ class RelayOperators(enum.Enum):
         if self.value[0] == relay.nn.max_pool2d or self.value[0] == relay.nn.global_avg_pool2d:
             layout = x[-1]
             if layout == RelayActivationLayout.NCHW:
-                return self.value[0](x[0], pool_size=x[1], strides=x[2], padding=x[3], layout='NCHW')
+                if len(x) > 2:
+                    return self.value[0](x[0], pool_size=x[1], strides=x[2], padding=x[3], layout='NCHW')
+                else:
+                    return self.value[0](x[0], layout='NCHW')
             elif layout == RelayActivationLayout.NHWC:
                 return self.value[0](*x[:-1], layout='NHWC')
         if self.value[0] == relay.nn.adaptive_avg_pool2d:
@@ -107,7 +110,7 @@ class RelayOperators(enum.Enum):
             # compliation (b/c of the `kernel_size` argument)
             return self.value[0](x[0], x[1], strides=tuple(x[2][1:]), padding=tuple(x[3]),
                                 groups=int(x[4]), channels=int(x[5]), kernel_size=(int(x[6][1]), int(x[6][2])),
-                                data_layout=data_layout, kernel_layout=kernel_layout)
+                                data_layout="NCHW", kernel_layout="OIHW")
         if self.value[0] == relay.nn.avg_pool2d:
             assert(len(x) == 5)
             data_layout = x[-1].value
@@ -157,6 +160,7 @@ class RelayActivationLayout(enum.Enum):
 class RelayKernelLayout(enum.Enum):
     OIHW = 'OIHW'
     OHWI = 'OHWI'
+    HWIO = 'HWIO'
 
 class Compute(ENode):
     pass
@@ -614,6 +618,7 @@ def downcast(enode: ENode):
         'relay-activation-layout-nhwc': RelayActivationLayout.NHWC,
         'relay-kernel-layout-oihw': RelayKernelLayout.OIHW,
         'relay-kernel-layout-ohwi': RelayKernelLayout.OHWI,
+        'relay-kernel-layout-hwio': RelayKernelLayout.HWIO,
     }.get(symbol, None)
     if lang:
         return lang
