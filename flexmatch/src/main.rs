@@ -130,6 +130,7 @@ fn main() {
                 &vec![
                     RelayOperator::RelaySigmoid,
                     RelayOperator::RelayAvgPool2D,
+                    RelayOperator::RelayMaxPool2D,
                     RelayOperator::RelayTanh,
                     RelayOperator::RelayLogSoftmax,
                     RelayOperator::RelayAdd,
