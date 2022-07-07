@@ -43,7 +43,7 @@ python3 validate_compilation.py transformer --configs hlscnn-conv2d --get-stats
 python3 validate_compilation.py transformer --configs vta-dense --get-stats
 
 # Resnet50 from tensorflow
-python3 validate_compilation.py resnet50_simplifyinference_from_tf --configs flexasr-lstm linear-rewrites --get-stats
+python3 validate_compilation.py resnet50_simplifyinference_from_tf --configs flexasr-lstm im2col linear-rewrites --get-stats
 python3 validate_compilation.py resnet50_simplifyinference_from_tf --configs hlscnn-conv2d --get-stats
 python3 validate_compilation.py resnet50_simplifyinference_from_tf --configs im2col vta-dense --get-stats
 

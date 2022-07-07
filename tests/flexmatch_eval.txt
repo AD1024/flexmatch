@@ -235,16 +235,16 @@ ALL Ops in overloads = 66 * #ops per pattern
 Output file written to:  /root/flexmatch/tests/resnet50_simplifyinference_from_tf-rewritten.json /root/flexmatch/tests/resnet50_simplifyinference_from_tf-data.json
 Compiled model saved to resnet50_simplifyinference_from_tf-rewritten.relay
 Files already downloaded and verified
-Step 1: Run EqSat with flexasr-lstm linear-rewrites
+Step 1: Run EqSat with flexasr-lstm im2col linear-rewrites
 Step 2: Compiling back to Relay with resnet50_simplifyinference_from_tf-rewritten.json and resnet50_simplifyinference_from_tf-data.json
 Vanilla relay:
 ALL overloads: 0
 ALL Ops: 609
 ALL Ops in overloads = 0 * #ops per pattern
 EqSat model:
-ALL overloads: 1
-ALL Ops: 765
-ALL Ops in overloads = 1 * #ops per pattern
+ALL overloads: 54
+ALL Ops: 1183
+ALL Ops in overloads = 54 * #ops per pattern
 Output file written to:  /root/flexmatch/tests/resnet50_simplifyinference_from_tf-rewritten.json /root/flexmatch/tests/resnet50_simplifyinference_from_tf-data.json
 Compiled model saved to resnet50_simplifyinference_from_tf-rewritten.relay
 Files already downloaded and verified
