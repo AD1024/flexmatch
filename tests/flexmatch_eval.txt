@@ -1,0 +1,351 @@
+Output file written to:  /root/flexmatch/tests/efficientnet-rewritten.json /root/flexmatch/tests/efficientnet-data.json
+Compiled model saved to efficientnet-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with im2col linear-rewrites
+Step 2: Compiling back to Relay with efficientnet-rewritten.json and efficientnet-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 1160
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 35
+ALL Ops: 1134
+ALL Ops in overloads = 35 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/efficientnet-rewritten.json /root/flexmatch/tests/efficientnet-data.json
+Compiled model saved to efficientnet-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with hlscnn-conv2d
+Step 2: Compiling back to Relay with efficientnet-rewritten.json and efficientnet-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 1160
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 35
+ALL Ops: 848
+ALL Ops in overloads = 35 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/efficientnet-rewritten.json /root/flexmatch/tests/efficientnet-data.json
+Compiled model saved to efficientnet-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with im2col vta-dense
+Step 2: Compiling back to Relay with efficientnet-rewritten.json and efficientnet-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 1160
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 9
+ALL Ops: 920
+ALL Ops in overloads = 9 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/mobilenetv2-rewritten.json /root/flexmatch/tests/mobilenetv2-data.json
+Compiled model saved to mobilenetv2-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with im2col linear-rewrites
+Step 2: Compiling back to Relay with mobilenetv2-rewritten.json and mobilenetv2-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 757
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 41
+ALL Ops: 1174
+ALL Ops in overloads = 41 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/mobilenetv2-rewritten.json /root/flexmatch/tests/mobilenetv2-data.json
+Compiled model saved to mobilenetv2-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with hlscnn-conv2d
+Step 2: Compiling back to Relay with mobilenetv2-rewritten.json and mobilenetv2-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 757
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 40
+ALL Ops: 871
+ALL Ops in overloads = 40 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/mobilenetv2-rewritten.json /root/flexmatch/tests/mobilenetv2-data.json
+Compiled model saved to mobilenetv2-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with im2col vta-dense
+Step 2: Compiling back to Relay with mobilenetv2-rewritten.json and mobilenetv2-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 757
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 34
+ALL Ops: 1128
+ALL Ops in overloads = 34 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/resmlp-rewritten.json /root/flexmatch/tests/resmlp-data.json
+Compiled model saved to resmlp-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with im2col linear-rewrites
+Step 2: Compiling back to Relay with resmlp-rewritten.json and resmlp-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 343
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 38
+ALL Ops: 402
+ALL Ops in overloads = 38 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/resmlp-rewritten.json /root/flexmatch/tests/resmlp-data.json
+Compiled model saved to resmlp-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with im2col vta-dense
+Step 2: Compiling back to Relay with resmlp-rewritten.json and resmlp-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 343
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 0
+ALL Ops: 343
+ALL Ops in overloads = 0 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/resnet20-rewritten.json /root/flexmatch/tests/resnet20-data.json
+Compiled model saved to resnet20-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with im2col linear-rewrites
+Step 2: Compiling back to Relay with resnet20-rewritten.json and resnet20-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 294
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 22
+ALL Ops: 495
+ALL Ops in overloads = 22 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/resnet20-rewritten.json /root/flexmatch/tests/resnet20-data.json
+Compiled model saved to resnet20-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with hlscnn-conv2d
+Step 2: Compiling back to Relay with resnet20-rewritten.json and resnet20-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 294
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 21
+ALL Ops: 325
+ALL Ops in overloads = 21 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/resnet20-rewritten.json /root/flexmatch/tests/resnet20-data.json
+Compiled model saved to resnet20-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with im2col vta-dense
+Step 2: Compiling back to Relay with resnet20-rewritten.json and resnet20-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 294
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 20
+ALL Ops: 485
+ALL Ops in overloads = 20 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/mobilenetv2-rewritten.json /root/flexmatch/tests/mobilenetv2-data.json
+Compiled model saved to mobilenetv2-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with im2col vta-dense
+Step 2: Compiling back to Relay with mobilenetv2-rewritten.json and mobilenetv2-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 757
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 34
+ALL Ops: 1128
+ALL Ops in overloads = 34 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/lstm-for-pldi-rewritten.json /root/flexmatch/tests/lstm-for-pldi-data.json
+Compiled model saved to lstm-for-pldi-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with flexasr-lstm
+Step 2: Compiling back to Relay with lstm-for-pldi-rewritten.json and lstm-for-pldi-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 577
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 1
+ALL Ops: 12
+ALL Ops in overloads = 1 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/lstm-for-pldi-rewritten.json /root/flexmatch/tests/lstm-for-pldi-data.json
+Compiled model saved to lstm-for-pldi-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with hlscnn-conv2d
+Step 2: Compiling back to Relay with lstm-for-pldi-rewritten.json and lstm-for-pldi-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 577
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 0
+ALL Ops: 543
+ALL Ops in overloads = 0 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/lstm-for-pldi-rewritten.json /root/flexmatch/tests/lstm-for-pldi-data.json
+Compiled model saved to lstm-for-pldi-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with vta-dense
+Step 2: Compiling back to Relay with lstm-for-pldi-rewritten.json and lstm-for-pldi-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 577
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 0
+ALL Ops: 543
+ALL Ops in overloads = 0 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/transformer-rewritten.json /root/flexmatch/tests/transformer-data.json
+Compiled model saved to transformer-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with flexasr-lstm linear-rewrites
+Step 2: Compiling back to Relay with transformer-rewritten.json and transformer-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 872
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 66
+ALL Ops: 801
+ALL Ops in overloads = 66 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/transformer-rewritten.json /root/flexmatch/tests/transformer-data.json
+Compiled model saved to transformer-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with hlscnn-conv2d
+Step 2: Compiling back to Relay with transformer-rewritten.json and transformer-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 872
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 0
+ALL Ops: 867
+ALL Ops in overloads = 0 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/transformer-rewritten.json /root/flexmatch/tests/transformer-data.json
+Compiled model saved to transformer-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with vta-dense
+Step 2: Compiling back to Relay with transformer-rewritten.json and transformer-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 872
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 66
+ALL Ops: 867
+ALL Ops in overloads = 66 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/resnet50_simplifyinference_from_tf-rewritten.json /root/flexmatch/tests/resnet50_simplifyinference_from_tf-data.json
+Compiled model saved to resnet50_simplifyinference_from_tf-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with flexasr-lstm linear-rewrites
+Step 2: Compiling back to Relay with resnet50_simplifyinference_from_tf-rewritten.json and resnet50_simplifyinference_from_tf-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 609
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 1
+ALL Ops: 765
+ALL Ops in overloads = 1 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/resnet50_simplifyinference_from_tf-rewritten.json /root/flexmatch/tests/resnet50_simplifyinference_from_tf-data.json
+Compiled model saved to resnet50_simplifyinference_from_tf-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with hlscnn-conv2d
+Step 2: Compiling back to Relay with resnet50_simplifyinference_from_tf-rewritten.json and resnet50_simplifyinference_from_tf-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 609
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 53
+ALL Ops: 766
+ALL Ops in overloads = 53 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/resnet50_simplifyinference_from_tf-rewritten.json /root/flexmatch/tests/resnet50_simplifyinference_from_tf-data.json
+Compiled model saved to resnet50_simplifyinference_from_tf-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with im2col vta-dense
+Step 2: Compiling back to Relay with resnet50_simplifyinference_from_tf-rewritten.json and resnet50_simplifyinference_from_tf-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 609
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 24
+ALL Ops: 951
+ALL Ops in overloads = 24 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/resnet50_simplifyinference_from_pytorch-rewritten.json /root/flexmatch/tests/resnet50_simplifyinference_from_pytorch-data.json
+Compiled model saved to resnet50_simplifyinference_from_pytorch-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with flexasr-lstm im2col linear-rewrites
+Step 2: Compiling back to Relay with resnet50_simplifyinference_from_pytorch-rewritten.json and resnet50_simplifyinference_from_pytorch-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 709
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 54
+ALL Ops: 1233
+ALL Ops in overloads = 54 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/resnet50_simplifyinference_from_pytorch-rewritten.json /root/flexmatch/tests/resnet50_simplifyinference_from_pytorch-data.json
+Compiled model saved to resnet50_simplifyinference_from_pytorch-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with hlscnn-conv2d
+Step 2: Compiling back to Relay with resnet50_simplifyinference_from_pytorch-rewritten.json and resnet50_simplifyinference_from_pytorch-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 709
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 53
+ALL Ops: 816
+ALL Ops in overloads = 53 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/resnet50_simplifyinference_from_pytorch-rewritten.json /root/flexmatch/tests/resnet50_simplifyinference_from_pytorch-data.json
+Compiled model saved to resnet50_simplifyinference_from_pytorch-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with im2col vta-dense
+Step 2: Compiling back to Relay with resnet50_simplifyinference_from_pytorch-rewritten.json and resnet50_simplifyinference_from_pytorch-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 709
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 24
+ALL Ops: 1001
+ALL Ops in overloads = 24 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/resnet50_simplifyinference_from_onnx-rewritten.json /root/flexmatch/tests/resnet50_simplifyinference_from_onnx-data.json
+Compiled model saved to resnet50_simplifyinference_from_onnx-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with flexasr-lstm im2col linear-rewrites
+Step 2: Compiling back to Relay with resnet50_simplifyinference_from_onnx-rewritten.json and resnet50_simplifyinference_from_onnx-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 194
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 54
+ALL Ops: 614
+ALL Ops in overloads = 54 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/resnet50_simplifyinference_from_onnx-rewritten.json /root/flexmatch/tests/resnet50_simplifyinference_from_onnx-data.json
+Compiled model saved to resnet50_simplifyinference_from_onnx-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with hlscnn-conv2d
+Step 2: Compiling back to Relay with resnet50_simplifyinference_from_onnx-rewritten.json and resnet50_simplifyinference_from_onnx-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 194
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 53
+ALL Ops: 197
+ALL Ops in overloads = 53 * #ops per pattern
+Output file written to:  /root/flexmatch/tests/resnet50_simplifyinference_from_onnx-rewritten.json /root/flexmatch/tests/resnet50_simplifyinference_from_onnx-data.json
+Compiled model saved to resnet50_simplifyinference_from_onnx-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with im2col vta-dense
+Step 2: Compiling back to Relay with resnet50_simplifyinference_from_onnx-rewritten.json and resnet50_simplifyinference_from_onnx-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 194
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 24
+ALL Ops: 382
+ALL Ops in overloads = 24 * #ops per pattern
