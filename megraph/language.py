@@ -54,6 +54,9 @@ class RelayOperators(enum.Enum):
     RelayBatchMatmul = relay.nn.batch_matmul,
     RelayStridedSlice = relay.strided_slice,
     RelayZeros = relay.zeros,
+    RelayAdaptiveAvgPool2D = relay.nn.adaptive_avg_pool2d,
+    RelayCopy = relay.copy,
+    RelayArgMax = relay.argmax,
 
     def __call__(self, *x):
         # Handle special case of relay operator calls
@@ -73,7 +76,7 @@ class RelayOperators(enum.Enum):
         if self.value[0] == relay.take:
             return relay.take(x[0], x[1], axis=int(x[2]))
         if self.value[0] == relay.mean:
-            return self.value[0](x[0], axis=int(x[1]))
+            return self.value[0](x[0], axis=x[1])
         if self.value[0] == relay.nn.bias_add:
             return self.value[0](x[0], x[1], axis=int(x[2]))
         if self.value[0] == relay.nn.batch_norm:
@@ -84,6 +87,14 @@ class RelayOperators(enum.Enum):
                 return self.value[0](*x[:-1], layout='NCHW')
             elif layout == RelayActivationLayout.NHWC:
                 return self.value[0](*x[:-1], layout='NHWC')
+        if self.value[0] == relay.nn.adaptive_avg_pool2d:
+            layout = x[-1]
+            assert layout == RelayActivationLayout.NCHW
+            return self.value[0](x[0], output_size=x[1])
+        if self.value[0] == relay.argmax:
+            return self.value[0](x[0], axis=x[1], keepdims=int(x[2]))
+        if self.value[0] == relay.cast:
+            return self.value[0](x[0], x[1].value)
         if self.value[0] == relay.nn.softmax:
             return self.value[0](x[0], axis=int(x[1]))
         if self.value[0] == relay.nn.conv2d:
@@ -122,6 +133,13 @@ class AcceleratorFunc(enum.Enum):
 class PadType(enum.Enum):
     ZeroPadding = 'zero-padding'
     MinPadding = 'min-padding'
+
+class DType(enum.Enum):
+    i32 = 'int32'
+    i64 = 'int64'
+    f32 = 'float32'
+    f64 = 'float64'
+    u8 = 'uint8'
 
 class ComputeType(enum.Enum):
     Relu = 'relu'
@@ -261,7 +279,9 @@ class RecExprCompiler:
         if index in self._id_map:
             return self._id_map[index]
         enode = self.nodes[index]
-        if isinstance(enode, RelayActivationLayout) or isinstance(enode, RelayKernelLayout):
+        if isinstance(enode, RelayActivationLayout) \
+            or isinstance(enode, RelayKernelLayout) \
+            or isinstance(enode, DType):
             return enode
         children_exprs = list(map(self._to_relay_helper, enode.children))
         ch_vars = []
@@ -574,6 +594,9 @@ def downcast(enode: ENode):
         'relay-batch-matmul': RelayOperators.RelayBatchMatmul,
         'relay-strided-slice': RelayOperators.RelayStridedSlice,
         'relay-zeros': RelayOperators.RelayZeros,
+        'relay-adaptive-avg-pool2d': RelayOperators.RelayAdaptiveAvgPool2D,
+        'relay-copy': RelayOperators.RelayCopy,
+        'relay-argmax': RelayOperators.RelayArgMax,
     }.get(symbol, None)
     if lang is not None:
         return RelayOperatorCall(lang, enode.children)
@@ -609,6 +632,17 @@ def downcast(enode: ENode):
     }.get(symbol)
     if lang is not None:
         return AcceleratorCall(lang, enode.children)
+
+    lang = {
+        'int64': DType.i64,
+        'int32': DType.i32,
+        'uint8': DType.u8,
+        'float32': DType.f32,
+        'float64': DType.f64
+    }.get(symbol)
+
+    if lang is not None:
+        return lang
     
     if symbol.isdigit() or is_num(symbol):
         return Literal(symbol, children=enode.children)

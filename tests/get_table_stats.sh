@@ -45,14 +45,14 @@ python3 validate_compilation.py transformer --configs vta-dense --get-stats
 # Resnet50 from tensorflow
 python3 validate_compilation.py resnet50_simplifyinference_from_tf --configs flexasr-lstm linear-rewrites --get-stats
 python3 validate_compilation.py resnet50_simplifyinference_from_tf --configs hlscnn-conv2d --get-stats
-python3 validate_compilation.py resnet50_simplifyinference_from_tf --configs vta-dense --get-stats
+python3 validate_compilation.py resnet50_simplifyinference_from_tf --configs im2col vta-dense --get-stats
 
 # Resnet50 from pytorch
 python3 validate_compilation.py resnet50_simplifyinference_from_pytorch --configs flexasr-lstm linear-rewrites --get-stats
 python3 validate_compilation.py resnet50_simplifyinference_from_pytorch --configs hlscnn-conv2d --get-stats
-python3 validate_compilation.py resnet50_simplifyinference_from_pytorch --configs vta-dense --get-stats
+python3 validate_compilation.py resnet50_simplifyinference_from_pytorch --configs im2col vta-dense --get-stats
 
 # Resnet50 from onnx
 python3 validate_compilation.py resnet50_simplifyinference_from_onnx --configs flexasr-lstm linear-rewrites --get-stats
 python3 validate_compilation.py resnet50_simplifyinference_from_onnx --configs hlscnn-conv2d --get-stats
-python3 validate_compilation.py resnet50_simplifyinference_from_onnx --configs vta-dense --get-stats
+python3 validate_compilation.py resnet50_simplifyinference_from_onnx --configs im2col vta-dense --get-stats
