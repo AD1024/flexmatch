@@ -82,9 +82,9 @@ class RelayOperators(enum.Enum):
         if self.value[0] == relay.nn.batch_norm:
             return self.value[0](x[0], x[1], x[2], x[3], x[4], axis=int(x[5]), epsilon=float(x[6]))
         if self.value[0] == relay.nn.max_pool2d or self.value[0] == relay.nn.global_avg_pool2d:
-            layout = x[-1];
+            layout = x[-1]
             if layout == RelayActivationLayout.NCHW:
-                return self.value[0](*x[:-1], layout='NCHW')
+                return self.value[0](x[0], pool_size=x[1], strides=x[2], padding=x[3], layout='NCHW')
             elif layout == RelayActivationLayout.NHWC:
                 return self.value[0](*x[:-1], layout='NHWC')
         if self.value[0] == relay.nn.adaptive_avg_pool2d:
@@ -388,10 +388,6 @@ class RecExprCompiler:
         elif isinstance(enode, AccessSqueeze):
             return relay.squeeze(ch_vars[0], axis=[int(children_exprs[1])])
         elif isinstance(enode, AccessWindows):
-            # key = (tuple(self.eclass_analysis[enode.children[0]]['relay_shape']), tuple(children_exprs[1]), tuple(children_exprs[2]))
-            # if key not in self.access_window_memo:
-            #     self.access_window_memo[key] = access_window(self.eclass_analysis[enode.children[0]]['relay_shape'], children_exprs[1], children_exprs[2])
-            # return self.access_window_memo[key](ch_vars[0])
             data = ch_vars[0]
             kernel_shape = children_exprs[1]
             strides = children_exprs[2]
