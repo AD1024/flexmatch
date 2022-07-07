@@ -358,7 +358,7 @@ class RecExprCompiler:
         elif isinstance(enode, AccessPad):
             assert isinstance(children_exprs[0], relay.Var) or self.eclass_analysis is not None
             if self.eclass_analysis:
-                ndim = len(self.eclass_analysis[enode.children[0]]['shape'])
+                ndim = len(self.eclass_analysis[enode.children[0]]['shape']) + len(self.eclass_analysis[enode.children[0]]['item_shape'])
             else:
                 ndim = len(children_exprs[0].type_annotation.shape)
             assert ndim > 0
