@@ -37,7 +37,7 @@ padding = (args.padding_top, args.padding_left, args.padding_bottom, args.paddin
 '''
 
 env = vta.get_env()
-target = tvm.target.vta(model='tsim')
+target = tvm.target.vta(model='sim')
 
 remote = rpc.LocalSession()
 ctx = remote.ext_dev(0)
@@ -66,7 +66,6 @@ with autotvm.tophub.context(target):
             relay_prog = relay.quantize.quantize(model, params=params)
         # Perform graph packing and constant folding for VTA target
         # do device annotation if target is intelfocl or sim
-        # print(relay_prog)
         relay_prog = graph_pack(
             relay_prog["main"],
             env.BATCH,
@@ -76,14 +75,14 @@ with autotvm.tophub.context(target):
             stop_name="nn.adaptive_avg_pool2d",
             device_annot=(env.TARGET == "intelfocl"),
         )
-    
-    # print(relay_prog)
+
     with vta.build_config(
             opt_level=3, disabled_pass={"AlterOpLayout", "tir.CommonSubexprElimTIR"}
         ):
         graph, lib, params = relay.build(
             relay_prog, target=tvm.target.Target(target, host=env.target_host), params=params
         )
+    
     
     temp = utils.tempdir()
     lib.export_library(temp.relpath("graphlib.tar"))
@@ -100,9 +99,8 @@ with autotvm.tophub.context(target):
     simulator.clear_stats()
     timer()
     sim_stats = simulator.stats()
-    print("\nExecution statistics:")
     for k, v in sim_stats.items():
         # Since we execute the workload many times, we need to normalize stats
         # Note that there is always one warm up run
         # Therefore we divide the overall stats by (num * rep + 1)
-        print("\t{:<16}: {:>16}".format(k, v // (num * rep + 1)))
+        print(v // (num * rep + 1))

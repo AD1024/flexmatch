@@ -54,8 +54,9 @@ def run_gemm(
     in_feat,
     out_feat,
     check_correctness=True,
-    print_ir=True,
-    samples=4,
+    print_ir=False,
+    number=1,
+    samples=10,
 ):
 
     # Perform packing only if we are targeting the accelerator
@@ -147,7 +148,7 @@ def run_gemm(
     data_arr = tvm.nd.array(data_np, dev)
     kernel_arr = tvm.nd.array(kernel_np, dev)
     res_arr = tvm.nd.array(res_np, dev)
-    time_f = f.time_evaluator("dense", dev, number=samples)
+    time_f = f.time_evaluator("dense", dev, number=number, repeat=samples)
 
     # In vta sim mode, collect simulator runtime statistics
     stats = {}
@@ -172,6 +173,9 @@ def run_gemm(
             stats = simulator.stats()
     else:
         cost = time_f(data_arr, kernel_arr, res_arr)
+    
+    if 'cycle_count' in stats:
+        print(stats['cycle_count'] // (number * samples + 1))
 
     # Check correctness
     correct = False
@@ -190,7 +194,7 @@ def run_gemm(
         device = "CPU"
     elif "vta" in target.keys:
         device = "VTA"
-    print("%s DENSE TEST %s: Time cost = %g sec/op, %g GOPS" % (device, status, cost.mean, gops))
+    # print("%s DENSE TEST %s: Time cost = %g sec/op, %g GOPS" % (device, status, cost.mean, gops))
 
     return correct, cost, stats
 
@@ -204,11 +208,16 @@ def test_gemm(device="vta", batch=128, in_feat=128, out_feat=128):
                 program_fpga(remote, bitstream=None)
                 reconfig_runtime(remote)
         with autotvm.tophub.context(target):  # load pre-tuned schedule parameters
-            correct, cost, stats = run_gemm(env, remote, target, batch, in_feat, out_feat)
-            print(correct, cost, stats)
+            run_gemm(env, remote, target, batch, in_feat, out_feat)
 
     vta.testing.run(_run)
 
 
 if __name__ == "__main__":
-    test_gemm("vta", 16, 512, 1008)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("batch", type=int)
+    parser.add_argument("in_feat", type=int)
+    parser.add_argument("out_feat", type=int)
+    args = parser.parse_args()
+    test_gemm("vta", args.batch, args.in_feat, args.out_feat)

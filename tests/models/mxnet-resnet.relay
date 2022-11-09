@@ -1,0 +1,542 @@
+#[version = "0.0.5"]
+def @main(%cifarresnetv20_batchnorm0_running_var: Tensor[(3), float32], %cifarresnetv20_batchnorm0_running_mean: Tensor[(3), float32], %cifarresnetv20_batchnorm0_beta: Tensor[(3), float32], %data: Tensor[(1, 3, 32, 32), float32], %cifarresnetv20_stage1_batchnorm0_running_var: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm0_gamma: Tensor[(16), float32], %cifarresnetv20_conv0_weight: Tensor[(16, 3, 3, 3), float32], %cifarresnetv20_stage1_batchnorm0_running_mean: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm0_beta: Tensor[(16), float32], %cifarresnetv20_stage1_conv0_weight: Tensor[(16, 16, 3, 3), float32], %cifarresnetv20_stage1_batchnorm1_running_var: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm1_gamma: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm1_running_mean: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm1_beta: Tensor[(16), float32], %cifarresnetv20_stage1_conv1_weight: Tensor[(16, 16, 3, 3), float32], %cifarresnetv20_stage1_batchnorm2_running_var: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm2_gamma: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm2_running_mean: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm2_beta: Tensor[(16), float32], %cifarresnetv20_stage1_conv2_weight: Tensor[(16, 16, 3, 3), float32], %cifarresnetv20_stage1_batchnorm3_running_var: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm3_gamma: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm3_running_mean: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm3_beta: Tensor[(16), float32], %cifarresnetv20_stage1_conv3_weight: Tensor[(16, 16, 3, 3), float32], %cifarresnetv20_stage1_batchnorm4_running_var: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm4_gamma: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm4_running_mean: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm4_beta: Tensor[(16), float32], %cifarresnetv20_stage1_conv4_weight: Tensor[(16, 16, 3, 3), float32], %cifarresnetv20_stage1_batchnorm5_running_var: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm5_gamma: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm5_running_mean: Tensor[(16), float32], %cifarresnetv20_stage1_batchnorm5_beta: Tensor[(16), float32], %cifarresnetv20_stage1_conv5_weight: Tensor[(16, 16, 3, 3), float32], %cifarresnetv20_stage2_batchnorm0_running_var: Tensor[(16), float32], %cifarresnetv20_stage2_batchnorm0_gamma: Tensor[(16), float32], %cifarresnetv20_stage2_batchnorm0_running_mean: Tensor[(16), float32], %cifarresnetv20_stage2_batchnorm0_beta: Tensor[(16), float32], %cifarresnetv20_stage2_conv0_weight: Tensor[(32, 16, 3, 3), float32], %cifarresnetv20_stage2_batchnorm1_running_var: Tensor[(32), float32], %cifarresnetv20_stage2_batchnorm1_gamma: Tensor[(32), float32], %cifarresnetv20_stage2_batchnorm1_running_mean: Tensor[(32), float32], %cifarresnetv20_stage2_batchnorm1_beta: Tensor[(32), float32], %cifarresnetv20_stage2_conv1_weight: Tensor[(32, 32, 3, 3), float32], %cifarresnetv20_stage2_conv2_weight: Tensor[(32, 16, 1, 1), float32], %cifarresnetv20_stage2_batchnorm2_running_var: Tensor[(32), float32], %cifarresnetv20_stage2_batchnorm2_gamma: Tensor[(32), float32], %cifarresnetv20_stage2_batchnorm2_running_mean: Tensor[(32), float32], %cifarresnetv20_stage2_batchnorm2_beta: Tensor[(32), float32], %cifarresnetv20_stage2_conv3_weight: Tensor[(32, 32, 3, 3), float32], %cifarresnetv20_stage2_batchnorm3_running_var: Tensor[(32), float32], %cifarresnetv20_stage2_batchnorm3_gamma: Tensor[(32), float32], %cifarresnetv20_stage2_batchnorm3_running_mean: Tensor[(32), float32], %cifarresnetv20_stage2_batchnorm3_beta: Tensor[(32), float32], %cifarresnetv20_stage2_conv4_weight: Tensor[(32, 32, 3, 3), float32], %cifarresnetv20_stage2_batchnorm4_running_var: Tensor[(32), float32], %cifarresnetv20_stage2_batchnorm4_gamma: Tensor[(32), float32], %cifarresnetv20_stage2_batchnorm4_running_mean: Tensor[(32), float32], %cifarresnetv20_stage2_batchnorm4_beta: Tensor[(32), float32], %cifarresnetv20_stage2_conv5_weight: Tensor[(32, 32, 3, 3), float32], %cifarresnetv20_stage2_batchnorm5_running_var: Tensor[(32), float32], %cifarresnetv20_stage2_batchnorm5_gamma: Tensor[(32), float32], %cifarresnetv20_stage2_batchnorm5_running_mean: Tensor[(32), float32], %cifarresnetv20_stage2_batchnorm5_beta: Tensor[(32), float32], %cifarresnetv20_stage2_conv6_weight: Tensor[(32, 32, 3, 3), float32], %cifarresnetv20_stage3_batchnorm0_running_var: Tensor[(32), float32], %cifarresnetv20_stage3_batchnorm0_gamma: Tensor[(32), float32], %cifarresnetv20_stage3_batchnorm0_running_mean: Tensor[(32), float32], %cifarresnetv20_stage3_batchnorm0_beta: Tensor[(32), float32], %cifarresnetv20_stage3_conv0_weight: Tensor[(64, 32, 3, 3), float32], %cifarresnetv20_stage3_batchnorm1_running_var: Tensor[(64), float32], %cifarresnetv20_stage3_batchnorm1_gamma: Tensor[(64), float32], %cifarresnetv20_stage3_batchnorm1_running_mean: Tensor[(64), float32], %cifarresnetv20_stage3_batchnorm1_beta: Tensor[(64), float32], %cifarresnetv20_stage3_conv1_weight: Tensor[(64, 64, 3, 3), float32], %cifarresnetv20_stage3_conv2_weight: Tensor[(64, 32, 1, 1), float32], %cifarresnetv20_stage3_batchnorm2_running_var: Tensor[(64), float32], %cifarresnetv20_stage3_batchnorm2_gamma: Tensor[(64), float32], %cifarresnetv20_stage3_batchnorm2_running_mean: Tensor[(64), float32], %cifarresnetv20_stage3_batchnorm2_beta: Tensor[(64), float32], %cifarresnetv20_stage3_conv3_weight: Tensor[(64, 64, 3, 3), float32], %cifarresnetv20_stage3_batchnorm3_running_var: Tensor[(64), float32], %cifarresnetv20_stage3_batchnorm3_gamma: Tensor[(64), float32], %cifarresnetv20_stage3_batchnorm3_running_mean: Tensor[(64), float32], %cifarresnetv20_stage3_batchnorm3_beta: Tensor[(64), float32], %cifarresnetv20_stage3_conv4_weight: Tensor[(64, 64, 3, 3), float32], %cifarresnetv20_stage3_batchnorm4_running_var: Tensor[(64), float32], %cifarresnetv20_stage3_batchnorm4_gamma: Tensor[(64), float32], %cifarresnetv20_stage3_batchnorm4_running_mean: Tensor[(64), float32], %cifarresnetv20_stage3_batchnorm4_beta: Tensor[(64), float32], %cifarresnetv20_stage3_conv5_weight: Tensor[(64, 64, 3, 3), float32], %cifarresnetv20_stage3_batchnorm5_running_var: Tensor[(64), float32], %cifarresnetv20_stage3_batchnorm5_gamma: Tensor[(64), float32], %cifarresnetv20_stage3_batchnorm5_running_mean: Tensor[(64), float32], %cifarresnetv20_stage3_batchnorm5_beta: Tensor[(64), float32], %cifarresnetv20_stage3_conv6_weight: Tensor[(64, 64, 3, 3), float32], %cifarresnetv20_batchnorm1_running_var: Tensor[(64), float32], %cifarresnetv20_batchnorm1_gamma: Tensor[(64), float32], %cifarresnetv20_batchnorm1_running_mean: Tensor[(64), float32], %cifarresnetv20_batchnorm1_beta: Tensor[(64), float32], %cifarresnetv20_dense0_weight: Tensor[(10, 64), float32], %cifarresnetv20_dense0_bias: Tensor[(10), float32]) -> Tensor[(1, 10), float32] {
+  let %var_22: Tensor[(3), float32] = add(%cifarresnetv20_batchnorm0_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(3), float32] */;
+  let %var_23: Tensor[(3), float32] = sqrt(%var_22) /* ty=Tensor[(3), float32] */;
+  let %var_24: Tensor[(3), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_23) /* ty=Tensor[(3), float32] */;
+  let %var_25: Tensor[(3, 1), float32] = expand_dims(%var_24, axis=1) /* ty=Tensor[(3, 1), float32] */;
+  let %var_26: Tensor[(3, 1, 1), float32] = expand_dims(%var_25, axis=1) /* ty=Tensor[(3, 1, 1), float32] */;
+  let %var_28: Tensor[(3), float32] = negative(%cifarresnetv20_batchnorm0_running_mean) /* ty=Tensor[(3), float32] */;
+  let %var_30: Tensor[(3), float32] = multiply(%var_28, %var_24) /* ty=Tensor[(3), float32] */;
+  let %var_31: Tensor[(3), float32] = add(%var_30, %cifarresnetv20_batchnorm0_beta) /* ty=Tensor[(3), float32] */;
+  let %var_32: Tensor[(3, 1), float32] = expand_dims(%var_31, axis=1) /* ty=Tensor[(3, 1), float32] */;
+  let %var_33: Tensor[(1, 3, 32, 32), float32] = multiply(%data, %var_26) /* ty=Tensor[(1, 3, 32, 32), float32] */;
+  let %var_34: Tensor[(3, 1, 1), float32] = expand_dims(%var_32, axis=1) /* ty=Tensor[(3, 1, 1), float32] */;
+  let %var_36: Tensor[(1, 3, 32, 32), float32] = add(%var_33, %var_34) /* ty=Tensor[(1, 3, 32, 32), float32] */;
+  let %var_38: Tensor[(16), float32] = add(%cifarresnetv20_stage1_batchnorm0_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(16), float32] */;
+  let %var_39: Tensor[(16), float32] = sqrt(%var_38) /* ty=Tensor[(16), float32] */;
+  let %var_41: Tensor[(16), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_39) /* ty=Tensor[(16), float32] */;
+  let %var_42: Tensor[(16), float32] = multiply(%var_41, %cifarresnetv20_stage1_batchnorm0_gamma) /* ty=Tensor[(16), float32] */;
+  let %var_43: Tensor[(16, 1), float32] = expand_dims(%var_42, axis=1) /* ty=Tensor[(16, 1), float32] */;
+  let %var_44: Tensor[(1, 16, 32, 32), float32] = nn.conv2d(%var_36, %cifarresnetv20_conv0_weight, padding=[1, 1, 1, 1], channels=16, kernel_size=[3, 3]) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_45: Tensor[(16, 1, 1), float32] = expand_dims(%var_43, axis=1) /* ty=Tensor[(16, 1, 1), float32] */;
+  let %var_47: Tensor[(16), float32] = negative(%cifarresnetv20_stage1_batchnorm0_running_mean) /* ty=Tensor[(16), float32] */;
+  let %var_49: Tensor[(16), float32] = multiply(%var_47, %var_42) /* ty=Tensor[(16), float32] */;
+  let %var_50: Tensor[(16), float32] = add(%var_49, %cifarresnetv20_stage1_batchnorm0_beta) /* ty=Tensor[(16), float32] */;
+  let %var_51: Tensor[(16, 1), float32] = expand_dims(%var_50, axis=1) /* ty=Tensor[(16, 1), float32] */;
+  let %var_52: Tensor[(1, 16, 32, 32), float32] = multiply(%var_44, %var_45) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_53: Tensor[(16, 1, 1), float32] = expand_dims(%var_51, axis=1) /* ty=Tensor[(16, 1, 1), float32] */;
+  let %var_54: Tensor[(1, 16, 32, 32), float32] = add(%var_52, %var_53) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_55: Tensor[(1, 16, 32, 32), float32] = nn.relu(%var_54) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_56: Tensor[(1, 16, 34, 32), float32] = nn.pad(%var_55, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 16, 34, 32), float32] */;
+  let %var_57: Tensor[(1, 16, 34, 34), float32] = nn.pad(%var_56, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 16, 34, 34), float32] */;
+  let %var_58: Tensor[(1, 1, 32, 32, 16, 3, 3), float32] = sliding_window(%var_57, axis=1, window_shape=[16, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 32, 32, 16, 3, 3), float32] */;
+  let %var_59: Tensor[(1, 32, 32, 16, 3, 3), float32] = squeeze(%var_58, axis=[1]) /* ty=Tensor[(1, 32, 32, 16, 3, 3), float32] */;
+  let %var_60: Tensor[(16, 144), float32] = reshape(%cifarresnetv20_stage1_conv0_weight, newshape=[16, 144]) /* ty=Tensor[(16, 144), float32] */;
+  let %var_61: Tensor[(1024, 144), float32] = reshape(%var_59, newshape=[1024, 144]) /* ty=Tensor[(1024, 144), float32] */;
+  let %var_62: Tensor[(16, 1024), float32] = nn.dense(%var_60, %var_61, units=None) /* ty=Tensor[(16, 1024), float32] */;
+  let %var_63: Tensor[(16, 1, 32, 32), float32] = reshape(%var_62, newshape=[16, 1, 32, 32]) /* ty=Tensor[(16, 1, 32, 32), float32] */;
+  let %var_65: Tensor[(16), float32] = add(%cifarresnetv20_stage1_batchnorm1_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(16), float32] */;
+  let %var_66: Tensor[(16), float32] = sqrt(%var_65) /* ty=Tensor[(16), float32] */;
+  let %var_68: Tensor[(16), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_66) /* ty=Tensor[(16), float32] */;
+  let %var_69: Tensor[(16), float32] = multiply(%var_68, %cifarresnetv20_stage1_batchnorm1_gamma) /* ty=Tensor[(16), float32] */;
+  let %var_70: Tensor[(16, 1), float32] = expand_dims(%var_69, axis=1) /* ty=Tensor[(16, 1), float32] */;
+  let %var_71: Tensor[(1, 16, 32, 32), float32] = transpose(%var_63, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_72: Tensor[(16, 1, 1), float32] = expand_dims(%var_70, axis=1) /* ty=Tensor[(16, 1, 1), float32] */;
+  let %var_74: Tensor[(16), float32] = negative(%cifarresnetv20_stage1_batchnorm1_running_mean) /* ty=Tensor[(16), float32] */;
+  let %var_76: Tensor[(16), float32] = multiply(%var_74, %var_69) /* ty=Tensor[(16), float32] */;
+  let %var_77: Tensor[(16), float32] = add(%var_76, %cifarresnetv20_stage1_batchnorm1_beta) /* ty=Tensor[(16), float32] */;
+  let %var_78: Tensor[(16, 1), float32] = expand_dims(%var_77, axis=1) /* ty=Tensor[(16, 1), float32] */;
+  let %var_79: Tensor[(1, 16, 32, 32), float32] = multiply(%var_71, %var_72) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_80: Tensor[(16, 1, 1), float32] = expand_dims(%var_78, axis=1) /* ty=Tensor[(16, 1, 1), float32] */;
+  let %var_81: Tensor[(1, 16, 32, 32), float32] = add(%var_79, %var_80) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_82: Tensor[(1, 16, 32, 32), float32] = nn.relu(%var_81) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_83: Tensor[(1, 16, 34, 32), float32] = nn.pad(%var_82, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 16, 34, 32), float32] */;
+  let %var_84: Tensor[(1, 16, 34, 34), float32] = nn.pad(%var_83, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 16, 34, 34), float32] */;
+  let %var_85: Tensor[(1, 1, 32, 32, 16, 3, 3), float32] = sliding_window(%var_84, axis=1, window_shape=[16, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 32, 32, 16, 3, 3), float32] */;
+  let %var_86: Tensor[(1, 32, 32, 16, 3, 3), float32] = squeeze(%var_85, axis=[1]) /* ty=Tensor[(1, 32, 32, 16, 3, 3), float32] */;
+  let %var_87: Tensor[(16, 144), float32] = reshape(%cifarresnetv20_stage1_conv1_weight, newshape=[16, 144]) /* ty=Tensor[(16, 144), float32] */;
+  let %var_88: Tensor[(1024, 144), float32] = reshape(%var_86, newshape=[1024, 144]) /* ty=Tensor[(1024, 144), float32] */;
+  let %var_89: Tensor[(16, 1024), float32] = nn.dense(%var_87, %var_88, units=None) /* ty=Tensor[(16, 1024), float32] */;
+  let %var_90: Tensor[(16, 1, 32, 32), float32] = reshape(%var_89, newshape=[16, 1, 32, 32]) /* ty=Tensor[(16, 1, 32, 32), float32] */;
+  let %var_91: Tensor[(1, 16, 32, 32), float32] = transpose(%var_90, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_93: Tensor[(16), float32] = add(%cifarresnetv20_stage1_batchnorm2_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(16), float32] */;
+  let %var_94: Tensor[(16), float32] = sqrt(%var_93) /* ty=Tensor[(16), float32] */;
+  let %var_96: Tensor[(16), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_94) /* ty=Tensor[(16), float32] */;
+  let %var_97: Tensor[(16), float32] = multiply(%var_96, %cifarresnetv20_stage1_batchnorm2_gamma) /* ty=Tensor[(16), float32] */;
+  let %var_98: Tensor[(16, 1), float32] = expand_dims(%var_97, axis=1) /* ty=Tensor[(16, 1), float32] */;
+  let %var_99: Tensor[(1, 16, 32, 32), float32] = add(%var_91, %var_44) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_100: Tensor[(16, 1, 1), float32] = expand_dims(%var_98, axis=1) /* ty=Tensor[(16, 1, 1), float32] */;
+  let %var_102: Tensor[(16), float32] = negative(%cifarresnetv20_stage1_batchnorm2_running_mean) /* ty=Tensor[(16), float32] */;
+  let %var_104: Tensor[(16), float32] = multiply(%var_102, %var_97) /* ty=Tensor[(16), float32] */;
+  let %var_105: Tensor[(16), float32] = add(%var_104, %cifarresnetv20_stage1_batchnorm2_beta) /* ty=Tensor[(16), float32] */;
+  let %var_106: Tensor[(16, 1), float32] = expand_dims(%var_105, axis=1) /* ty=Tensor[(16, 1), float32] */;
+  let %var_107: Tensor[(1, 16, 32, 32), float32] = multiply(%var_99, %var_100) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_108: Tensor[(16, 1, 1), float32] = expand_dims(%var_106, axis=1) /* ty=Tensor[(16, 1, 1), float32] */;
+  let %var_109: Tensor[(1, 16, 32, 32), float32] = add(%var_107, %var_108) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_110: Tensor[(1, 16, 32, 32), float32] = nn.relu(%var_109) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_111: Tensor[(1, 16, 34, 32), float32] = nn.pad(%var_110, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 16, 34, 32), float32] */;
+  let %var_112: Tensor[(1, 16, 34, 34), float32] = nn.pad(%var_111, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 16, 34, 34), float32] */;
+  let %var_113: Tensor[(1, 1, 32, 32, 16, 3, 3), float32] = sliding_window(%var_112, axis=1, window_shape=[16, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 32, 32, 16, 3, 3), float32] */;
+  let %var_114: Tensor[(1, 32, 32, 16, 3, 3), float32] = squeeze(%var_113, axis=[1]) /* ty=Tensor[(1, 32, 32, 16, 3, 3), float32] */;
+  let %var_115: Tensor[(16, 144), float32] = reshape(%cifarresnetv20_stage1_conv2_weight, newshape=[16, 144]) /* ty=Tensor[(16, 144), float32] */;
+  let %var_116: Tensor[(1024, 144), float32] = reshape(%var_114, newshape=[1024, 144]) /* ty=Tensor[(1024, 144), float32] */;
+  let %var_117: Tensor[(16, 1024), float32] = nn.dense(%var_115, %var_116, units=None) /* ty=Tensor[(16, 1024), float32] */;
+  let %var_118: Tensor[(16, 1, 32, 32), float32] = reshape(%var_117, newshape=[16, 1, 32, 32]) /* ty=Tensor[(16, 1, 32, 32), float32] */;
+  let %var_120: Tensor[(16), float32] = add(%cifarresnetv20_stage1_batchnorm3_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(16), float32] */;
+  let %var_121: Tensor[(16), float32] = sqrt(%var_120) /* ty=Tensor[(16), float32] */;
+  let %var_123: Tensor[(16), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_121) /* ty=Tensor[(16), float32] */;
+  let %var_124: Tensor[(16), float32] = multiply(%var_123, %cifarresnetv20_stage1_batchnorm3_gamma) /* ty=Tensor[(16), float32] */;
+  let %var_125: Tensor[(16, 1), float32] = expand_dims(%var_124, axis=1) /* ty=Tensor[(16, 1), float32] */;
+  let %var_126: Tensor[(1, 16, 32, 32), float32] = transpose(%var_118, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_127: Tensor[(16, 1, 1), float32] = expand_dims(%var_125, axis=1) /* ty=Tensor[(16, 1, 1), float32] */;
+  let %var_129: Tensor[(16), float32] = negative(%cifarresnetv20_stage1_batchnorm3_running_mean) /* ty=Tensor[(16), float32] */;
+  let %var_131: Tensor[(16), float32] = multiply(%var_129, %var_124) /* ty=Tensor[(16), float32] */;
+  let %var_132: Tensor[(16), float32] = add(%var_131, %cifarresnetv20_stage1_batchnorm3_beta) /* ty=Tensor[(16), float32] */;
+  let %var_133: Tensor[(16, 1), float32] = expand_dims(%var_132, axis=1) /* ty=Tensor[(16, 1), float32] */;
+  let %var_134: Tensor[(1, 16, 32, 32), float32] = multiply(%var_126, %var_127) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_135: Tensor[(16, 1, 1), float32] = expand_dims(%var_133, axis=1) /* ty=Tensor[(16, 1, 1), float32] */;
+  let %var_136: Tensor[(1, 16, 32, 32), float32] = add(%var_134, %var_135) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_137: Tensor[(1, 16, 32, 32), float32] = nn.relu(%var_136) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_138: Tensor[(1, 16, 34, 32), float32] = nn.pad(%var_137, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 16, 34, 32), float32] */;
+  let %var_139: Tensor[(1, 16, 34, 34), float32] = nn.pad(%var_138, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 16, 34, 34), float32] */;
+  let %var_140: Tensor[(1, 1, 32, 32, 16, 3, 3), float32] = sliding_window(%var_139, axis=1, window_shape=[16, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 32, 32, 16, 3, 3), float32] */;
+  let %var_141: Tensor[(1, 32, 32, 16, 3, 3), float32] = squeeze(%var_140, axis=[1]) /* ty=Tensor[(1, 32, 32, 16, 3, 3), float32] */;
+  let %var_142: Tensor[(16, 144), float32] = reshape(%cifarresnetv20_stage1_conv3_weight, newshape=[16, 144]) /* ty=Tensor[(16, 144), float32] */;
+  let %var_143: Tensor[(1024, 144), float32] = reshape(%var_141, newshape=[1024, 144]) /* ty=Tensor[(1024, 144), float32] */;
+  let %var_144: Tensor[(16, 1024), float32] = nn.dense(%var_142, %var_143, units=None) /* ty=Tensor[(16, 1024), float32] */;
+  let %var_145: Tensor[(16, 1, 32, 32), float32] = reshape(%var_144, newshape=[16, 1, 32, 32]) /* ty=Tensor[(16, 1, 32, 32), float32] */;
+  let %var_146: Tensor[(1, 16, 32, 32), float32] = transpose(%var_145, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_148: Tensor[(16), float32] = add(%cifarresnetv20_stage1_batchnorm4_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(16), float32] */;
+  let %var_149: Tensor[(16), float32] = sqrt(%var_148) /* ty=Tensor[(16), float32] */;
+  let %var_151: Tensor[(16), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_149) /* ty=Tensor[(16), float32] */;
+  let %var_152: Tensor[(16), float32] = multiply(%var_151, %cifarresnetv20_stage1_batchnorm4_gamma) /* ty=Tensor[(16), float32] */;
+  let %var_153: Tensor[(16, 1), float32] = expand_dims(%var_152, axis=1) /* ty=Tensor[(16, 1), float32] */;
+  let %var_154: Tensor[(1, 16, 32, 32), float32] = add(%var_146, %var_99) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_155: Tensor[(16, 1, 1), float32] = expand_dims(%var_153, axis=1) /* ty=Tensor[(16, 1, 1), float32] */;
+  let %var_157: Tensor[(16), float32] = negative(%cifarresnetv20_stage1_batchnorm4_running_mean) /* ty=Tensor[(16), float32] */;
+  let %var_159: Tensor[(16), float32] = multiply(%var_157, %var_152) /* ty=Tensor[(16), float32] */;
+  let %var_160: Tensor[(16), float32] = add(%var_159, %cifarresnetv20_stage1_batchnorm4_beta) /* ty=Tensor[(16), float32] */;
+  let %var_161: Tensor[(16, 1), float32] = expand_dims(%var_160, axis=1) /* ty=Tensor[(16, 1), float32] */;
+  let %var_162: Tensor[(1, 16, 32, 32), float32] = multiply(%var_154, %var_155) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_163: Tensor[(16, 1, 1), float32] = expand_dims(%var_161, axis=1) /* ty=Tensor[(16, 1, 1), float32] */;
+  let %var_164: Tensor[(1, 16, 32, 32), float32] = add(%var_162, %var_163) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_165: Tensor[(1, 16, 32, 32), float32] = nn.relu(%var_164) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_166: Tensor[(1, 16, 34, 32), float32] = nn.pad(%var_165, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 16, 34, 32), float32] */;
+  let %var_167: Tensor[(1, 16, 34, 34), float32] = nn.pad(%var_166, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 16, 34, 34), float32] */;
+  let %var_168: Tensor[(1, 1, 32, 32, 16, 3, 3), float32] = sliding_window(%var_167, axis=1, window_shape=[16, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 32, 32, 16, 3, 3), float32] */;
+  let %var_169: Tensor[(1, 32, 32, 16, 3, 3), float32] = squeeze(%var_168, axis=[1]) /* ty=Tensor[(1, 32, 32, 16, 3, 3), float32] */;
+  let %var_170: Tensor[(16, 144), float32] = reshape(%cifarresnetv20_stage1_conv4_weight, newshape=[16, 144]) /* ty=Tensor[(16, 144), float32] */;
+  let %var_171: Tensor[(1024, 144), float32] = reshape(%var_169, newshape=[1024, 144]) /* ty=Tensor[(1024, 144), float32] */;
+  let %var_172: Tensor[(16, 1024), float32] = nn.dense(%var_170, %var_171, units=None) /* ty=Tensor[(16, 1024), float32] */;
+  let %var_173: Tensor[(16, 1, 32, 32), float32] = reshape(%var_172, newshape=[16, 1, 32, 32]) /* ty=Tensor[(16, 1, 32, 32), float32] */;
+  let %var_175: Tensor[(16), float32] = add(%cifarresnetv20_stage1_batchnorm5_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(16), float32] */;
+  let %var_176: Tensor[(16), float32] = sqrt(%var_175) /* ty=Tensor[(16), float32] */;
+  let %var_178: Tensor[(16), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_176) /* ty=Tensor[(16), float32] */;
+  let %var_179: Tensor[(16), float32] = multiply(%var_178, %cifarresnetv20_stage1_batchnorm5_gamma) /* ty=Tensor[(16), float32] */;
+  let %var_180: Tensor[(16, 1), float32] = expand_dims(%var_179, axis=1) /* ty=Tensor[(16, 1), float32] */;
+  let %var_181: Tensor[(1, 16, 32, 32), float32] = transpose(%var_173, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_182: Tensor[(16, 1, 1), float32] = expand_dims(%var_180, axis=1) /* ty=Tensor[(16, 1, 1), float32] */;
+  let %var_184: Tensor[(16), float32] = negative(%cifarresnetv20_stage1_batchnorm5_running_mean) /* ty=Tensor[(16), float32] */;
+  let %var_186: Tensor[(16), float32] = multiply(%var_184, %var_179) /* ty=Tensor[(16), float32] */;
+  let %var_187: Tensor[(16), float32] = add(%var_186, %cifarresnetv20_stage1_batchnorm5_beta) /* ty=Tensor[(16), float32] */;
+  let %var_188: Tensor[(16, 1), float32] = expand_dims(%var_187, axis=1) /* ty=Tensor[(16, 1), float32] */;
+  let %var_189: Tensor[(1, 16, 32, 32), float32] = multiply(%var_181, %var_182) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_190: Tensor[(16, 1, 1), float32] = expand_dims(%var_188, axis=1) /* ty=Tensor[(16, 1, 1), float32] */;
+  let %var_191: Tensor[(1, 16, 32, 32), float32] = add(%var_189, %var_190) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_192: Tensor[(1, 16, 32, 32), float32] = nn.relu(%var_191) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_193: Tensor[(1, 16, 34, 32), float32] = nn.pad(%var_192, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 16, 34, 32), float32] */;
+  let %var_194: Tensor[(1, 16, 34, 34), float32] = nn.pad(%var_193, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 16, 34, 34), float32] */;
+  let %var_195: Tensor[(1, 1, 32, 32, 16, 3, 3), float32] = sliding_window(%var_194, axis=1, window_shape=[16, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 32, 32, 16, 3, 3), float32] */;
+  let %var_196: Tensor[(1, 32, 32, 16, 3, 3), float32] = squeeze(%var_195, axis=[1]) /* ty=Tensor[(1, 32, 32, 16, 3, 3), float32] */;
+  let %var_197: Tensor[(16, 144), float32] = reshape(%cifarresnetv20_stage1_conv5_weight, newshape=[16, 144]) /* ty=Tensor[(16, 144), float32] */;
+  let %var_198: Tensor[(1024, 144), float32] = reshape(%var_196, newshape=[1024, 144]) /* ty=Tensor[(1024, 144), float32] */;
+  let %var_199: Tensor[(16, 1024), float32] = nn.dense(%var_197, %var_198, units=None) /* ty=Tensor[(16, 1024), float32] */;
+  let %var_200: Tensor[(16, 1, 32, 32), float32] = reshape(%var_199, newshape=[16, 1, 32, 32]) /* ty=Tensor[(16, 1, 32, 32), float32] */;
+  let %var_201: Tensor[(1, 16, 32, 32), float32] = transpose(%var_200, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_203: Tensor[(16), float32] = add(%cifarresnetv20_stage2_batchnorm0_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(16), float32] */;
+  let %var_204: Tensor[(16), float32] = sqrt(%var_203) /* ty=Tensor[(16), float32] */;
+  let %var_206: Tensor[(16), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_204) /* ty=Tensor[(16), float32] */;
+  let %var_207: Tensor[(16), float32] = multiply(%var_206, %cifarresnetv20_stage2_batchnorm0_gamma) /* ty=Tensor[(16), float32] */;
+  let %var_208: Tensor[(16, 1), float32] = expand_dims(%var_207, axis=1) /* ty=Tensor[(16, 1), float32] */;
+  let %var_209: Tensor[(1, 16, 32, 32), float32] = add(%var_201, %var_154) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_210: Tensor[(16, 1, 1), float32] = expand_dims(%var_208, axis=1) /* ty=Tensor[(16, 1, 1), float32] */;
+  let %var_212: Tensor[(16), float32] = negative(%cifarresnetv20_stage2_batchnorm0_running_mean) /* ty=Tensor[(16), float32] */;
+  let %var_214: Tensor[(16), float32] = multiply(%var_212, %var_207) /* ty=Tensor[(16), float32] */;
+  let %var_215: Tensor[(16), float32] = add(%var_214, %cifarresnetv20_stage2_batchnorm0_beta) /* ty=Tensor[(16), float32] */;
+  let %var_216: Tensor[(16, 1), float32] = expand_dims(%var_215, axis=1) /* ty=Tensor[(16, 1), float32] */;
+  let %var_217: Tensor[(1, 16, 32, 32), float32] = multiply(%var_209, %var_210) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_218: Tensor[(16, 1, 1), float32] = expand_dims(%var_216, axis=1) /* ty=Tensor[(16, 1, 1), float32] */;
+  let %var_219: Tensor[(1, 16, 32, 32), float32] = add(%var_217, %var_218) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_220: Tensor[(1, 16, 32, 32), float32] = nn.relu(%var_219) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_221: Tensor[(1, 16, 34, 32), float32] = nn.pad(%var_220, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 16, 34, 32), float32] */;
+  let %var_222: Tensor[(1, 16, 34, 34), float32] = nn.pad(%var_221, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 16, 34, 34), float32] */;
+  let %var_223: Tensor[(1, 1, 16, 16, 16, 3, 3), float32] = sliding_window(%var_222, axis=1, window_shape=[16, 3, 3], strides=[1, 2, 2]) /* ty=Tensor[(1, 1, 16, 16, 16, 3, 3), float32] */;
+  let %var_224: Tensor[(1, 16, 16, 16, 3, 3), float32] = squeeze(%var_223, axis=[1]) /* ty=Tensor[(1, 16, 16, 16, 3, 3), float32] */;
+  let %var_225: Tensor[(32, 144), float32] = reshape(%cifarresnetv20_stage2_conv0_weight, newshape=[32, 144]) /* ty=Tensor[(32, 144), float32] */;
+  let %var_226: Tensor[(256, 144), float32] = reshape(%var_224, newshape=[256, 144]) /* ty=Tensor[(256, 144), float32] */;
+  let %var_227: Tensor[(32, 256), float32] = nn.dense(%var_225, %var_226, units=None) /* ty=Tensor[(32, 256), float32] */;
+  let %var_228: Tensor[(32, 1, 16, 16), float32] = reshape(%var_227, newshape=[32, 1, 16, 16]) /* ty=Tensor[(32, 1, 16, 16), float32] */;
+  let %var_230: Tensor[(32), float32] = add(%cifarresnetv20_stage2_batchnorm1_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(32), float32] */;
+  let %var_231: Tensor[(32), float32] = sqrt(%var_230) /* ty=Tensor[(32), float32] */;
+  let %var_233: Tensor[(32), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_231) /* ty=Tensor[(32), float32] */;
+  let %var_234: Tensor[(32), float32] = multiply(%var_233, %cifarresnetv20_stage2_batchnorm1_gamma) /* ty=Tensor[(32), float32] */;
+  let %var_235: Tensor[(32, 1), float32] = expand_dims(%var_234, axis=1) /* ty=Tensor[(32, 1), float32] */;
+  let %var_236: Tensor[(1, 32, 16, 16), float32] = transpose(%var_228, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_237: Tensor[(32, 1, 1), float32] = expand_dims(%var_235, axis=1) /* ty=Tensor[(32, 1, 1), float32] */;
+  let %var_239: Tensor[(32), float32] = negative(%cifarresnetv20_stage2_batchnorm1_running_mean) /* ty=Tensor[(32), float32] */;
+  let %var_241: Tensor[(32), float32] = multiply(%var_239, %var_234) /* ty=Tensor[(32), float32] */;
+  let %var_242: Tensor[(32), float32] = add(%var_241, %cifarresnetv20_stage2_batchnorm1_beta) /* ty=Tensor[(32), float32] */;
+  let %var_243: Tensor[(32, 1), float32] = expand_dims(%var_242, axis=1) /* ty=Tensor[(32, 1), float32] */;
+  let %var_244: Tensor[(1, 32, 16, 16), float32] = multiply(%var_236, %var_237) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_245: Tensor[(32, 1, 1), float32] = expand_dims(%var_243, axis=1) /* ty=Tensor[(32, 1, 1), float32] */;
+  let %var_246: Tensor[(1, 32, 16, 16), float32] = add(%var_244, %var_245) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_247: Tensor[(1, 32, 16, 16), float32] = nn.relu(%var_246) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_248: Tensor[(1, 32, 18, 16), float32] = nn.pad(%var_247, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 32, 18, 16), float32] */;
+  let %var_249: Tensor[(1, 32, 18, 18), float32] = nn.pad(%var_248, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 32, 18, 18), float32] */;
+  let %var_250: Tensor[(1, 1, 16, 16, 32, 3, 3), float32] = sliding_window(%var_249, axis=1, window_shape=[32, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 16, 16, 32, 3, 3), float32] */;
+  let %var_251: Tensor[(1, 16, 16, 32, 3, 3), float32] = squeeze(%var_250, axis=[1]) /* ty=Tensor[(1, 16, 16, 32, 3, 3), float32] */;
+  let %var_252: Tensor[(32, 288), float32] = reshape(%cifarresnetv20_stage2_conv1_weight, newshape=[32, 288]) /* ty=Tensor[(32, 288), float32] */;
+  let %var_253: Tensor[(256, 288), float32] = reshape(%var_251, newshape=[256, 288]) /* ty=Tensor[(256, 288), float32] */;
+  let %var_254: Tensor[(32, 256), float32] = nn.dense(%var_252, %var_253, units=None) /* ty=Tensor[(32, 256), float32] */;
+  let %var_255: Tensor[(32, 1, 16, 16), float32] = reshape(%var_254, newshape=[32, 1, 16, 16]) /* ty=Tensor[(32, 1, 16, 16), float32] */;
+  let %var_257: Tensor[(1, 16, 32, 32), float32] = nn.pad(%var_209, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [0, 0]]) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_258: Tensor[(1, 16, 32, 32), float32] = nn.pad(%var_257, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [0, 0]]) /* ty=Tensor[(1, 16, 32, 32), float32] */;
+  let %var_259: Tensor[(1, 1, 16, 16, 16, 1, 1), float32] = sliding_window(%var_258, axis=1, window_shape=[16, 1, 1], strides=[1, 2, 2]) /* ty=Tensor[(1, 1, 16, 16, 16, 1, 1), float32] */;
+  let %var_260: Tensor[(1, 16, 16, 16, 1, 1), float32] = squeeze(%var_259, axis=[1]) /* ty=Tensor[(1, 16, 16, 16, 1, 1), float32] */;
+  let %var_261: Tensor[(32, 16), float32] = reshape(%cifarresnetv20_stage2_conv2_weight, newshape=[32, 16]) /* ty=Tensor[(32, 16), float32] */;
+  let %var_262: Tensor[(256, 16), float32] = reshape(%var_260, newshape=[256, 16]) /* ty=Tensor[(256, 16), float32] */;
+  let %var_263: Tensor[(32, 256), float32] = nn.dense(%var_261, %var_262, units=None) /* ty=Tensor[(32, 256), float32] */;
+  let %var_264: Tensor[(32, 1, 16, 16), float32] = reshape(%var_263, newshape=[32, 1, 16, 16]) /* ty=Tensor[(32, 1, 16, 16), float32] */;
+  let %var_265: Tensor[(1, 32, 16, 16), float32] = transpose(%var_255, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_266: Tensor[(1, 32, 16, 16), float32] = transpose(%var_264, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_268: Tensor[(32), float32] = add(%cifarresnetv20_stage2_batchnorm2_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(32), float32] */;
+  let %var_269: Tensor[(32), float32] = sqrt(%var_268) /* ty=Tensor[(32), float32] */;
+  let %var_271: Tensor[(32), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_269) /* ty=Tensor[(32), float32] */;
+  let %var_272: Tensor[(32), float32] = multiply(%var_271, %cifarresnetv20_stage2_batchnorm2_gamma) /* ty=Tensor[(32), float32] */;
+  let %var_273: Tensor[(32, 1), float32] = expand_dims(%var_272, axis=1) /* ty=Tensor[(32, 1), float32] */;
+  let %var_274: Tensor[(1, 32, 16, 16), float32] = add(%var_265, %var_266) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_275: Tensor[(32, 1, 1), float32] = expand_dims(%var_273, axis=1) /* ty=Tensor[(32, 1, 1), float32] */;
+  let %var_277: Tensor[(32), float32] = negative(%cifarresnetv20_stage2_batchnorm2_running_mean) /* ty=Tensor[(32), float32] */;
+  let %var_279: Tensor[(32), float32] = multiply(%var_277, %var_272) /* ty=Tensor[(32), float32] */;
+  let %var_280: Tensor[(32), float32] = add(%var_279, %cifarresnetv20_stage2_batchnorm2_beta) /* ty=Tensor[(32), float32] */;
+  let %var_281: Tensor[(32, 1), float32] = expand_dims(%var_280, axis=1) /* ty=Tensor[(32, 1), float32] */;
+  let %var_282: Tensor[(1, 32, 16, 16), float32] = multiply(%var_274, %var_275) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_283: Tensor[(32, 1, 1), float32] = expand_dims(%var_281, axis=1) /* ty=Tensor[(32, 1, 1), float32] */;
+  let %var_284: Tensor[(1, 32, 16, 16), float32] = add(%var_282, %var_283) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_285: Tensor[(1, 32, 16, 16), float32] = nn.relu(%var_284) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_286: Tensor[(1, 32, 18, 16), float32] = nn.pad(%var_285, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 32, 18, 16), float32] */;
+  let %var_287: Tensor[(1, 32, 18, 18), float32] = nn.pad(%var_286, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 32, 18, 18), float32] */;
+  let %var_288: Tensor[(1, 1, 16, 16, 32, 3, 3), float32] = sliding_window(%var_287, axis=1, window_shape=[32, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 16, 16, 32, 3, 3), float32] */;
+  let %var_289: Tensor[(1, 16, 16, 32, 3, 3), float32] = squeeze(%var_288, axis=[1]) /* ty=Tensor[(1, 16, 16, 32, 3, 3), float32] */;
+  let %var_290: Tensor[(32, 288), float32] = reshape(%cifarresnetv20_stage2_conv3_weight, newshape=[32, 288]) /* ty=Tensor[(32, 288), float32] */;
+  let %var_291: Tensor[(256, 288), float32] = reshape(%var_289, newshape=[256, 288]) /* ty=Tensor[(256, 288), float32] */;
+  let %var_292: Tensor[(32, 256), float32] = nn.dense(%var_290, %var_291, units=None) /* ty=Tensor[(32, 256), float32] */;
+  let %var_293: Tensor[(32, 1, 16, 16), float32] = reshape(%var_292, newshape=[32, 1, 16, 16]) /* ty=Tensor[(32, 1, 16, 16), float32] */;
+  let %var_295: Tensor[(32), float32] = add(%cifarresnetv20_stage2_batchnorm3_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(32), float32] */;
+  let %var_296: Tensor[(32), float32] = sqrt(%var_295) /* ty=Tensor[(32), float32] */;
+  let %var_298: Tensor[(32), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_296) /* ty=Tensor[(32), float32] */;
+  let %var_299: Tensor[(32), float32] = multiply(%var_298, %cifarresnetv20_stage2_batchnorm3_gamma) /* ty=Tensor[(32), float32] */;
+  let %var_300: Tensor[(32, 1), float32] = expand_dims(%var_299, axis=1) /* ty=Tensor[(32, 1), float32] */;
+  let %var_301: Tensor[(1, 32, 16, 16), float32] = transpose(%var_293, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_302: Tensor[(32, 1, 1), float32] = expand_dims(%var_300, axis=1) /* ty=Tensor[(32, 1, 1), float32] */;
+  let %var_304: Tensor[(32), float32] = negative(%cifarresnetv20_stage2_batchnorm3_running_mean) /* ty=Tensor[(32), float32] */;
+  let %var_306: Tensor[(32), float32] = multiply(%var_304, %var_299) /* ty=Tensor[(32), float32] */;
+  let %var_307: Tensor[(32), float32] = add(%var_306, %cifarresnetv20_stage2_batchnorm3_beta) /* ty=Tensor[(32), float32] */;
+  let %var_308: Tensor[(32, 1), float32] = expand_dims(%var_307, axis=1) /* ty=Tensor[(32, 1), float32] */;
+  let %var_309: Tensor[(1, 32, 16, 16), float32] = multiply(%var_301, %var_302) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_310: Tensor[(32, 1, 1), float32] = expand_dims(%var_308, axis=1) /* ty=Tensor[(32, 1, 1), float32] */;
+  let %var_311: Tensor[(1, 32, 16, 16), float32] = add(%var_309, %var_310) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_312: Tensor[(1, 32, 16, 16), float32] = nn.relu(%var_311) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_313: Tensor[(1, 32, 18, 16), float32] = nn.pad(%var_312, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 32, 18, 16), float32] */;
+  let %var_314: Tensor[(1, 32, 18, 18), float32] = nn.pad(%var_313, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 32, 18, 18), float32] */;
+  let %var_315: Tensor[(1, 1, 16, 16, 32, 3, 3), float32] = sliding_window(%var_314, axis=1, window_shape=[32, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 16, 16, 32, 3, 3), float32] */;
+  let %var_316: Tensor[(1, 16, 16, 32, 3, 3), float32] = squeeze(%var_315, axis=[1]) /* ty=Tensor[(1, 16, 16, 32, 3, 3), float32] */;
+  let %var_317: Tensor[(32, 288), float32] = reshape(%cifarresnetv20_stage2_conv4_weight, newshape=[32, 288]) /* ty=Tensor[(32, 288), float32] */;
+  let %var_318: Tensor[(256, 288), float32] = reshape(%var_316, newshape=[256, 288]) /* ty=Tensor[(256, 288), float32] */;
+  let %var_319: Tensor[(32, 256), float32] = nn.dense(%var_317, %var_318, units=None) /* ty=Tensor[(32, 256), float32] */;
+  let %var_320: Tensor[(32, 1, 16, 16), float32] = reshape(%var_319, newshape=[32, 1, 16, 16]) /* ty=Tensor[(32, 1, 16, 16), float32] */;
+  let %var_321: Tensor[(1, 32, 16, 16), float32] = transpose(%var_320, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_323: Tensor[(32), float32] = add(%cifarresnetv20_stage2_batchnorm4_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(32), float32] */;
+  let %var_324: Tensor[(32), float32] = sqrt(%var_323) /* ty=Tensor[(32), float32] */;
+  let %var_326: Tensor[(32), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_324) /* ty=Tensor[(32), float32] */;
+  let %var_327: Tensor[(32), float32] = multiply(%var_326, %cifarresnetv20_stage2_batchnorm4_gamma) /* ty=Tensor[(32), float32] */;
+  let %var_328: Tensor[(32, 1), float32] = expand_dims(%var_327, axis=1) /* ty=Tensor[(32, 1), float32] */;
+  let %var_329: Tensor[(1, 32, 16, 16), float32] = add(%var_321, %var_274) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_330: Tensor[(32, 1, 1), float32] = expand_dims(%var_328, axis=1) /* ty=Tensor[(32, 1, 1), float32] */;
+  let %var_332: Tensor[(32), float32] = negative(%cifarresnetv20_stage2_batchnorm4_running_mean) /* ty=Tensor[(32), float32] */;
+  let %var_334: Tensor[(32), float32] = multiply(%var_332, %var_327) /* ty=Tensor[(32), float32] */;
+  let %var_335: Tensor[(32), float32] = add(%var_334, %cifarresnetv20_stage2_batchnorm4_beta) /* ty=Tensor[(32), float32] */;
+  let %var_336: Tensor[(32, 1), float32] = expand_dims(%var_335, axis=1) /* ty=Tensor[(32, 1), float32] */;
+  let %var_337: Tensor[(1, 32, 16, 16), float32] = multiply(%var_329, %var_330) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_338: Tensor[(32, 1, 1), float32] = expand_dims(%var_336, axis=1) /* ty=Tensor[(32, 1, 1), float32] */;
+  let %var_339: Tensor[(1, 32, 16, 16), float32] = add(%var_337, %var_338) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_340: Tensor[(1, 32, 16, 16), float32] = nn.relu(%var_339) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_341: Tensor[(1, 32, 18, 16), float32] = nn.pad(%var_340, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 32, 18, 16), float32] */;
+  let %var_342: Tensor[(1, 32, 18, 18), float32] = nn.pad(%var_341, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 32, 18, 18), float32] */;
+  let %var_343: Tensor[(1, 1, 16, 16, 32, 3, 3), float32] = sliding_window(%var_342, axis=1, window_shape=[32, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 16, 16, 32, 3, 3), float32] */;
+  let %var_344: Tensor[(1, 16, 16, 32, 3, 3), float32] = squeeze(%var_343, axis=[1]) /* ty=Tensor[(1, 16, 16, 32, 3, 3), float32] */;
+  let %var_345: Tensor[(32, 288), float32] = reshape(%cifarresnetv20_stage2_conv5_weight, newshape=[32, 288]) /* ty=Tensor[(32, 288), float32] */;
+  let %var_346: Tensor[(256, 288), float32] = reshape(%var_344, newshape=[256, 288]) /* ty=Tensor[(256, 288), float32] */;
+  let %var_347: Tensor[(32, 256), float32] = nn.dense(%var_345, %var_346, units=None) /* ty=Tensor[(32, 256), float32] */;
+  let %var_348: Tensor[(32, 1, 16, 16), float32] = reshape(%var_347, newshape=[32, 1, 16, 16]) /* ty=Tensor[(32, 1, 16, 16), float32] */;
+  let %var_350: Tensor[(32), float32] = add(%cifarresnetv20_stage2_batchnorm5_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(32), float32] */;
+  let %var_351: Tensor[(32), float32] = sqrt(%var_350) /* ty=Tensor[(32), float32] */;
+  let %var_353: Tensor[(32), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_351) /* ty=Tensor[(32), float32] */;
+  let %var_354: Tensor[(32), float32] = multiply(%var_353, %cifarresnetv20_stage2_batchnorm5_gamma) /* ty=Tensor[(32), float32] */;
+  let %var_355: Tensor[(32, 1), float32] = expand_dims(%var_354, axis=1) /* ty=Tensor[(32, 1), float32] */;
+  let %var_356: Tensor[(1, 32, 16, 16), float32] = transpose(%var_348, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_357: Tensor[(32, 1, 1), float32] = expand_dims(%var_355, axis=1) /* ty=Tensor[(32, 1, 1), float32] */;
+  let %var_359: Tensor[(32), float32] = negative(%cifarresnetv20_stage2_batchnorm5_running_mean) /* ty=Tensor[(32), float32] */;
+  let %var_361: Tensor[(32), float32] = multiply(%var_359, %var_354) /* ty=Tensor[(32), float32] */;
+  let %var_362: Tensor[(32), float32] = add(%var_361, %cifarresnetv20_stage2_batchnorm5_beta) /* ty=Tensor[(32), float32] */;
+  let %var_363: Tensor[(32, 1), float32] = expand_dims(%var_362, axis=1) /* ty=Tensor[(32, 1), float32] */;
+  let %var_364: Tensor[(1, 32, 16, 16), float32] = multiply(%var_356, %var_357) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_365: Tensor[(32, 1, 1), float32] = expand_dims(%var_363, axis=1) /* ty=Tensor[(32, 1, 1), float32] */;
+  let %var_366: Tensor[(1, 32, 16, 16), float32] = add(%var_364, %var_365) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_367: Tensor[(1, 32, 16, 16), float32] = nn.relu(%var_366) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_368: Tensor[(1, 32, 18, 16), float32] = nn.pad(%var_367, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 32, 18, 16), float32] */;
+  let %var_369: Tensor[(1, 32, 18, 18), float32] = nn.pad(%var_368, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 32, 18, 18), float32] */;
+  let %var_370: Tensor[(1, 1, 16, 16, 32, 3, 3), float32] = sliding_window(%var_369, axis=1, window_shape=[32, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 16, 16, 32, 3, 3), float32] */;
+  let %var_371: Tensor[(1, 16, 16, 32, 3, 3), float32] = squeeze(%var_370, axis=[1]) /* ty=Tensor[(1, 16, 16, 32, 3, 3), float32] */;
+  let %var_372: Tensor[(32, 288), float32] = reshape(%cifarresnetv20_stage2_conv6_weight, newshape=[32, 288]) /* ty=Tensor[(32, 288), float32] */;
+  let %var_373: Tensor[(256, 288), float32] = reshape(%var_371, newshape=[256, 288]) /* ty=Tensor[(256, 288), float32] */;
+  let %var_374: Tensor[(32, 256), float32] = nn.dense(%var_372, %var_373, units=None) /* ty=Tensor[(32, 256), float32] */;
+  let %var_375: Tensor[(32, 1, 16, 16), float32] = reshape(%var_374, newshape=[32, 1, 16, 16]) /* ty=Tensor[(32, 1, 16, 16), float32] */;
+  let %var_376: Tensor[(1, 32, 16, 16), float32] = transpose(%var_375, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_378: Tensor[(32), float32] = add(%cifarresnetv20_stage3_batchnorm0_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(32), float32] */;
+  let %var_379: Tensor[(32), float32] = sqrt(%var_378) /* ty=Tensor[(32), float32] */;
+  let %var_381: Tensor[(32), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_379) /* ty=Tensor[(32), float32] */;
+  let %var_382: Tensor[(32), float32] = multiply(%var_381, %cifarresnetv20_stage3_batchnorm0_gamma) /* ty=Tensor[(32), float32] */;
+  let %var_383: Tensor[(32, 1), float32] = expand_dims(%var_382, axis=1) /* ty=Tensor[(32, 1), float32] */;
+  let %var_384: Tensor[(1, 32, 16, 16), float32] = add(%var_376, %var_329) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_385: Tensor[(32, 1, 1), float32] = expand_dims(%var_383, axis=1) /* ty=Tensor[(32, 1, 1), float32] */;
+  let %var_387: Tensor[(32), float32] = negative(%cifarresnetv20_stage3_batchnorm0_running_mean) /* ty=Tensor[(32), float32] */;
+  let %var_389: Tensor[(32), float32] = multiply(%var_387, %var_382) /* ty=Tensor[(32), float32] */;
+  let %var_390: Tensor[(32), float32] = add(%var_389, %cifarresnetv20_stage3_batchnorm0_beta) /* ty=Tensor[(32), float32] */;
+  let %var_391: Tensor[(32, 1), float32] = expand_dims(%var_390, axis=1) /* ty=Tensor[(32, 1), float32] */;
+  let %var_392: Tensor[(1, 32, 16, 16), float32] = multiply(%var_384, %var_385) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_393: Tensor[(32, 1, 1), float32] = expand_dims(%var_391, axis=1) /* ty=Tensor[(32, 1, 1), float32] */;
+  let %var_394: Tensor[(1, 32, 16, 16), float32] = add(%var_392, %var_393) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_395: Tensor[(1, 32, 16, 16), float32] = nn.relu(%var_394) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_396: Tensor[(1, 32, 18, 16), float32] = nn.pad(%var_395, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 32, 18, 16), float32] */;
+  let %var_397: Tensor[(1, 32, 18, 18), float32] = nn.pad(%var_396, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 32, 18, 18), float32] */;
+  let %var_398: Tensor[(1, 1, 8, 8, 32, 3, 3), float32] = sliding_window(%var_397, axis=1, window_shape=[32, 3, 3], strides=[1, 2, 2]) /* ty=Tensor[(1, 1, 8, 8, 32, 3, 3), float32] */;
+  let %var_399: Tensor[(1, 8, 8, 32, 3, 3), float32] = squeeze(%var_398, axis=[1]) /* ty=Tensor[(1, 8, 8, 32, 3, 3), float32] */;
+  let %var_400: Tensor[(64, 288), float32] = reshape(%cifarresnetv20_stage3_conv0_weight, newshape=[64, 288]) /* ty=Tensor[(64, 288), float32] */;
+  let %var_401: Tensor[(64, 288), float32] = reshape(%var_399, newshape=[64, 288]) /* ty=Tensor[(64, 288), float32] */;
+  let %var_402: Tensor[(64, 64), float32] = nn.dense(%var_400, %var_401, units=None) /* ty=Tensor[(64, 64), float32] */;
+  let %var_403: Tensor[(64, 1, 8, 8), float32] = reshape(%var_402, newshape=[64, 1, 8, 8]) /* ty=Tensor[(64, 1, 8, 8), float32] */;
+  let %var_405: Tensor[(64), float32] = add(%cifarresnetv20_stage3_batchnorm1_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(64), float32] */;
+  let %var_406: Tensor[(64), float32] = sqrt(%var_405) /* ty=Tensor[(64), float32] */;
+  let %var_408: Tensor[(64), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_406) /* ty=Tensor[(64), float32] */;
+  let %var_409: Tensor[(64), float32] = multiply(%var_408, %cifarresnetv20_stage3_batchnorm1_gamma) /* ty=Tensor[(64), float32] */;
+  let %var_410: Tensor[(64, 1), float32] = expand_dims(%var_409, axis=1) /* ty=Tensor[(64, 1), float32] */;
+  let %var_411: Tensor[(1, 64, 8, 8), float32] = transpose(%var_403, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_412: Tensor[(64, 1, 1), float32] = expand_dims(%var_410, axis=1) /* ty=Tensor[(64, 1, 1), float32] */;
+  let %var_414: Tensor[(64), float32] = negative(%cifarresnetv20_stage3_batchnorm1_running_mean) /* ty=Tensor[(64), float32] */;
+  let %var_416: Tensor[(64), float32] = multiply(%var_414, %var_409) /* ty=Tensor[(64), float32] */;
+  let %var_417: Tensor[(64), float32] = add(%var_416, %cifarresnetv20_stage3_batchnorm1_beta) /* ty=Tensor[(64), float32] */;
+  let %var_418: Tensor[(64, 1), float32] = expand_dims(%var_417, axis=1) /* ty=Tensor[(64, 1), float32] */;
+  let %var_419: Tensor[(1, 64, 8, 8), float32] = multiply(%var_411, %var_412) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_420: Tensor[(64, 1, 1), float32] = expand_dims(%var_418, axis=1) /* ty=Tensor[(64, 1, 1), float32] */;
+  let %var_421: Tensor[(1, 64, 8, 8), float32] = add(%var_419, %var_420) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_422: Tensor[(1, 64, 8, 8), float32] = nn.relu(%var_421) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_423: Tensor[(1, 64, 10, 8), float32] = nn.pad(%var_422, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 64, 10, 8), float32] */;
+  let %var_424: Tensor[(1, 64, 10, 10), float32] = nn.pad(%var_423, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 64, 10, 10), float32] */;
+  let %var_425: Tensor[(1, 1, 8, 8, 64, 3, 3), float32] = sliding_window(%var_424, axis=1, window_shape=[64, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 8, 8, 64, 3, 3), float32] */;
+  let %var_426: Tensor[(1, 8, 8, 64, 3, 3), float32] = squeeze(%var_425, axis=[1]) /* ty=Tensor[(1, 8, 8, 64, 3, 3), float32] */;
+  let %var_427: Tensor[(64, 576), float32] = reshape(%cifarresnetv20_stage3_conv1_weight, newshape=[64, 576]) /* ty=Tensor[(64, 576), float32] */;
+  let %var_428: Tensor[(64, 576), float32] = reshape(%var_426, newshape=[64, 576]) /* ty=Tensor[(64, 576), float32] */;
+  let %var_429: Tensor[(64, 64), float32] = nn.dense(%var_427, %var_428, units=None) /* ty=Tensor[(64, 64), float32] */;
+  let %var_430: Tensor[(64, 1, 8, 8), float32] = reshape(%var_429, newshape=[64, 1, 8, 8]) /* ty=Tensor[(64, 1, 8, 8), float32] */;
+  let %var_432: Tensor[(1, 32, 16, 16), float32] = nn.pad(%var_384, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [0, 0]]) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_433: Tensor[(1, 32, 16, 16), float32] = nn.pad(%var_432, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [0, 0]]) /* ty=Tensor[(1, 32, 16, 16), float32] */;
+  let %var_434: Tensor[(1, 1, 8, 8, 32, 1, 1), float32] = sliding_window(%var_433, axis=1, window_shape=[32, 1, 1], strides=[1, 2, 2]) /* ty=Tensor[(1, 1, 8, 8, 32, 1, 1), float32] */;
+  let %var_435: Tensor[(1, 8, 8, 32, 1, 1), float32] = squeeze(%var_434, axis=[1]) /* ty=Tensor[(1, 8, 8, 32, 1, 1), float32] */;
+  let %var_436: Tensor[(64, 32), float32] = reshape(%cifarresnetv20_stage3_conv2_weight, newshape=[64, 32]) /* ty=Tensor[(64, 32), float32] */;
+  let %var_437: Tensor[(64, 32), float32] = reshape(%var_435, newshape=[64, 32]) /* ty=Tensor[(64, 32), float32] */;
+  let %var_438: Tensor[(64, 64), float32] = nn.dense(%var_436, %var_437, units=None) /* ty=Tensor[(64, 64), float32] */;
+  let %var_439: Tensor[(64, 1, 8, 8), float32] = reshape(%var_438, newshape=[64, 1, 8, 8]) /* ty=Tensor[(64, 1, 8, 8), float32] */;
+  let %var_440: Tensor[(1, 64, 8, 8), float32] = transpose(%var_430, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_441: Tensor[(1, 64, 8, 8), float32] = transpose(%var_439, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_443: Tensor[(64), float32] = add(%cifarresnetv20_stage3_batchnorm2_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(64), float32] */;
+  let %var_444: Tensor[(64), float32] = sqrt(%var_443) /* ty=Tensor[(64), float32] */;
+  let %var_446: Tensor[(64), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_444) /* ty=Tensor[(64), float32] */;
+  let %var_447: Tensor[(64), float32] = multiply(%var_446, %cifarresnetv20_stage3_batchnorm2_gamma) /* ty=Tensor[(64), float32] */;
+  let %var_448: Tensor[(64, 1), float32] = expand_dims(%var_447, axis=1) /* ty=Tensor[(64, 1), float32] */;
+  let %var_449: Tensor[(1, 64, 8, 8), float32] = add(%var_440, %var_441) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_450: Tensor[(64, 1, 1), float32] = expand_dims(%var_448, axis=1) /* ty=Tensor[(64, 1, 1), float32] */;
+  let %var_452: Tensor[(64), float32] = negative(%cifarresnetv20_stage3_batchnorm2_running_mean) /* ty=Tensor[(64), float32] */;
+  let %var_454: Tensor[(64), float32] = multiply(%var_452, %var_447) /* ty=Tensor[(64), float32] */;
+  let %var_455: Tensor[(64), float32] = add(%var_454, %cifarresnetv20_stage3_batchnorm2_beta) /* ty=Tensor[(64), float32] */;
+  let %var_456: Tensor[(64, 1), float32] = expand_dims(%var_455, axis=1) /* ty=Tensor[(64, 1), float32] */;
+  let %var_457: Tensor[(1, 64, 8, 8), float32] = multiply(%var_449, %var_450) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_458: Tensor[(64, 1, 1), float32] = expand_dims(%var_456, axis=1) /* ty=Tensor[(64, 1, 1), float32] */;
+  let %var_459: Tensor[(1, 64, 8, 8), float32] = add(%var_457, %var_458) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_460: Tensor[(1, 64, 8, 8), float32] = nn.relu(%var_459) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_461: Tensor[(1, 64, 10, 8), float32] = nn.pad(%var_460, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 64, 10, 8), float32] */;
+  let %var_462: Tensor[(1, 64, 10, 10), float32] = nn.pad(%var_461, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 64, 10, 10), float32] */;
+  let %var_463: Tensor[(1, 1, 8, 8, 64, 3, 3), float32] = sliding_window(%var_462, axis=1, window_shape=[64, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 8, 8, 64, 3, 3), float32] */;
+  let %var_464: Tensor[(1, 8, 8, 64, 3, 3), float32] = squeeze(%var_463, axis=[1]) /* ty=Tensor[(1, 8, 8, 64, 3, 3), float32] */;
+  let %var_465: Tensor[(64, 576), float32] = reshape(%cifarresnetv20_stage3_conv3_weight, newshape=[64, 576]) /* ty=Tensor[(64, 576), float32] */;
+  let %var_466: Tensor[(64, 576), float32] = reshape(%var_464, newshape=[64, 576]) /* ty=Tensor[(64, 576), float32] */;
+  let %var_467: Tensor[(64, 64), float32] = nn.dense(%var_465, %var_466, units=None) /* ty=Tensor[(64, 64), float32] */;
+  let %var_468: Tensor[(64, 1, 8, 8), float32] = reshape(%var_467, newshape=[64, 1, 8, 8]) /* ty=Tensor[(64, 1, 8, 8), float32] */;
+  let %var_470: Tensor[(64), float32] = add(%cifarresnetv20_stage3_batchnorm3_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(64), float32] */;
+  let %var_471: Tensor[(64), float32] = sqrt(%var_470) /* ty=Tensor[(64), float32] */;
+  let %var_473: Tensor[(64), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_471) /* ty=Tensor[(64), float32] */;
+  let %var_474: Tensor[(64), float32] = multiply(%var_473, %cifarresnetv20_stage3_batchnorm3_gamma) /* ty=Tensor[(64), float32] */;
+  let %var_475: Tensor[(64, 1), float32] = expand_dims(%var_474, axis=1) /* ty=Tensor[(64, 1), float32] */;
+  let %var_476: Tensor[(1, 64, 8, 8), float32] = transpose(%var_468, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_477: Tensor[(64, 1, 1), float32] = expand_dims(%var_475, axis=1) /* ty=Tensor[(64, 1, 1), float32] */;
+  let %var_479: Tensor[(64), float32] = negative(%cifarresnetv20_stage3_batchnorm3_running_mean) /* ty=Tensor[(64), float32] */;
+  let %var_481: Tensor[(64), float32] = multiply(%var_479, %var_474) /* ty=Tensor[(64), float32] */;
+  let %var_482: Tensor[(64), float32] = add(%var_481, %cifarresnetv20_stage3_batchnorm3_beta) /* ty=Tensor[(64), float32] */;
+  let %var_483: Tensor[(64, 1), float32] = expand_dims(%var_482, axis=1) /* ty=Tensor[(64, 1), float32] */;
+  let %var_484: Tensor[(1, 64, 8, 8), float32] = multiply(%var_476, %var_477) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_485: Tensor[(64, 1, 1), float32] = expand_dims(%var_483, axis=1) /* ty=Tensor[(64, 1, 1), float32] */;
+  let %var_486: Tensor[(1, 64, 8, 8), float32] = add(%var_484, %var_485) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_487: Tensor[(1, 64, 8, 8), float32] = nn.relu(%var_486) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_488: Tensor[(1, 64, 10, 8), float32] = nn.pad(%var_487, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 64, 10, 8), float32] */;
+  let %var_489: Tensor[(1, 64, 10, 10), float32] = nn.pad(%var_488, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 64, 10, 10), float32] */;
+  let %var_490: Tensor[(1, 1, 8, 8, 64, 3, 3), float32] = sliding_window(%var_489, axis=1, window_shape=[64, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 8, 8, 64, 3, 3), float32] */;
+  let %var_491: Tensor[(1, 8, 8, 64, 3, 3), float32] = squeeze(%var_490, axis=[1]) /* ty=Tensor[(1, 8, 8, 64, 3, 3), float32] */;
+  let %var_492: Tensor[(64, 576), float32] = reshape(%cifarresnetv20_stage3_conv4_weight, newshape=[64, 576]) /* ty=Tensor[(64, 576), float32] */;
+  let %var_493: Tensor[(64, 576), float32] = reshape(%var_491, newshape=[64, 576]) /* ty=Tensor[(64, 576), float32] */;
+  let %var_494: Tensor[(64, 64), float32] = nn.dense(%var_492, %var_493, units=None) /* ty=Tensor[(64, 64), float32] */;
+  let %var_495: Tensor[(64, 1, 8, 8), float32] = reshape(%var_494, newshape=[64, 1, 8, 8]) /* ty=Tensor[(64, 1, 8, 8), float32] */;
+  let %var_496: Tensor[(1, 64, 8, 8), float32] = transpose(%var_495, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_498: Tensor[(64), float32] = add(%cifarresnetv20_stage3_batchnorm4_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(64), float32] */;
+  let %var_499: Tensor[(64), float32] = sqrt(%var_498) /* ty=Tensor[(64), float32] */;
+  let %var_501: Tensor[(64), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_499) /* ty=Tensor[(64), float32] */;
+  let %var_502: Tensor[(64), float32] = multiply(%var_501, %cifarresnetv20_stage3_batchnorm4_gamma) /* ty=Tensor[(64), float32] */;
+  let %var_503: Tensor[(64, 1), float32] = expand_dims(%var_502, axis=1) /* ty=Tensor[(64, 1), float32] */;
+  let %var_504: Tensor[(1, 64, 8, 8), float32] = add(%var_496, %var_449) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_505: Tensor[(64, 1, 1), float32] = expand_dims(%var_503, axis=1) /* ty=Tensor[(64, 1, 1), float32] */;
+  let %var_507: Tensor[(64), float32] = negative(%cifarresnetv20_stage3_batchnorm4_running_mean) /* ty=Tensor[(64), float32] */;
+  let %var_509: Tensor[(64), float32] = multiply(%var_507, %var_502) /* ty=Tensor[(64), float32] */;
+  let %var_510: Tensor[(64), float32] = add(%var_509, %cifarresnetv20_stage3_batchnorm4_beta) /* ty=Tensor[(64), float32] */;
+  let %var_511: Tensor[(64, 1), float32] = expand_dims(%var_510, axis=1) /* ty=Tensor[(64, 1), float32] */;
+  let %var_512: Tensor[(1, 64, 8, 8), float32] = multiply(%var_504, %var_505) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_513: Tensor[(64, 1, 1), float32] = expand_dims(%var_511, axis=1) /* ty=Tensor[(64, 1, 1), float32] */;
+  let %var_514: Tensor[(1, 64, 8, 8), float32] = add(%var_512, %var_513) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_515: Tensor[(1, 64, 8, 8), float32] = nn.relu(%var_514) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_516: Tensor[(1, 64, 10, 8), float32] = nn.pad(%var_515, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 64, 10, 8), float32] */;
+  let %var_517: Tensor[(1, 64, 10, 10), float32] = nn.pad(%var_516, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 64, 10, 10), float32] */;
+  let %var_518: Tensor[(1, 1, 8, 8, 64, 3, 3), float32] = sliding_window(%var_517, axis=1, window_shape=[64, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 8, 8, 64, 3, 3), float32] */;
+  let %var_519: Tensor[(1, 8, 8, 64, 3, 3), float32] = squeeze(%var_518, axis=[1]) /* ty=Tensor[(1, 8, 8, 64, 3, 3), float32] */;
+  let %var_520: Tensor[(64, 576), float32] = reshape(%cifarresnetv20_stage3_conv5_weight, newshape=[64, 576]) /* ty=Tensor[(64, 576), float32] */;
+  let %var_521: Tensor[(64, 576), float32] = reshape(%var_519, newshape=[64, 576]) /* ty=Tensor[(64, 576), float32] */;
+  let %var_522: Tensor[(64, 64), float32] = nn.dense(%var_520, %var_521, units=None) /* ty=Tensor[(64, 64), float32] */;
+  let %var_523: Tensor[(64, 1, 8, 8), float32] = reshape(%var_522, newshape=[64, 1, 8, 8]) /* ty=Tensor[(64, 1, 8, 8), float32] */;
+  let %var_525: Tensor[(64), float32] = add(%cifarresnetv20_stage3_batchnorm5_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(64), float32] */;
+  let %var_526: Tensor[(64), float32] = sqrt(%var_525) /* ty=Tensor[(64), float32] */;
+  let %var_528: Tensor[(64), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_526) /* ty=Tensor[(64), float32] */;
+  let %var_529: Tensor[(64), float32] = multiply(%var_528, %cifarresnetv20_stage3_batchnorm5_gamma) /* ty=Tensor[(64), float32] */;
+  let %var_530: Tensor[(64, 1), float32] = expand_dims(%var_529, axis=1) /* ty=Tensor[(64, 1), float32] */;
+  let %var_531: Tensor[(1, 64, 8, 8), float32] = transpose(%var_523, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_532: Tensor[(64, 1, 1), float32] = expand_dims(%var_530, axis=1) /* ty=Tensor[(64, 1, 1), float32] */;
+  let %var_534: Tensor[(64), float32] = negative(%cifarresnetv20_stage3_batchnorm5_running_mean) /* ty=Tensor[(64), float32] */;
+  let %var_536: Tensor[(64), float32] = multiply(%var_534, %var_529) /* ty=Tensor[(64), float32] */;
+  let %var_537: Tensor[(64), float32] = add(%var_536, %cifarresnetv20_stage3_batchnorm5_beta) /* ty=Tensor[(64), float32] */;
+  let %var_538: Tensor[(64, 1), float32] = expand_dims(%var_537, axis=1) /* ty=Tensor[(64, 1), float32] */;
+  let %var_539: Tensor[(1, 64, 8, 8), float32] = multiply(%var_531, %var_532) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_540: Tensor[(64, 1, 1), float32] = expand_dims(%var_538, axis=1) /* ty=Tensor[(64, 1, 1), float32] */;
+  let %var_541: Tensor[(1, 64, 8, 8), float32] = add(%var_539, %var_540) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_542: Tensor[(1, 64, 8, 8), float32] = nn.relu(%var_541) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_543: Tensor[(1, 64, 10, 8), float32] = nn.pad(%var_542, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [1, 1], [0, 0]]) /* ty=Tensor[(1, 64, 10, 8), float32] */;
+  let %var_544: Tensor[(1, 64, 10, 10), float32] = nn.pad(%var_543, 0 /* ty=int32 */, pad_width=[[0, 0], [0, 0], [0, 0], [1, 1]]) /* ty=Tensor[(1, 64, 10, 10), float32] */;
+  let %var_545: Tensor[(1, 1, 8, 8, 64, 3, 3), float32] = sliding_window(%var_544, axis=1, window_shape=[64, 3, 3], strides=[1, 1, 1]) /* ty=Tensor[(1, 1, 8, 8, 64, 3, 3), float32] */;
+  let %var_546: Tensor[(1, 8, 8, 64, 3, 3), float32] = squeeze(%var_545, axis=[1]) /* ty=Tensor[(1, 8, 8, 64, 3, 3), float32] */;
+  let %var_547: Tensor[(64, 576), float32] = reshape(%cifarresnetv20_stage3_conv6_weight, newshape=[64, 576]) /* ty=Tensor[(64, 576), float32] */;
+  let %var_548: Tensor[(64, 576), float32] = reshape(%var_546, newshape=[64, 576]) /* ty=Tensor[(64, 576), float32] */;
+  let %var_549: Tensor[(64, 64), float32] = nn.dense(%var_547, %var_548, units=None) /* ty=Tensor[(64, 64), float32] */;
+  let %var_550: Tensor[(64, 1, 8, 8), float32] = reshape(%var_549, newshape=[64, 1, 8, 8]) /* ty=Tensor[(64, 1, 8, 8), float32] */;
+  let %var_551: Tensor[(1, 64, 8, 8), float32] = transpose(%var_550, axes=[1, 0, 2, 3]) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_553: Tensor[(64), float32] = add(%cifarresnetv20_batchnorm1_running_var, 1e-05f /* ty=float32 */) /* ty=Tensor[(64), float32] */;
+  let %var_554: Tensor[(64), float32] = sqrt(%var_553) /* ty=Tensor[(64), float32] */;
+  let %var_556: Tensor[(64), float32] = divide(meta[relay.Constant][0] /* ty=Tensor[(1), float32] */, %var_554) /* ty=Tensor[(64), float32] */;
+  let %var_557: Tensor[(64), float32] = multiply(%var_556, %cifarresnetv20_batchnorm1_gamma) /* ty=Tensor[(64), float32] */;
+  let %var_558: Tensor[(64, 1), float32] = expand_dims(%var_557, axis=1) /* ty=Tensor[(64, 1), float32] */;
+  let %var_559: Tensor[(1, 64, 8, 8), float32] = add(%var_551, %var_504) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_560: Tensor[(64, 1, 1), float32] = expand_dims(%var_558, axis=1) /* ty=Tensor[(64, 1, 1), float32] */;
+  let %var_562: Tensor[(64), float32] = negative(%cifarresnetv20_batchnorm1_running_mean) /* ty=Tensor[(64), float32] */;
+  let %var_564: Tensor[(64), float32] = multiply(%var_562, %var_557) /* ty=Tensor[(64), float32] */;
+  let %var_565: Tensor[(64), float32] = add(%var_564, %cifarresnetv20_batchnorm1_beta) /* ty=Tensor[(64), float32] */;
+  let %var_566: Tensor[(64, 1), float32] = expand_dims(%var_565, axis=1) /* ty=Tensor[(64, 1), float32] */;
+  let %var_567: Tensor[(1, 64, 8, 8), float32] = multiply(%var_559, %var_560) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_568: Tensor[(64, 1, 1), float32] = expand_dims(%var_566, axis=1) /* ty=Tensor[(64, 1, 1), float32] */;
+  let %var_569: Tensor[(1, 64, 8, 8), float32] = add(%var_567, %var_568) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_570: Tensor[(1, 64, 8, 8), float32] = nn.relu(%var_569) /* ty=Tensor[(1, 64, 8, 8), float32] */;
+  let %var_571: Tensor[(1, 64, 1, 1), float32] = nn.global_avg_pool2d(%var_570) /* ty=Tensor[(1, 64, 1, 1), float32] */;
+  let %var_572: Tensor[(1, 64), float32] = reshape(%var_571, newshape=[1, 64]) /* ty=Tensor[(1, 64), float32] */;
+  let %var_574: Tensor[(1, 64), float32] = reshape(%var_572, newshape=[1, 64]) /* ty=Tensor[(1, 64), float32] */;
+  let %var_576: Tensor[(1, 10), float32] = nn.dense(%var_574, %cifarresnetv20_dense0_weight, units=None) /* ty=Tensor[(1, 10), float32] */;
+  nn.bias_add(%var_576, %cifarresnetv20_dense0_bias) /* ty=Tensor[(1, 10), float32] */
+}
+
+#[metadata]
+{
+  "root": 1, 
+  "nodes": [
+    {
+      "type_key": ""
+    }, 
+    {
+      "type_key": "Map", 
+      "keys": [
+        "relay.Constant"
+      ], 
+      "data": [2]
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [3]
+    }, 
+    {
+      "type_key": "relay.Constant", 
+      "attrs": {
+        "_checked_type_": "6", 
+        "data": "0", 
+        "span": "0", 
+        "virtual_device_": "4"
+      }
+    }, 
+    {
+      "type_key": "VirtualDevice", 
+      "attrs": {
+        "device_type_int": "-1", 
+        "memory_scope": "5", 
+        "target": "0", 
+        "virtual_device_id": "-1"
+      }
+    }, 
+    {
+      "type_key": "runtime.String"
+    }, 
+    {
+      "type_key": "relay.TensorType", 
+      "attrs": {
+        "dtype": "float32", 
+        "shape": "7", 
+        "span": "0"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [8]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }
+  ], 
+  "b64ndarrays": [
+    "P6G0lvBAXt0AAAAAAAAAAAEAAAAAAAAAAQAAAAIgAQABAAAAAAAAAAQAAAAAAAAAAACAPw=="
+  ], 
+  "attrs": {"tvm_version": "0.9.dev0"}
+}
