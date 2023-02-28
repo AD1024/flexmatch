@@ -58,6 +58,15 @@ pub fn get_all_cycles<L, N>(
                 node_vars,
             );
         }
+        // This is the fundamental flaw that was not captured
+        // in Tensat's cycle detection algorithm:
+        // Even with coloring, nodes in the same eclass could share the same cycle by
+        // sharing some common children.
+        // However these children e-class will not be visited after we finish
+        // cycle detection for the first node in the e-class, so we need to maintain
+        // a map from the starting node to the cycles it is in, which will be used by
+        // other nodes that are in the same e-class to construct the cycles that
+        // they are not able to detect.
         for i in 0..idx {
             if let Some(prev_cycle) = cycle_map.get(&node_vars[&egraph[*root].nodes[i]]) {
                 for cycle in prev_cycle {
