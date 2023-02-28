@@ -1,3 +1,4 @@
+mod maxsat_extract;
 mod rewrites;
 
 use egg::{EGraph, Extractor, Language, Runner};
@@ -5,6 +6,7 @@ use glenside::{
     extraction::AcceleratorCostFunction,
     language::{serialize_analysis_data, MyAnalysis, MyAnalysisData, RelayOperator},
 };
+use maxsat_extract::*;
 use rewrites::{get_rewrite_from_string, im2col_rewrites, linear_rewrites};
 use serde::Deserialize;
 use serde_json;
@@ -220,72 +222,30 @@ fn main() {
                 &best,
             );
         } else {
-            // The following extraction strategy is borrowed from Glenside ISCA demo
-            /*
-            #[cfg(feature = "cplex")]
-            {
-                use rplex::*;
-                info!("Extraction with ILP solver");
-                let mut cplex_env = Env::new().unwrap();
-                cplex_env.set_param(EnvParam::ScreenOutput(true)).unwrap();
-                cplex_env
-                    .set_param(EnvParam::MIPLimitsSolutions(1))
-                    .unwrap();
-                // Deterministic time limit in "ticks"
-                cplex_env
-                    .set_param(EnvParam::DetTimeLimit(6000000.0))
-                    .unwrap();
-                let mut model = glenside::extraction::ilp::create_generic_egraph_lp_model(
-                    &cplex_env,
-                    &runner.egraph,
-                    |node, id, egraph| true && filter_nodes(node, id, egraph),
-                    &[root_expr],
-                    "ilp-extraction",
-                );
-                let mut costs = Constraint::new(
-                    ConstraintType::Eq, /*ignored*/
-                    0.0,                /*ignored*/
-                    "costs",
-                );
-                for (_, var) in model.bq_vars.iter() {
-                    costs.add_wvar(WeightedVariable::new_idx(*var, 1.0));
+            struct Costfn;
+            impl MaxsatCostFunction<glenside::language::Language, MyAnalysis> for Costfn {
+                fn node_cost(
+                    &mut self,
+                    egraph: &EGraph<glenside::language::Language, MyAnalysis>,
+                    eclass: egg::Id,
+                    enode: &glenside::language::Language,
+                ) -> f64 {
+                    return get_node_weights(enode, egraph.total_size() as f64);
                 }
-                for (_, var) in model.topo_sort_vars.iter() {
-                    costs.add_wvar(WeightedVariable::new_idx(*var, 0.0));
-                }
-                for (&node, var) in model.bn_vars.iter() {
-                    let weight = get_node_weights(node, runner.egraph.total_size() as f64);
-                    costs.add_wvar(WeightedVariable::new_idx(*var, weight));
-                }
-                model
-                    .problem
-                    .set_objective(ObjectiveType::Minimize, costs)
-                    .unwrap();
-                info!("objective set");
-
-                info!("ilp problem created, beginning solving...");
-                let result = model.problem.solve().unwrap();
-                info!("ilp problem solved");
-
-                let (expr, _old_id_to_new_id_map) =
-                    glenside::extraction::ilp::extract_single_expression(
-                        &model,
-                        &result.variables,
-                        EGraph::new(MyAnalysis {
-                            name_to_shape: env.clone(),
-                            name_to_dtype: dtype_info.iter().cloned().collect(),
-                        }),
-                    );
-                let mut rec_expr = egg::RecExpr::default();
-                save_egraph_as_recexpr(&expr, &mut rec_expr);
-                save_expr_and_analysis(
-                    output_file,
-                    analysis_data_file,
-                    &env,
-                    &dtype_info.iter().cloned().collect(),
-                    &rec_expr,
-                );
-            } */
+            }
+            let mut maxsat_ext = MaxsatExtractor::new(&runner.egraph, "problem.wcnf".into());
+            let mut problem = maxsat_ext.create_problem(root_expr, "problem", true, Costfn);
+            let (solve_time, cost, best) = problem.solve_with_refinement();
+            // println!("{}", best);
+            println!("Solve time: {}", solve_time);
+            println!("Cost: {}", cost.unwrap());
+            save_expr_and_analysis(
+                output_file,
+                analysis_data_file,
+                &env,
+                &dtype_info.into_iter().collect(),
+                &best,
+            );
         }
     }
 }
@@ -305,7 +265,7 @@ fn get_node_weights(node: &glenside::language::Language, total_size: f64) -> f64
         debug!("Accelerator-call encountered");
     }
     match node {
-        glenside::language::Language::AcceleratorCall(_) => -total_size * 10.0,
+        glenside::language::Language::AcceleratorCall(_) => 1.0,
         glenside::language::Language::List(_)
         | glenside::language::Language::Shape(_)
         | glenside::language::Language::RelayKernelLayout(_)
@@ -322,7 +282,7 @@ fn get_node_weights(node: &glenside::language::Language, total_size: f64) -> f64
         | glenside::language::Language::Literal(_)
         | glenside::language::Language::AccessLiteral(_)
         | glenside::language::Language::AccessTensor(_) => 1.0,
-        glenside::language::Language::RelayOperatorCall(_) => total_size / 100.0,
+        glenside::language::Language::RelayOperatorCall(_) => 1.0,
         glenside::language::Language::RelayOperator(_) => 1.0,
         glenside::language::Language::AccessTranspose(_)
         | glenside::language::Language::AccessPad(_)
@@ -332,13 +292,13 @@ fn get_node_weights(node: &glenside::language::Language, total_size: f64) -> f64
         | glenside::language::Language::AccessBroadcast(_)
         | glenside::language::Language::AccessInsertAxis(_)
         | glenside::language::Language::AccessSlice(_)
-        | glenside::language::Language::AccessSqueeze(_) => total_size / 10.0,
+        | glenside::language::Language::AccessSqueeze(_) => 1.0,
 
         glenside::language::Language::Compute(_)
         | glenside::language::Language::AccessReshape(_)
         | glenside::language::Language::ComputeType(_)
-        | glenside::language::Language::AccessPair(_) => total_size,
-        _ => total_size / 20.0,
+        | glenside::language::Language::AccessPair(_) => 1.0,
+        _ => total_size,
     }
 }
 
