@@ -97,7 +97,8 @@ fn main() {
         let output_file = PathBuf::from(&args[2]);
         let analysis_data_file = PathBuf::from(&args[3]);
         let use_ilp = &args[args.len() - 1] == "--ilp";
-        let config_files = if use_ilp {
+        let use_maxsat = &args[args.len() - 1] == "--maxsat";
+        let config_files = if use_ilp || use_maxsat {
             &args[4..args.len() - 1]
         } else {
             &args[4..]
@@ -207,7 +208,7 @@ fn main() {
         }
         info!("Root eclass analysis: {:?}", runner.egraph[root_expr].data);
         info!("Root eclass nodes: {:?}", runner.egraph[root_expr].nodes);
-        if !use_ilp {
+        if !use_ilp && !use_maxsat {
             info!("Extraction without ILP");
             let extractor = Extractor::new(
                 &runner.egraph,
@@ -227,25 +228,57 @@ fn main() {
                 fn node_cost(
                     &mut self,
                     egraph: &EGraph<glenside::language::Language, MyAnalysis>,
-                    eclass: egg::Id,
+                    _: egg::Id,
                     enode: &glenside::language::Language,
                 ) -> f64 {
                     return get_node_weights(enode, egraph.total_size() as f64);
                 }
             }
-            let mut maxsat_ext = MaxsatExtractor::new(&runner.egraph, "problem.wcnf".into());
-            let mut problem = maxsat_ext.create_problem(root_expr, "problem", true, Costfn);
-            let (solve_time, cost, best) = problem.solve_with_refinement();
-            // println!("{}", best);
-            println!("Solve time: {}", solve_time);
-            println!("Cost: {}", cost.unwrap());
-            save_expr_and_analysis(
-                output_file,
-                analysis_data_file,
-                &env,
-                &dtype_info.into_iter().collect(),
-                &best,
-            );
+            if use_maxsat {
+                let mut maxsat_ext = MaxsatExtractor::new(&runner.egraph, "problem.wcnf".into());
+                let mut problem = maxsat_ext.create_problem(root_expr, "problem", true, Costfn);
+                let (solve_time, cost, best) = problem.solve_with_refinement();
+                // println!("{}", best);
+                println!("Solve time: {}", solve_time);
+                println!("Cost: {}", cost.unwrap());
+                save_expr_and_analysis(
+                    output_file,
+                    analysis_data_file,
+                    &env,
+                    &dtype_info.into_iter().collect(),
+                    &best,
+                );
+            } else {
+                #[cfg(feature = "cplex")]
+                {
+                    println!("Extract using ILP");
+                    let cplex_env = rplex::Env::new().unwrap();
+                    let mut model = glenside::extraction::ilp::create_generic_egraph_lp_model(
+                        &cplex_env,
+                        &runner.egraph,
+                        |_, _, _| true,
+                        &[root_expr],
+                        "ilp_ext",
+                    );
+                    let result = model.problem.solve().unwrap();
+                    let (out_expr, _old_id_to_new_id_map) =
+                        glenside::extraction::ilp::extract_single_expression(
+                            &model,
+                            &result.variables,
+                            EGraph::new(MyAnalysis {
+                                name_to_shape: env.clone(),
+                                name_to_dtype: dtype_info.iter().cloned().collect(),
+                            }),
+                        );
+                    let mut maxsat_ext =
+                        MaxsatExtractor::new(&out_expr, "compare-original.wcnf".into());
+                    let mut problem = maxsat_ext.create_problem(root_expr, "problem", true, Costfn);
+                    let (solve_time, cost, _) = problem.solve_with_refinement();
+                    // println!("{}", best);
+                    println!("Solve time: {}", solve_time);
+                    println!("Cost: {}", cost.unwrap());
+                }
+            }
         }
     }
 }

@@ -276,10 +276,13 @@ where
                                             .iter()
                                             .map(|(_, l)| l.clone())
                                             .collect::<Vec<_>>();
-                                        return Err((elapsed, subpath
-                                            .iter()
-                                            .map(|x| self.node_vars[x])
-                                            .collect::<Vec<_>>()));
+                                        return Err((
+                                            elapsed,
+                                            subpath
+                                                .iter()
+                                                .map(|x| self.node_vars[x])
+                                                .collect::<Vec<_>>(),
+                                        ));
                                     }
                                 }
                                 worklist.extend_from_slice(n.children());
