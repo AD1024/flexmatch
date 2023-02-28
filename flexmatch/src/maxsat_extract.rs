@@ -4,45 +4,6 @@ use egg::{Analysis, EGraph, Id, Language, RecExpr};
 use std::collections::{HashMap, HashSet};
 use std::time::Instant;
 
-/// Get all cycles in the given E-Graph
-pub fn get_cycles<L, N>(
-    egraph: &EGraph<L, N>,
-    root: &Id,
-    path: &mut Vec<(Id, L)>,
-    vis: &mut HashSet<Id>,
-    cycles: &mut Vec<Vec<(Id, L)>>,
-    node_vars: &HashMap<L, usize>,
-) where
-    L: Language,
-    N: Analysis<L>,
-{
-    assert!(
-        !vis.contains(root),
-        "cannot be visited again, should be handled in cycle detection"
-    );
-    assert!(*root == egraph.find(*root));
-    vis.insert(*root);
-    for node in egraph[*root].nodes.iter() {
-        for ch in node.children() {
-            if vis.contains(ch) {
-                // cycle detected
-                if let Some((idx, _)) = path.iter().enumerate().find(|(_, (id, _))| id == ch) {
-                    let mut subpath = path[idx..].to_vec();
-                    subpath.push((*root, node.clone()));
-                    cycles.push(subpath.clone());
-                } else if ch == root {
-                    // self loop
-                    cycles.push(vec![(*root, node.clone())])
-                }
-            } else {
-                let mut to_here = path.clone();
-                to_here.push((*root, node.clone()));
-                get_cycles(egraph, ch, &mut to_here, vis, cycles, node_vars);
-            }
-        }
-    }
-}
-
 pub fn get_all_cycles<L, N>(
     egraph: &EGraph<L, N>,
     root: &Id,
@@ -201,7 +162,7 @@ where
 {
     /// Given a weighted partial maxsat problem, solve the problem
     /// and parse the output
-    pub fn solve(&self) -> Result<(u128, Option<f64>, RecExpr<L>), Vec<usize>> {
+    pub fn solve(&self) -> Result<(u128, Option<f64>, RecExpr<L>), (u128, Vec<usize>)> {
         // assume maxhs installed
         let start = Instant::now();
         let result = Command::new("maxhs")
@@ -289,10 +250,10 @@ where
                                             .iter()
                                             .map(|(_, l)| l.clone())
                                             .collect::<Vec<_>>();
-                                        return Err(subpath
+                                        return Err((elapsed, subpath
                                             .iter()
                                             .map(|x| self.node_vars[x])
-                                            .collect::<Vec<_>>());
+                                            .collect::<Vec<_>>()));
                                     }
                                 }
                                 worklist.extend_from_slice(n.children());
@@ -321,10 +282,12 @@ where
     }
 
     pub fn solve_with_refinement(&mut self) -> (u128, Option<f64>, RecExpr<L>) {
+        let mut total_time = 0;
         loop {
             let x = self.solve();
             if x.is_err() {
-                let cycle = x.err().unwrap();
+                let (t, cycle) = x.err().unwrap();
+                total_time += t;
                 println!("Elim Cycle: {:?}", cycle);
                 let cycle_elim_clause = cycle
                     .iter()
@@ -337,7 +300,8 @@ where
                     .parameters(self.node_vars.len(), self.top);
                 self.problem_writer.dump();
             } else {
-                return x.unwrap();
+                let (t1, x, y) = x.unwrap();
+                return (t1 + total_time, x, y);
             }
         }
     }
