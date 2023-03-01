@@ -4,15 +4,24 @@ use egg::{Analysis, EGraph, Id, Language, RecExpr};
 use std::collections::{HashMap, HashSet};
 use std::time::Instant;
 
-pub fn get_all_cycles<L, N>(
+fn disjuct_negative(nodes: &Vec<usize>, problem_writer: &mut ProblemWriter, top: f64) {
+    let clause = nodes
+        .iter()
+        .map(|x| format!("-{}", x))
+        .collect::<Vec<_>>()
+        .join(" ");
+    problem_writer.hard_clause(&clause, top);
+}
+
+fn get_all_cycles<L, N>(
     egraph: &EGraph<L, N>,
     root: &Id,
     parent: Option<usize>,
     color: &mut HashMap<Id, usize>,
-    path: &Vec<(Id, L)>,
-    cycle_map: &mut HashMap<usize, Vec<Vec<usize>>>,
-    cycles: &mut Vec<Vec<usize>>,
+    path: &mut Vec<(Id, L)>,
+    problem_writer: &mut ProblemWriter,
     node_vars: &HashMap<L, usize>,
+    top: f64,
 ) where
     L: Language,
     N: Analysis<L>,
@@ -21,23 +30,21 @@ pub fn get_all_cycles<L, N>(
         return;
     }
     if color.contains_key(root) && color[root] == 1 {
-        let mut new_cycle = Vec::new();
         if let Some((idx, _)) = path.iter().enumerate().find(|(_, (id, _))| id == root) {
+            // let mut subpath: Vec<usize> = path[idx..].iter().cloned().map(|(_, n)| node_vars[&n]).collect();
+            // subpath.push(parent.unwrap());
+            // cycles.entry(*root).or_insert_with(Vec::new).push(subpath);
+            //
+            let mut new_cycle = Vec::new();
             let subpath = path[idx..].to_vec();
             for (_, n) in subpath {
                 new_cycle.push(node_vars[&n]);
             }
             new_cycle.push(parent.unwrap());
-            let fst = new_cycle[0];
-            if cycle_map.contains_key(&fst) {
-                let cycle_entry = cycle_map.get_mut(&fst).unwrap();
-                cycle_entry.push(new_cycle.clone());
-            } else {
-                let mut cycle_entry = Vec::new();
-                cycle_entry.push(new_cycle.clone());
-                cycle_map.insert(fst, cycle_entry);
+            for node_idx in egraph[*root].nodes.iter().map(|x| node_vars[x]) {
+                new_cycle[0] = node_idx;
+                disjuct_negative(&new_cycle, problem_writer, top);
             }
-            cycles.push(new_cycle);
             return;
         }
         panic!("Should have a cycle here: {}; path: {:?}", root, path);
@@ -45,69 +52,23 @@ pub fn get_all_cycles<L, N>(
     color.insert(*root, 1);
     for (idx, node) in egraph[*root].nodes.iter().enumerate() {
         for ch in node.children() {
-            let mut to_here = path.clone();
-            to_here.push((*root, node.clone()));
+            // let mut to_here = path.clone();
+            // to_here.push((*root, node.clone()));
+            path.push((*root, node.clone()));
             get_all_cycles(
                 egraph,
                 ch,
                 Some(node_vars[node]),
                 color,
-                &to_here,
-                cycle_map,
-                cycles,
+                path,
+                problem_writer,
                 node_vars,
+                top,
             );
-        }
-        // This is the fundamental flaw that was not captured
-        // in Tensat's cycle detection algorithm:
-        // Even with coloring, nodes in the same eclass could share the same cycle by
-        // sharing some common children.
-        // However these children e-class will not be visited after we finish
-        // cycle detection for the first node in the e-class, so we need to maintain
-        // a map from the starting node to the cycles it is in, which will be used by
-        // other nodes that are in the same e-class to construct the cycles that
-        // they are not able to detect.
-        for i in 0..idx {
-            if let Some(prev_cycle) = cycle_map.get(&node_vars[&egraph[*root].nodes[i]]) {
-                for cycle in prev_cycle {
-                    let mut new_cycle = cycle.iter().cloned().skip(1).collect::<Vec<_>>();
-                    new_cycle.push(node_vars[node]);
-                    new_cycle.push(node_vars[&egraph[*root].nodes[idx]]);
-                    cycles.push(new_cycle);
-                }
-            }
+            path.pop();
         }
     }
     color.insert(*root, 2);
-}
-
-fn cycle_2<L, N>(
-    egraph: &EGraph<L, N>,
-    root: Id,
-    length_2_cycle: &mut Vec<Vec<usize>>,
-    node_vars: &HashMap<L, usize>,
-    vis: &mut HashSet<Id>,
-) where
-    L: Language,
-    N: Analysis<L>,
-{
-    if vis.contains(&root) {
-        return;
-    }
-    vis.insert(root);
-    for level_1_node in egraph[root].nodes.iter() {
-        for level_1_node_child in level_1_node.children() {
-            for level_2_node in egraph[*level_1_node_child].nodes.iter() {
-                for level_2_node_child in level_2_node.children() {
-                    if *level_2_node_child == root {
-                        length_2_cycle
-                            .push(vec![node_vars[&level_1_node], node_vars[&level_2_node]]);
-                    }
-                }
-            }
-            cycle_2(egraph, *level_1_node_child, length_2_cycle, node_vars, vis);
-        }
-    }
 }
 
 #[derive(Clone)]
@@ -421,35 +382,41 @@ where
 
         // cycle constraint
         if no_cycle {
-            let mut cycles = Vec::new();
-            // let mut vis = HashSet::default();
-            let path = Vec::new();
+            // let mut cycles = HashMap::new();
+            let mut path = Vec::new();
             get_all_cycles(
                 self.egraph,
                 &root,
                 None,
                 &mut HashMap::new(),
-                &path,
-                &mut HashMap::new(),
-                &mut cycles,
+                &mut path,
+                &mut self.writer,
                 &node_vars,
+                top,
             );
-            // cycle_2(
-            //     self.egraph,
-            //     root,
-            //     &mut cycles,
-            //     &node_vars,
-            //     &mut HashSet::new(),
-            // );
-            for cycle in cycles {
-                // println!("cycle: {:?}", cycle);
-                let clause = cycle
-                    .iter()
-                    .map(|v| format!("-{}", v))
-                    .collect::<Vec<_>>()
-                    .join(" ");
-                hard_clauses.push(clause);
-            }
+            // for (eid, cycles) in cycles {
+            //     for enode_id in self.egraph[eid].nodes.iter().map(|x| node_vars[x]) {
+            //         for cycle_tail in cycles.iter() {
+            //             let mut cycle = vec![enode_id];
+            //             cycle.extend(cycle_tail.iter());
+            //             let clause = cycle
+            //                 .iter()
+            //                 .map(|v| format!("-{}", v))
+            //                 .collect::<Vec<_>>()
+            //                 .join(" ");
+            //             hard_clauses.push(clause);
+            //         }
+            //     }
+            // }
+            // for cycle in cycles {
+            //     // println!("cycle: {:?}", cycle);
+            //     let clause = cycle
+            //         .iter()
+            //         .map(|v| format!("-{}", v))
+            //         .collect::<Vec<_>>()
+            //         .join(" ");
+            //     hard_clauses.push(clause);
+            // }
         }
 
         // soft clauses (i.e. not all nodes need to be picked)

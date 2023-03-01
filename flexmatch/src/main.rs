@@ -15,6 +15,7 @@ use std::{
     env, fs,
     path::{Path, PathBuf},
     process::exit,
+    time::Instant,
 };
 use tvm;
 
@@ -46,6 +47,7 @@ fn read_configs(flexmatch_home: &PathBuf, config_files: &[String]) -> Vec<Rewrit
     return result;
 }
 
+/*
 fn save_egraph_as_recexpr(
     egraph: &EGraph<glenside::language::Language, MyAnalysis>,
     rec_expr: &mut egg::RecExpr<glenside::language::Language>,
@@ -58,7 +60,7 @@ fn save_egraph_as_recexpr(
     for (_id, expr) in expr_map.into_iter() {
         rec_expr.add(expr);
     }
-}
+} */
 
 fn save_expr_and_analysis(
     rec_expr_file: PathBuf,
@@ -208,13 +210,40 @@ fn main() {
         }
         info!("Root eclass analysis: {:?}", runner.egraph[root_expr].data);
         info!("Root eclass nodes: {:?}", runner.egraph[root_expr].nodes);
+        struct Costfn;
+        impl MaxsatCostFunction<glenside::language::Language, MyAnalysis> for Costfn {
+            fn node_cost(
+                &mut self,
+                egraph: &EGraph<glenside::language::Language, MyAnalysis>,
+                _: egg::Id,
+                enode: &glenside::language::Language,
+            ) -> f64 {
+                return get_node_weights(enode, egraph.total_size() as f64);
+            }
+        }
         if !use_ilp && !use_maxsat {
             info!("Extraction without ILP");
             let extractor = Extractor::new(
                 &runner.egraph,
                 AcceleratorCostFunction(runner.egraph.total_size() as f64),
             );
+            let start = Instant::now();
             let (_cost, best) = extractor.find_best(root_expr);
+            let elapsed = start.elapsed().as_millis();
+            // Convert cost to CostFn
+            let mut tmp_egraph: EGraph<_, MyAnalysis> = EGraph::new(MyAnalysis {
+                name_to_shape: env.clone(),
+                name_to_dtype: dtype_info.iter().cloned().collect(),
+            });
+            tmp_egraph.add_expr(&best);
+            let mut cost = 0.0;
+            for c in tmp_egraph.classes() {
+                for n in c.nodes.iter() {
+                    cost += get_node_weights(n, runner.egraph.total_size() as f64);
+                }
+            }
+            println!("Extraction time: {} ms", elapsed);
+            println!("Cost: {}", cost);
             save_expr_and_analysis(
                 output_file,
                 analysis_data_file,
@@ -223,23 +252,14 @@ fn main() {
                 &best,
             );
         } else {
-            struct Costfn;
-            impl MaxsatCostFunction<glenside::language::Language, MyAnalysis> for Costfn {
-                fn node_cost(
-                    &mut self,
-                    egraph: &EGraph<glenside::language::Language, MyAnalysis>,
-                    _: egg::Id,
-                    enode: &glenside::language::Language,
-                ) -> f64 {
-                    return get_node_weights(enode, egraph.total_size() as f64);
-                }
-            }
             if use_maxsat {
                 let mut maxsat_ext = MaxsatExtractor::new(&runner.egraph, "problem.wcnf".into());
+                let start = Instant::now();
                 let mut problem = maxsat_ext.create_problem(root_expr, "problem", true, Costfn);
                 let (solve_time, cost, best) = problem.solve_with_refinement();
-                // println!("{}", best);
-                println!("Solve time: {}", solve_time);
+                let elapsed = start.elapsed().as_millis();
+                println!("Extraction time: {} ms", elapsed);
+                println!("Solver time: {} ms", solve_time);
                 println!("Cost: {}", cost.unwrap());
                 save_expr_and_analysis(
                     output_file,
@@ -283,6 +303,7 @@ fn main() {
     }
 }
 
+/*
 fn check_accelerator_call_by_eid(
     ch_id: &egg::Id,
     egraph: &EGraph<glenside::language::Language, MyAnalysis>,
@@ -291,7 +312,7 @@ fn check_accelerator_call_by_eid(
         MyAnalysisData::AccessPattern(access) => access.contains_accelerator_calls,
         _ => false,
     }
-}
+} */
 
 fn get_node_weights(node: &glenside::language::Language, total_size: f64) -> f64 {
     if let glenside::language::Language::AcceleratorCall(_) = node {
@@ -335,6 +356,7 @@ fn get_node_weights(node: &glenside::language::Language, total_size: f64) -> f64
     }
 }
 
+/*
 fn filter_nodes(
     node: &glenside::language::Language,
     id: egg::Id,
@@ -372,4 +394,4 @@ fn filter_nodes(
         }
     }
     return true;
-}
+} */
