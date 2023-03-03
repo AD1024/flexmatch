@@ -9,10 +9,12 @@ use glenside::{
 use maxsat_extract::*;
 use rewrites::{get_rewrite_from_string, im2col_rewrites, linear_rewrites};
 use serde::Deserialize;
-use serde_json;
+use serde_json::{self, json};
+use std::io::prelude::*;
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
-    env, fs,
+    env,
+    fs::{self, OpenOptions},
     path::{Path, PathBuf},
     process::exit,
     time::Instant,
@@ -85,6 +87,29 @@ fn save_expr_and_analysis(
     let data_json_dump = serialize_analysis_data(&egraph, &native_map);
     let data_output = PathBuf::from(env::current_dir().unwrap()).join(analysis_data_file);
     let _ = std::fs::write(data_output, data_json_dump.to_string()).unwrap();
+}
+
+fn save_extraction_stats(
+    algo: &'static str,
+    stat_file: &String,
+    best_cost: f64,
+    solver_time: u128,
+    extract_time: u128,
+) {
+    let output_file = PathBuf::from(env::current_dir().unwrap()).join(stat_file);
+    let stat = json!({
+        "algo": algo,
+        "best_cost": best_cost,
+        "solver_time": solver_time,
+        "extract_time": extract_time,
+    });
+    let mut file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .create(true)
+        .open(output_file)
+        .unwrap();
+    writeln!(file, "{}", stat).unwrap();
 }
 
 fn main() {
