@@ -125,7 +125,8 @@ fn main() {
         let output_file = PathBuf::from(&args[2]);
         let analysis_data_file = PathBuf::from(&args[3]);
         let use_custom_ilp = &args[args.len() - 1] == "--new-ilp";
-        let use_ilp = &args[args.len() - 1] == "--ilp" || use_custom_ilp;
+        let use_topo_sort_ilp = &args[args.len() - 1] == "--topo-sort-ilp";
+        let use_ilp = &args[args.len() - 1] == "--ilp" || use_custom_ilp || use_topo_sort_ilp;
         let use_maxsat = &args[args.len() - 1] == "--maxsat";
         let config_files = if use_ilp || use_maxsat {
             &args[4..args.len() - 1]
@@ -296,7 +297,7 @@ fn main() {
                     &best,
                 );
             } else {
-                if use_custom_ilp {
+                if use_custom_ilp || use_topo_sort_ilp {
                     println!("Extract using custom ILP cycle breaking");
                     let cplex_env = rplex::Env::new().unwrap();
                     let mut cost_fn = Costfn {};
@@ -306,6 +307,7 @@ fn main() {
                         root_expr,
                         &runner.egraph,
                         true,
+                        use_topo_sort_ilp,
                         move |x, y, z| cost_fn.node_cost(x, y, z),
                     );
                     let (solve_time, _, best) = problem.solve();

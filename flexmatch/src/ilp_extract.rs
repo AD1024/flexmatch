@@ -176,6 +176,7 @@ pub fn create_problem<'a, L, N, CF>(
     root: Id,
     egraph: &'a EGraph<L, N>,
     no_cycle: bool,
+    topo_sort: bool,
     mut cost_fn: CF,
 ) -> ILPProblem<'a, L, N>
 where
@@ -223,16 +224,45 @@ where
     }
 
     if no_cycle {
-        let mut color = HashMap::new();
-        let mut path = Vec::new();
-        get_all_cycles(
-            egraph,
-            &root,
-            &mut color,
-            &mut path,
-            &mut problem,
-            &node_vars,
-        );
+        if topo_sort {
+            // add topo variables for each enode
+            let mut topo_vars = HashMap::new();
+            let top = egraph.total_size() as f64;
+            for eclass in egraph.classes() {
+                let name = format!("topo_{}", eclass.id);
+                let var = var!(0.0 <= name <= (top - 1.0) -> 0.0 as Integer);
+                topo_vars.insert(eclass.id, problem.add_variable(var).unwrap());
+            }
+            // topolotical ordering
+            // let mut memo = HashSet::new();
+            for eclass in egraph.classes() {
+                for enode in eclass.nodes.iter() {
+                    for child in enode.children().iter() {
+                        let mut topo_constraint = rplex::Constraint::new(
+                            rplex::ConstraintType::GreaterThanEq,
+                            1.0 - top,
+                            format!("topo_sort_{}_{}", eclass.id, child),
+                        );
+                        topo_constraint
+                            .add_wvar(WeightedVariable::new_idx(topo_vars[&eclass.id], 1.0));
+                        topo_constraint.add_wvar(WeightedVariable::new_idx(node_vars[enode], -top));
+                        topo_constraint.add_wvar(WeightedVariable::new_idx(topo_vars[child], -1.0));
+                        problem.add_constraint(topo_constraint).unwrap();
+                    }
+                }
+            }
+        } else {
+            let mut color = HashMap::new();
+            let mut path = Vec::new();
+            get_all_cycles(
+                egraph,
+                &root,
+                &mut color,
+                &mut path,
+                &mut problem,
+                &node_vars,
+            );
+        }
     }
 
     return ILPProblem::new(problem, egraph, root, node_vars);
