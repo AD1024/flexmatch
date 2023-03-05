@@ -234,7 +234,6 @@ where
                 topo_vars.insert(eclass.id, problem.add_variable(var).unwrap());
             }
             // topolotical ordering
-            // let mut memo = HashSet::new();
             for eclass in egraph.classes() {
                 for enode in eclass.nodes.iter() {
                     for child in enode.children().iter() {
