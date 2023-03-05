@@ -91,18 +91,24 @@ fn save_expr_and_analysis(
 }
 
 fn save_extraction_stats(
-    algo: &'static str,
-    stat_file: &String,
+    algo: &str,
+    model_name: &String,
     best_cost: f64,
     solver_time: u128,
     extract_time: u128,
+    egraph: &EGraph<glenside::language::Language, MyAnalysis>,
 ) {
-    let output_file = PathBuf::from(env::current_dir().unwrap()).join(stat_file);
+    let output_file = PathBuf::from(env::current_dir().unwrap()).join("extraction_stats.txt");
     let stat = json!({
         "algo": algo,
         "best_cost": best_cost,
+        "model": model_name,
         "solver_time": solver_time,
         "extract_time": extract_time,
+        "num_enodes:": egraph.total_number_of_nodes(),
+        "num_eclass": egraph.number_of_classes(),
+        "eclass_size": egraph.total_size(),
+        "avg_enode_per_class": egraph.total_number_of_nodes() as f64 / egraph.number_of_classes() as f64,
     });
     let mut file = OpenOptions::new()
         .write(true)
@@ -124,10 +130,12 @@ fn main() {
         let source_file = &args[1];
         let output_file = PathBuf::from(&args[2]);
         let analysis_data_file = PathBuf::from(&args[3]);
-        let use_custom_ilp = &args[args.len() - 1] == "--new-ilp";
-        let use_topo_sort_ilp = &args[args.len() - 1] == "--topo-sort-ilp";
-        let use_ilp = &args[args.len() - 1] == "--ilp" || use_custom_ilp || use_topo_sort_ilp;
-        let use_maxsat = &args[args.len() - 1] == "--maxsat";
+        let run_eval = &args[args.len() - 1] == "--eval";
+        let use_custom_ilp = &args[args.len() - 1] == "--new-ilp" || run_eval;
+        let use_topo_sort_ilp = &args[args.len() - 1] == "--topo-sort-ilp" || run_eval;
+        let use_ilp =
+            &args[args.len() - 1] == "--ilp" || use_custom_ilp || use_topo_sort_ilp || run_eval;
+        let use_maxsat = &args[args.len() - 1] == "--maxsat" || run_eval;
         let config_files = if use_ilp || use_maxsat {
             &args[4..args.len() - 1]
         } else {
@@ -249,7 +257,7 @@ fn main() {
                 return get_node_weights(enode, egraph.total_size() as f64);
             }
         }
-        if !use_ilp && !use_maxsat {
+        if (!use_ilp && !use_maxsat) || run_eval {
             info!("Extraction without ILP");
             let extractor = Extractor::new(
                 &runner.egraph,
@@ -272,106 +280,88 @@ fn main() {
             }
             println!("Extraction time: {} ms", elapsed);
             println!("Cost: {}", cost);
-            save_expr_and_analysis(
-                output_file,
-                analysis_data_file,
-                &env,
-                &dtype_info.into_iter().collect(),
-                &best,
+            // save_expr_and_analysis(
+            //     output_file,
+            //     analysis_data_file,
+            //     &env,
+            //     &dtype_info.into_iter().collect(),
+            //     &best,
+            // );
+            save_extraction_stats(
+                "Greedy",
+                source_file,
+                cost,
+                elapsed,
+                elapsed,
+                &runner.egraph,
             );
-        } else {
-            if use_maxsat {
-                let mut maxsat_ext = MaxsatExtractor::new(&runner.egraph, "problem.wcnf".into());
+        }
+        if use_maxsat {
+            let mut maxsat_ext = MaxsatExtractor::new(&runner.egraph, "problem.wcnf".into());
+            let start = Instant::now();
+            let mut problem = maxsat_ext.create_problem(root_expr, "problem", true, Costfn);
+            let (solve_time, cost, best) = problem.solve_with_refinement();
+            let elapsed = start.elapsed().as_millis();
+            println!("Extraction time: {} ms", elapsed);
+            println!("Solver time: {} ms", solve_time);
+            println!("Cost: {}", cost.unwrap());
+            save_extraction_stats(
+                "WPMAXSAT",
+                source_file,
+                cost.unwrap(),
+                solve_time,
+                elapsed,
+                &runner.egraph,
+            );
+        }
+        if use_custom_ilp || use_topo_sort_ilp {
+            let mut options = Vec::new();
+            if use_custom_ilp {
+                options.push(("ACyc", false));
+            }
+            if use_topo_sort_ilp {
+                options.push(("Topo", true));
+            }
+            for (algo, topo_sort) in options {
+                println!("Extract using ILP-{}", algo);
+                let cplex_env = rplex::Env::new().unwrap();
+                let mut cost_fn = Costfn {};
                 let start = Instant::now();
-                let mut problem = maxsat_ext.create_problem(root_expr, "problem", true, Costfn);
-                let (solve_time, cost, best) = problem.solve_with_refinement();
+                let mut problem = ilp_extract::create_problem(
+                    &cplex_env,
+                    root_expr,
+                    &runner.egraph,
+                    true,
+                    topo_sort,
+                    move |x, y, z| cost_fn.node_cost(x, y, z),
+                );
+                let (solve_time, _, best) = problem.solve();
                 let elapsed = start.elapsed().as_millis();
+                let mut tmp_egraph = EGraph::new(MyAnalysis {
+                    name_to_shape: env.clone(),
+                    name_to_dtype: dtype_info.iter().cloned().collect(),
+                });
+                let root = tmp_egraph.add_expr(&best);
+                let mut maxsat_ext =
+                    MaxsatExtractor::new(&tmp_egraph, "compare-original.wcnf".into());
+                let mut problem = maxsat_ext.create_problem(root, "problem", true, Costfn);
+                let (_, cost, _) = problem.solve_with_refinement();
+
                 println!("Extraction time: {} ms", elapsed);
                 println!("Solver time: {} ms", solve_time);
                 println!("Cost: {}", cost.unwrap());
-                save_expr_and_analysis(
-                    output_file,
-                    analysis_data_file,
-                    &env,
-                    &dtype_info.into_iter().collect(),
-                    &best,
+                save_extraction_stats(
+                    format!("ILP-{}", algo).as_str(),
+                    source_file,
+                    cost.unwrap(),
+                    solve_time,
+                    elapsed,
+                    &runner.egraph,
                 );
-            } else {
-                if use_custom_ilp || use_topo_sort_ilp {
-                    println!("Extract using custom ILP cycle breaking");
-                    let cplex_env = rplex::Env::new().unwrap();
-                    let mut cost_fn = Costfn {};
-                    let start = Instant::now();
-                    let mut problem = ilp_extract::create_problem(
-                        &cplex_env,
-                        root_expr,
-                        &runner.egraph,
-                        true,
-                        use_topo_sort_ilp,
-                        move |x, y, z| cost_fn.node_cost(x, y, z),
-                    );
-                    let (solve_time, _, best) = problem.solve();
-                    let elapsed = start.elapsed().as_millis();
-                    let mut tmp_egraph = EGraph::new(MyAnalysis {
-                        name_to_shape: env.clone(),
-                        name_to_dtype: dtype_info.iter().cloned().collect(),
-                    });
-                    let root = tmp_egraph.add_expr(&best);
-                    let mut maxsat_ext =
-                        MaxsatExtractor::new(&tmp_egraph, "compare-original.wcnf".into());
-                    let mut problem = maxsat_ext.create_problem(root, "problem", true, Costfn);
-                    let (_, cost, _) = problem.solve_with_refinement();
-
-                    println!("Extraction time: {} ms", elapsed);
-                    println!("Solver time: {} ms", solve_time);
-                    println!("Cost: {}", cost.unwrap());
-                } else {
-                    #[cfg(feature = "cplex")]
-                    {
-                        println!("Extract using ILP");
-                        let cplex_env = rplex::Env::new().unwrap();
-                        let mut model = glenside::extraction::ilp::create_generic_egraph_lp_model(
-                            &cplex_env,
-                            &runner.egraph,
-                            |_, _, _| true,
-                            &[root_expr],
-                            "ilp_ext",
-                        );
-                        let result = model.problem.solve().unwrap();
-                        let (out_expr, _old_id_to_new_id_map) =
-                            glenside::extraction::ilp::extract_single_expression(
-                                &model,
-                                &result.variables,
-                                EGraph::new(MyAnalysis {
-                                    name_to_shape: env.clone(),
-                                    name_to_dtype: dtype_info.iter().cloned().collect(),
-                                }),
-                            );
-                        let mut maxsat_ext =
-                            MaxsatExtractor::new(&out_expr, "compare-original.wcnf".into());
-                        let mut problem =
-                            maxsat_ext.create_problem(root_expr, "problem", true, Costfn);
-                        let (solve_time, cost, _) = problem.solve_with_refinement();
-                        // println!("{}", best);
-                        println!("Solve time: {}", solve_time);
-                        println!("Cost: {}", cost.unwrap());
-                    }
-                }
             }
         }
     }
 }
-
-/*
-fn check_accelerator_call_by_eid(
-    ch_id: &egg::Id,
-    egraph: &EGraph<glenside::language::Language, MyAnalysis>,
-) -> bool {
-    match &egraph[*ch_id].data {
-        MyAnalysisData::AccessPattern(access) => access.contains_accelerator_calls,
-        _ => false,
-    }
-} */
 
 fn get_node_weights(node: &glenside::language::Language, total_size: f64) -> f64 {
     if let glenside::language::Language::AcceleratorCall(_) = node {
