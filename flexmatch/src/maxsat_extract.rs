@@ -16,7 +16,6 @@ fn disjuct_negative(nodes: &Vec<usize>, problem_writer: &mut ProblemWriter, top:
 fn get_all_cycles<L, N>(
     egraph: &EGraph<L, N>,
     root: &Id,
-    parent: Option<usize>,
     color: &mut HashMap<Id, usize>,
     path: &mut Vec<(Id, L)>,
     problem_writer: &mut ProblemWriter,
@@ -31,40 +30,30 @@ fn get_all_cycles<L, N>(
     }
     if color.contains_key(root) && color[root] == 1 {
         if let Some((idx, _)) = path.iter().enumerate().find(|(_, (id, _))| id == root) {
-            // let mut subpath: Vec<usize> = path[idx..].iter().cloned().map(|(_, n)| node_vars[&n]).collect();
-            // subpath.push(parent.unwrap());
-            // cycles.entry(*root).or_insert_with(Vec::new).push(subpath);
-            //
             let mut new_cycle = Vec::new();
             let subpath = path[idx..].to_vec();
             for (_, n) in subpath {
                 new_cycle.push(node_vars[&n]);
             }
-            new_cycle.push(parent.unwrap());
-            for node_idx in egraph[*root].nodes.iter().map(|x| node_vars[x]) {
-                new_cycle[0] = node_idx;
-                disjuct_negative(&new_cycle, problem_writer, top);
+            if new_cycle.len() == 1 {
+                problem_writer.hard_clause(&format!("-{}", new_cycle[0]), top);
+            } else {
+                for node_idx in egraph[*root].nodes.iter().map(|x| node_vars[x]) {
+                    new_cycle[0] = node_idx;
+                    disjuct_negative(&new_cycle, problem_writer, top);
+                }
             }
             return;
         }
         panic!("Should have a cycle here: {}; path: {:?}", root, path);
     }
     color.insert(*root, 1);
-    for (idx, node) in egraph[*root].nodes.iter().enumerate() {
+    for node in egraph[*root].nodes.iter() {
         for ch in node.children() {
             // let mut to_here = path.clone();
             // to_here.push((*root, node.clone()));
             path.push((*root, node.clone()));
-            get_all_cycles(
-                egraph,
-                ch,
-                Some(node_vars[node]),
-                color,
-                path,
-                problem_writer,
-                node_vars,
-                top,
-            );
+            get_all_cycles(egraph, ch, color, path, problem_writer, node_vars, top);
             path.pop();
         }
     }
@@ -387,36 +376,12 @@ where
             get_all_cycles(
                 self.egraph,
                 &root,
-                None,
                 &mut HashMap::new(),
                 &mut path,
                 &mut self.writer,
                 &node_vars,
                 top,
             );
-            // for (eid, cycles) in cycles {
-            //     for enode_id in self.egraph[eid].nodes.iter().map(|x| node_vars[x]) {
-            //         for cycle_tail in cycles.iter() {
-            //             let mut cycle = vec![enode_id];
-            //             cycle.extend(cycle_tail.iter());
-            //             let clause = cycle
-            //                 .iter()
-            //                 .map(|v| format!("-{}", v))
-            //                 .collect::<Vec<_>>()
-            //                 .join(" ");
-            //             hard_clauses.push(clause);
-            //         }
-            //     }
-            // }
-            // for cycle in cycles {
-            //     // println!("cycle: {:?}", cycle);
-            //     let clause = cycle
-            //         .iter()
-            //         .map(|v| format!("-{}", v))
-            //         .collect::<Vec<_>>()
-            //         .join(" ");
-            //     hard_clauses.push(clause);
-            // }
         }
 
         // soft clauses (i.e. not all nodes need to be picked)

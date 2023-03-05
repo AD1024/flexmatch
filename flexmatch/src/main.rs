@@ -1,3 +1,4 @@
+mod ilp_extract;
 mod maxsat_extract;
 mod rewrites;
 
@@ -123,7 +124,8 @@ fn main() {
         let source_file = &args[1];
         let output_file = PathBuf::from(&args[2]);
         let analysis_data_file = PathBuf::from(&args[3]);
-        let use_ilp = &args[args.len() - 1] == "--ilp";
+        let use_custom_ilp = &args[args.len() - 1] == "--new-ilp";
+        let use_ilp = &args[args.len() - 1] == "--ilp" || use_custom_ilp;
         let use_maxsat = &args[args.len() - 1] == "--maxsat";
         let config_files = if use_ilp || use_maxsat {
             &args[4..args.len() - 1]
@@ -294,34 +296,64 @@ fn main() {
                     &best,
                 );
             } else {
-                #[cfg(feature = "cplex")]
-                {
-                    println!("Extract using ILP");
+                if use_custom_ilp {
+                    println!("Extract using custom ILP cycle breaking");
                     let cplex_env = rplex::Env::new().unwrap();
-                    let mut model = glenside::extraction::ilp::create_generic_egraph_lp_model(
+                    let mut cost_fn = Costfn {};
+                    let start = Instant::now();
+                    let mut problem = ilp_extract::create_problem(
                         &cplex_env,
+                        root_expr,
                         &runner.egraph,
-                        |_, _, _| true,
-                        &[root_expr],
-                        "ilp_ext",
+                        true,
+                        move |x, y, z| cost_fn.node_cost(x, y, z),
                     );
-                    let result = model.problem.solve().unwrap();
-                    let (out_expr, _old_id_to_new_id_map) =
-                        glenside::extraction::ilp::extract_single_expression(
-                            &model,
-                            &result.variables,
-                            EGraph::new(MyAnalysis {
-                                name_to_shape: env.clone(),
-                                name_to_dtype: dtype_info.iter().cloned().collect(),
-                            }),
-                        );
+                    let (solve_time, _, best) = problem.solve();
+                    let elapsed = start.elapsed().as_millis();
+                    let mut tmp_egraph = EGraph::new(MyAnalysis {
+                        name_to_shape: env.clone(),
+                        name_to_dtype: dtype_info.iter().cloned().collect(),
+                    });
+                    let root = tmp_egraph.add_expr(&best);
                     let mut maxsat_ext =
-                        MaxsatExtractor::new(&out_expr, "compare-original.wcnf".into());
-                    let mut problem = maxsat_ext.create_problem(root_expr, "problem", true, Costfn);
-                    let (solve_time, cost, _) = problem.solve_with_refinement();
-                    // println!("{}", best);
-                    println!("Solve time: {}", solve_time);
+                        MaxsatExtractor::new(&tmp_egraph, "compare-original.wcnf".into());
+                    let mut problem = maxsat_ext.create_problem(root, "problem", true, Costfn);
+                    let (_, cost, _) = problem.solve_with_refinement();
+
+                    println!("Extraction time: {} ms", elapsed);
+                    println!("Solver time: {} ms", solve_time);
                     println!("Cost: {}", cost.unwrap());
+                } else {
+                    #[cfg(feature = "cplex")]
+                    {
+                        println!("Extract using ILP");
+                        let cplex_env = rplex::Env::new().unwrap();
+                        let mut model = glenside::extraction::ilp::create_generic_egraph_lp_model(
+                            &cplex_env,
+                            &runner.egraph,
+                            |_, _, _| true,
+                            &[root_expr],
+                            "ilp_ext",
+                        );
+                        let result = model.problem.solve().unwrap();
+                        let (out_expr, _old_id_to_new_id_map) =
+                            glenside::extraction::ilp::extract_single_expression(
+                                &model,
+                                &result.variables,
+                                EGraph::new(MyAnalysis {
+                                    name_to_shape: env.clone(),
+                                    name_to_dtype: dtype_info.iter().cloned().collect(),
+                                }),
+                            );
+                        let mut maxsat_ext =
+                            MaxsatExtractor::new(&out_expr, "compare-original.wcnf".into());
+                        let mut problem =
+                            maxsat_ext.create_problem(root_expr, "problem", true, Costfn);
+                        let (solve_time, cost, _) = problem.solve_with_refinement();
+                        // println!("{}", best);
+                        println!("Solve time: {}", solve_time);
+                        println!("Cost: {}", cost.unwrap());
+                    }
                 }
             }
         }
