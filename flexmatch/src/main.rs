@@ -105,9 +105,8 @@ fn save_extraction_stats(
         "model": model_name,
         "solver_time": solver_time,
         "extract_time": extract_time,
-        "num_enodes:": egraph.total_number_of_nodes(),
+        "num_enodes": egraph.total_number_of_nodes(),
         "num_eclass": egraph.number_of_classes(),
-        "eclass_size": egraph.total_size(),
         "avg_enode_per_class": egraph.total_number_of_nodes() as f64 / egraph.number_of_classes() as f64,
     });
     let mut file = OpenOptions::new()

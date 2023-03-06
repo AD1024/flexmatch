@@ -12,7 +12,7 @@ def parse_data(filename: str) -> dict:
         # aggregate w.r.t. model
         data = dict()
         for x in parsed_data:
-            key = x['model'].split('/')[-1].split('.')[0]
+            key = x['model'].split('/')[-1].split('.')[0].split('_')[0]
             datum = data.get(key, [])
             datum.append(x)
             data[key] = datum
@@ -20,12 +20,12 @@ def parse_data(filename: str) -> dict:
     
 def draw_extraction_times(data: dict):
     # plt.clf()
-    plt.title('End-to-end Term Extraction Time')
+    plt.title('Term Extraction Time')
     plt.xlabel('Model')
     fig, ax = plt.subplots()
     ax.set_ylabel('Extraction Time (ms)')
     ax.set_xlabel('Model', fontsize=14)
-    ax.set_title('End-to-end Term Extraction Time')
+    ax.set_title('Term Extraction Time')
     # ax.set_yscale('log')
     x = np.arange(len(data))
     # x *= 1.5
@@ -35,12 +35,24 @@ def draw_extraction_times(data: dict):
     x_ticks = []
     for (model, model_data) in data.items():
         x_ticks.append(model)
+        counter = dict()
         for datum in model_data:
+            solver_time = datum['solver_time']
+            overhead_time = datum['extract_time'] - datum['solver_time']
+            counter[datum['algo']] = counter.get(datum['algo'], 0)
             if datum['algo'] not in solver_times:
                 solver_times[datum['algo']] = []
                 overhead_times[datum['algo']] = []
-            solver_times[datum['algo']].append(datum['solver_time'])
-            overhead_times[datum['algo']].append(datum['extract_time'] - datum['solver_time'])
+            if counter[datum['algo']] == 0:
+                solver_times[datum['algo']].append(solver_time)
+                overhead_times[datum['algo']].append(overhead_time)
+            else:
+                solver_times[datum['algo']][-1] += solver_time
+                overhead_times[datum['algo']][-1] += overhead_time
+            counter[datum['algo']] += 1
+        for (algo, count) in counter.items():
+            solver_times[algo][-1] /= count
+            overhead_times[algo][-1] /= count
 
     bar_width = 0.25
     ax.bar(x - bar_width, solver_times['ILP-ACyc'], bar_width, label='ILP-ACyc', color='lightgreen', edgecolor='grey')
@@ -54,7 +66,13 @@ def draw_extraction_times(data: dict):
 
     ax.set_xticks(x, data.keys())
     ax.set_xticklabels(x_ticks)
-    ax.legend(loc='upper left')
+
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0 + box.height * 0.1,
+                 box.width, box.height * 0.9])
+
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+          fancybox=True, shadow=True, ncol=5)
     plt.savefig('extraction_time.png')
 
 def draw_egraph_sizes(data: dict):
