@@ -20,6 +20,7 @@ fn get_all_cycles<L, N>(
     path: &mut Vec<(Id, L)>,
     problem_writer: &mut ProblemWriter,
     node_vars: &HashMap<L, usize>,
+    node_to_children: &HashMap<usize, HashSet<Id>>,
     top: f64,
 ) where
     L: Language,
@@ -32,15 +33,18 @@ fn get_all_cycles<L, N>(
         if let Some((idx, _)) = path.iter().enumerate().find(|(_, (id, _))| id == root) {
             let mut new_cycle = Vec::new();
             let subpath = path[idx..].to_vec();
-            for (_, n) in subpath {
+            for (_, n) in &subpath {
                 new_cycle.push(node_vars[&n]);
             }
             if new_cycle.len() == 1 {
                 problem_writer.hard_clause(&format!("-{}", new_cycle[0]), top);
             } else {
+                let nxt_hop = subpath[1].0;
                 for node_idx in egraph[*root].nodes.iter().map(|x| node_vars[x]) {
-                    new_cycle[0] = node_idx;
-                    disjuct_negative(&new_cycle, problem_writer, top);
+                    // if node_to_children[&node_idx].contains(&nxt_hop) {
+                        new_cycle[0] = node_idx;
+                        disjuct_negative(&new_cycle, problem_writer, top);
+                    // }
                 }
             }
             return;
@@ -53,7 +57,16 @@ fn get_all_cycles<L, N>(
             // let mut to_here = path.clone();
             // to_here.push((*root, node.clone()));
             path.push((*root, node.clone()));
-            get_all_cycles(egraph, ch, color, path, problem_writer, node_vars, top);
+            get_all_cycles(
+                egraph,
+                ch,
+                color,
+                path,
+                problem_writer,
+                node_vars,
+                node_to_children,
+                top,
+            );
             path.pop();
         }
     }
@@ -354,11 +367,14 @@ where
             .join(" ");
         hard_clauses.push(root_clause);
 
+        let mut node_to_children = HashMap::new();
         // children constraint
         for c in self.egraph.classes() {
             for n in c.nodes.iter() {
                 // v_n -> \bigvee_cN v_cN forall C
+                let mut node_children = HashSet::new();
                 for ch in n.children() {
+                    node_children.insert(*ch);
                     let mut clause = String::new();
                     clause.push_str(&format!("-{}", node_vars[n]));
                     for ch_node in self.egraph[*ch].nodes.iter() {
@@ -366,6 +382,7 @@ where
                     }
                     hard_clauses.push(clause);
                 }
+                node_to_children.insert(node_vars[n], node_children);
             }
         }
 
@@ -380,6 +397,7 @@ where
                 &mut path,
                 &mut self.writer,
                 &node_vars,
+                &node_to_children,
                 top,
             );
         }

@@ -1,4 +1,7 @@
-use std::{collections::HashMap, time::Instant};
+use std::{
+    collections::{HashMap, HashSet},
+    time::Instant,
+};
 
 use egg::{Analysis, EGraph, Id, Language, RecExpr};
 use rand::Rng;
@@ -11,6 +14,7 @@ fn get_all_cycles<'a, L, N>(
     path: &mut Vec<(Id, L)>,
     problem: &mut Problem<'a>,
     node_vars: &HashMap<L, usize>,
+    node_to_children: &HashMap<usize, HashSet<Id>>,
 ) where
     L: Language,
     N: Analysis<L>,
@@ -22,8 +26,8 @@ fn get_all_cycles<'a, L, N>(
         if let Some((idx, _)) = path.iter().enumerate().find(|(_, (id, _))| id == root) {
             let mut new_cycle = Vec::new();
             let subpath = path[idx..].to_vec();
-            for (_, n) in subpath {
-                new_cycle.push(node_vars[&n]);
+            for (_, n) in &subpath {
+                new_cycle.push(node_vars[n]);
             }
             let mut rng = rand::thread_rng();
             if new_cycle.len() == 1 {
@@ -35,18 +39,21 @@ fn get_all_cycles<'a, L, N>(
                 constraint.add_wvar(WeightedVariable::new_idx(new_cycle[0], 1.0));
                 problem.add_constraint(constraint).unwrap();
             } else {
-                for node_idx in egraph[*root].nodes.iter().map(|x| node_vars[x]) {
-                    new_cycle[0] = node_idx;
-                    // sum up <= len(new_cycle) - 1
-                    let mut constraint = rplex::Constraint::new(
-                        rplex::ConstraintType::LessThanEq,
-                        new_cycle.len() as f64 - 1.0,
-                        format!("cycle_{}_{}", root, rng.gen::<u64>()),
-                    );
-                    for node_idx in new_cycle.iter() {
-                        constraint.add_wvar(WeightedVariable::new_idx(*node_idx, 1.0));
+                let nxt_hop = subpath[1].0;
+                for node_idx in egraph[*root].nodes.iter().map(|n| node_vars[n]) {
+                    if node_to_children[&node_idx].contains(&nxt_hop) {
+                        new_cycle[0] = node_idx;
+                        // sum up <= len(new_cycle) - 1
+                        let mut constraint = rplex::Constraint::new(
+                            rplex::ConstraintType::LessThanEq,
+                            new_cycle.len() as f64 - 1.0,
+                            format!("cycle_{}_{}", root, rng.gen::<u64>()),
+                        );
+                        for node_idx in new_cycle.iter() {
+                            constraint.add_wvar(WeightedVariable::new_idx(*node_idx, 1.0));
+                        }
+                        problem.add_constraint(constraint).unwrap();
                     }
-                    problem.add_constraint(constraint).unwrap();
                 }
             }
             return;
@@ -55,11 +62,19 @@ fn get_all_cycles<'a, L, N>(
     }
     color.insert(*root, 1);
     for node in egraph[*root].nodes.iter() {
+        path.push((*root, node.clone()));
         for ch in node.children() {
-            path.push((*root, node.clone()));
-            get_all_cycles(egraph, ch, color, path, problem, node_vars);
-            path.pop();
+            get_all_cycles(
+                egraph,
+                ch,
+                color,
+                path,
+                problem,
+                node_vars,
+                node_to_children,
+            );
         }
+        path.pop();
     }
     color.insert(*root, 2);
 }
@@ -203,12 +218,15 @@ where
         constraint.add_wvar(WeightedVariable::new_idx(node_idx, 1.0));
     }
     problem.add_constraint(constraint).unwrap();
+    let mut node_to_children = HashMap::new();
 
     // children constraint
     for eclass in egraph.classes() {
         for node in egraph[eclass.id].nodes.iter() {
             let node_idx = node_vars[node];
+            let mut node_children_set = HashSet::new();
             for (ch_idx, ch) in node.children().iter().enumerate() {
+                node_children_set.insert(*ch);
                 let mut constraint = rplex::Constraint::new(
                     rplex::ConstraintType::GreaterThanEq,
                     0.0,
@@ -220,6 +238,7 @@ where
                 }
                 problem.add_constraint(constraint).unwrap();
             }
+            node_to_children.insert(node_idx, node_children_set);
         }
     }
 
@@ -260,6 +279,7 @@ where
                 &mut path,
                 &mut problem,
                 &node_vars,
+                &node_to_children,
             );
         }
     }

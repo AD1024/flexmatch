@@ -22,6 +22,7 @@ pub fn get_rewrite_from_string(name: &String, args: &Box<[i32]>) -> Rewrite<Lang
         "simplify-multiple-access-reshapes" => simplify_multiple_access_reshapes(),
         "bubble-access-through-access-transpose" => bubble_access_through_access_transpose(),
         "simplify-reduce-max" => simplify_reduce_max(),
+        "collapse-nested-transposes" => collapse_nested_transposes(),
 
         "flex-linear-rewrite" => linear_layer_accelerator_rewrites(),
         "flex-linear-dense" => dot_product_to_linear(),

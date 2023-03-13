@@ -142,7 +142,16 @@ fn main() {
         };
 
         let aggregated_configs = read_configs(&flexmatch_home, config_files);
-        let mut rewrites = vec![];
+        let mut rewrites = vec![
+            // glenside::language::rewrites::collapse_nested_transposes(),
+            // glenside::language::rewrites::simplify_multiple_transposes(),
+            // glenside::language::rewrites::simplify_multiple_accesses(),
+            // glenside::language::rewrites::simplify_reduce_max(),
+            // glenside::language::rewrites::bubble_access_reshape_through_compute_reduce_max(),
+            // glenside::language::rewrites::simplify_multiple_access_reshapes(),
+            // glenside::language::rewrites::collapse_nested_accesses(),
+            // glenside::language::rewrites::flatten_dot_product_to_dense(),
+        ];
         let mut rewrite_set = HashSet::new();
         debug!("{:?}", aggregated_configs);
         for config in aggregated_configs.iter() {

@@ -64,6 +64,11 @@ def draw_extraction_times(data: dict):
     ax.bar(x + bar_width, solver_times['ILP-Topo'], bar_width, label='ILP-Topo', color='lightblue', edgecolor='grey')
     overhead= ax.bar(x + bar_width, overhead_times['ILP-Topo'], bar_width, bottom=solver_times['ILP-Topo'], color='slateblue', hatch='//', edgecolor='grey')
 
+    print((np.array(solver_times['ILP-Topo']) + overhead_times['ILP-Topo']) / (np.array(solver_times['ILP-ACyc']) + overhead_times['ILP-ACyc']))
+    print((np.array(solver_times['ILP-Topo']) + overhead_times['ILP-Topo']) / (np.array(solver_times['WPMAXSAT']) + overhead_times['WPMAXSAT']))
+    # print(solver_times['ILP-ACyc'])
+    # print(solver_times['WPMAXSAT'])
+
     ax.set_xticks(x, data.keys())
     ax.set_xticklabels(x_ticks)
 
