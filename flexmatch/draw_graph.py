@@ -1,6 +1,7 @@
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
+plt.rcParams['text.usetex'] = True
 import numpy as np
 import json
 
@@ -18,14 +19,13 @@ def parse_data(filename: str) -> dict:
             data[key] = datum
         return data
     
-def draw_extraction_times(data: dict):
+def draw_extraction_times(data: dict, simpl: bool):
     # plt.clf()
-    plt.title('Term Extraction Time')
     plt.xlabel('Model')
     fig, ax = plt.subplots()
     ax.set_ylabel('Extraction Time (ms)')
     ax.set_xlabel('Model', fontsize=14)
-    ax.set_title('Term Extraction Time')
+    ax.set_title(r'Term Extraction Time (\textsc{im2col} + \textsc{simpl})' if simpl else r'Term Extraction Time (\textsc{im2col} only)')
     # ax.set_yscale('log')
     x = np.arange(len(data))
     # x *= 1.5
@@ -34,6 +34,7 @@ def draw_extraction_times(data: dict):
     overhead_times = dict()
     x_ticks = []
     for (model, model_data) in data.items():
+        i = len(x_ticks)
         x_ticks.append(model)
         counter = dict()
         for datum in model_data:
@@ -41,31 +42,50 @@ def draw_extraction_times(data: dict):
             overhead_time = datum['extract_time'] - datum['solver_time']
             counter[datum['algo']] = counter.get(datum['algo'], 0)
             if datum['algo'] not in solver_times:
-                solver_times[datum['algo']] = []
-                overhead_times[datum['algo']] = []
+                solver_times[datum['algo']] = {}
+                overhead_times[datum['algo']] = {}
             if counter[datum['algo']] == 0:
-                solver_times[datum['algo']].append(solver_time)
-                overhead_times[datum['algo']].append(overhead_time)
+                solver_times[datum['algo']][i] = solver_time
+                overhead_times[datum['algo']][i] = overhead_time
             else:
-                solver_times[datum['algo']][-1] += solver_time
-                overhead_times[datum['algo']][-1] += overhead_time
+                solver_times[datum['algo']][i] += solver_time
+                overhead_times[datum['algo']][i] += overhead_time
             counter[datum['algo']] += 1
         for (algo, count) in counter.items():
-            solver_times[algo][-1] /= count
-            overhead_times[algo][-1] /= count
+            solver_times[algo][i] /= count
+            overhead_times[algo][i] /= count
 
     bar_width = 0.25
-    ax.bar(x - bar_width, solver_times['ILP-ACyc'], bar_width, label='ILP-ACyc', color='lightgreen', edgecolor='grey')
-    overhead = ax.bar(x - bar_width, overhead_times['ILP-ACyc'], bar_width, bottom=solver_times['ILP-ACyc'], color='slateblue', label='Overhead', hatch='//', edgecolor='grey')
+    ilp_acyc_xaxis = np.array(sorted(list(solver_times['ILP-ACyc'].keys())))
+    ilp_acyc_solver_times = list(map(solver_times['ILP-ACyc'].get, ilp_acyc_xaxis))
+    ilp_acyc_overhead_times = list(map(overhead_times['ILP-ACyc'].get, ilp_acyc_xaxis))
+    ax.bar(ilp_acyc_xaxis - bar_width, ilp_acyc_solver_times, bar_width, label='ILP-ACyc', color='lightgreen', edgecolor='grey')
+    overhead = ax.bar(ilp_acyc_xaxis - bar_width, ilp_acyc_overhead_times, bar_width, bottom=ilp_acyc_solver_times, color='slateblue', label='Overhead', hatch='//', edgecolor='grey')
 
-    ax.bar(x, solver_times['WPMAXSAT'], bar_width, label='WPMAXSAT', color='lightpink', edgecolor='grey')
-    overhead = ax.bar(x, overhead_times['WPMAXSAT'], bar_width, bottom=solver_times['WPMAXSAT'], color='slateblue', hatch='//', edgecolor='grey')
+    maxsat_xaxis = np.array(sorted(list(solver_times['WPMAXSAT'].keys())))
+    maxsat_solver_times = list(map(solver_times['WPMAXSAT'].get, maxsat_xaxis))
+    maxsat_overhead_times = list(map(overhead_times['WPMAXSAT'].get, maxsat_xaxis))
+    ax.bar(maxsat_xaxis, maxsat_solver_times, bar_width, label='WPMAXSAT', color='lightblue', edgecolor='grey')
+    overhead = ax.bar(maxsat_xaxis, maxsat_overhead_times, bar_width, bottom=maxsat_solver_times, color='slateblue', hatch='//', edgecolor='grey')
 
-    ax.bar(x + bar_width, solver_times['ILP-Topo'], bar_width, label='ILP-Topo', color='lightblue', edgecolor='grey')
-    overhead= ax.bar(x + bar_width, overhead_times['ILP-Topo'], bar_width, bottom=solver_times['ILP-Topo'], color='slateblue', hatch='//', edgecolor='grey')
+    ilp_topo_xaxis = np.array(sorted(list(solver_times['ILP-Topo'].keys())))
+    ilp_topo_solver_times = list(map(solver_times['ILP-Topo'].get, ilp_topo_xaxis))
+    ilp_topo_overhead_times = list(map(overhead_times['ILP-Topo'].get, ilp_topo_xaxis))
+    ax.bar(ilp_topo_xaxis + bar_width, ilp_topo_solver_times, bar_width, label='ILP-Topo', color='lightpink', edgecolor='grey')
+    overhead= ax.bar(ilp_topo_xaxis + bar_width, ilp_topo_overhead_times, bar_width, bottom=ilp_topo_solver_times, color='slateblue', hatch='//', edgecolor='grey')
 
-    print((np.array(solver_times['ILP-Topo']) + overhead_times['ILP-Topo']) / (np.array(solver_times['ILP-ACyc']) + overhead_times['ILP-ACyc']))
-    print((np.array(solver_times['ILP-Topo']) + overhead_times['ILP-Topo']) / (np.array(solver_times['WPMAXSAT']) + overhead_times['WPMAXSAT']))
+    labeled = False
+    for i in ilp_acyc_xaxis:
+        if i not in ilp_topo_xaxis:
+            ax.bar([i], [0])
+            if not labeled:
+                ax.axvline(i + 1.25 * bar_width, color='red', linestyle='--', label='ILP-Topo timeouts (20s)')
+                labeled = True
+            else:
+                ax.axvline(i + 1.25 * bar_width, color='red', linestyle='--')
+
+    # print((np.array(solver_times['ILP-Topo']) + overhead_times['ILP-Topo']) / (np.array(solver_times['ILP-ACyc']) + overhead_times['ILP-ACyc']))
+    # print((np.array(solver_times['ILP-Topo']) + overhead_times['ILP-Topo']) / (np.array(solver_times['WPMAXSAT']) + overhead_times['WPMAXSAT']))
     # print(solver_times['ILP-ACyc'])
     # print(solver_times['WPMAXSAT'])
 
@@ -77,10 +97,12 @@ def draw_extraction_times(data: dict):
                  box.width, box.height * 0.9])
 
     ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
-          fancybox=True, shadow=True, ncol=5)
-    plt.savefig('extraction_time.png')
+          fancybox=True, shadow=True, ncol=3)
+    # ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),
+    #       ncol=3, fancybox=True, shadow=True)
+    plt.savefig('extraction_time_im2col.png' if not simpl else 'extraction_time_im2col_simpl.png')
 
-def draw_egraph_sizes(data: dict):
+def draw_egraph_sizes(data: dict, simpl: bool):
     plt.clf()
     plt.title('EGraph Stats After Equality Saturation')
     fig, (ax1, ax2) = plt.subplots(1, 2)
@@ -91,6 +113,8 @@ def draw_egraph_sizes(data: dict):
         xticks.append(model)
         num_eclasses.append(model_data[0]['num_eclass'])
         num_enodes.append(model_data[0]['num_enodes'])
+    print(num_eclasses)
+    print(num_enodes)
     tick_loc = np.arange(len(xticks))
     tick_loc *= 2
     ax1.bar(tick_loc, num_eclasses, width=1)
@@ -100,9 +124,14 @@ def draw_egraph_sizes(data: dict):
     ax2.set_xticks(tick_loc, xticks, rotation=90)
     ax2.set_title('Number of ENodes')
     plt.tight_layout()
-    plt.savefig('egraph_stats.png')
+    plt.savefig('egraph_stats_im2col.png' if not simpl else 'egraph_stats_im2col_simpl.png')
 
 if __name__ == '__main__':
-    data = parse_data('extraction_stats.txt')
-    draw_extraction_times(data)
-    draw_egraph_sizes(data)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('extraction_stats', type=str, help='extraction stats file')
+    parser.add_argument('--render-simpl', action='store_true')
+    args = parser.parse_args()
+    data = parse_data(args.extraction_stats)
+    draw_extraction_times(data, args.render_simpl)
+    draw_egraph_sizes(data, args.render_simpl)

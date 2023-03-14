@@ -1,4 +1,3 @@
-mod egg_lp_extract;
 mod ilp_extract;
 mod maxsat_extract;
 mod rewrites;
@@ -225,7 +224,7 @@ fn main() {
                 if rewrite_set.contains(rws) {
                     continue;
                 }
-                info!("Adding rewrite: {:?} with args {:?}", rws, rw_args);
+                println!("Adding rewrite: {:?} with args {:?}", rws, rw_args);
                 rewrite_set.insert(rws.clone());
                 match rws.as_str() {
                     "im2col" => rewrites.extend(im2col_rewrites()),
@@ -425,43 +424,6 @@ fn main() {
                     &runner.egraph,
                 );
             }
-            // for (algo, topo_sort) in options {
-            //     println!("Extract using ILP-{}", algo);
-            //     let cplex_env = rplex::Env::new().unwrap();
-            //     let mut cost_fn = Costfn {};
-            //     let start = Instant::now();
-            //     let mut problem = ilp_extract::create_problem(
-            //         &cplex_env,
-            //         root_expr,
-            //         &runner.egraph,
-            //         true,
-            //         topo_sort,
-            //         move |x, y, z| cost_fn.node_cost(x, y, z),
-            //     );
-            //     let (solve_time, _, best) = problem.solve();
-            //     let elapsed = start.elapsed().as_millis();
-            //     let mut tmp_egraph = EGraph::new(MyAnalysis {
-            //         name_to_shape: env.clone(),
-            //         name_to_dtype: dtype_info.iter().cloned().collect(),
-            //     });
-            //     let root = tmp_egraph.add_expr(&best);
-            //     let mut maxsat_ext =
-            //         MaxsatExtractor::new(&tmp_egraph, "compare-original.wcnf".into());
-            //     let mut problem = maxsat_ext.create_problem(root, "problem", true, Costfn);
-            //     let (_, cost, _) = problem.solve_with_refinement();
-
-            //     println!("Extraction time: {} ms", elapsed);
-            //     println!("Solver time: {} ms", solve_time);
-            //     println!("Cost: {}", cost.unwrap());
-            //     save_extraction_stats(
-            //         format!("ILP-{}", algo).as_str(),
-            //         source_file,
-            //         cost.unwrap(),
-            //         solve_time,
-            //         elapsed,
-            //         &runner.egraph,
-            //     );
-            // }
         }
     }
 }
