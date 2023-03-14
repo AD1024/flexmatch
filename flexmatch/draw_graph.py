@@ -23,9 +23,9 @@ def draw_extraction_times(data: dict, simpl: bool):
     # plt.clf()
     plt.xlabel('Model')
     fig, ax = plt.subplots()
-    ax.set_ylabel('Extraction Time (ms)')
-    ax.set_xlabel('Model', fontsize=14)
-    ax.set_title(r'Term Extraction Time (\textsc{im2col} + \textsc{simpl})' if simpl else r'Term Extraction Time (\textsc{im2col} only)')
+    ax.set_ylabel('Extraction Time (ms)', fontsize=14)
+    # ax.set_xlabel('Model', fontsize=14)
+    ax.set_title(r'\begin{center}(\textsc{im2col} + \textsc{simpl})\end{center}' if simpl else r'\begin{center}Term Extraction Time\\(\textsc{im2col} only)\end{center}', fontsize=14)
     # ax.set_yscale('log')
     x = np.arange(len(data))
     # x *= 1.5
@@ -84,27 +84,37 @@ def draw_extraction_times(data: dict, simpl: bool):
             else:
                 ax.axvline(i + 1.25 * bar_width, color='red', linestyle='--')
 
-    # print((np.array(solver_times['ILP-Topo']) + overhead_times['ILP-Topo']) / (np.array(solver_times['ILP-ACyc']) + overhead_times['ILP-ACyc']))
-    # print((np.array(solver_times['ILP-Topo']) + overhead_times['ILP-Topo']) / (np.array(solver_times['WPMAXSAT']) + overhead_times['WPMAXSAT']))
+    try:
+        for i in ilp_topo_xaxis:
+            print((np.array(solver_times['ILP-Topo'][i]) + overhead_times['ILP-Topo'][i]) / (np.array(solver_times['ILP-ACyc'][i]) + overhead_times['ILP-ACyc'][i]))
+            print((np.array(solver_times['ILP-Topo'][i]) + overhead_times['ILP-Topo'][i]) / (np.array(solver_times['WPMAXSAT'][i]) + overhead_times['WPMAXSAT'][i]))
+    except:
+        print('oopse')
     # print(solver_times['ILP-ACyc'])
     # print(solver_times['WPMAXSAT'])
+    ax.tick_params(axis='both', which='major', labelsize=15)
+    ax.tick_params(axis='both', which='minor', labelsize=15)
 
-    ax.set_xticks(x, data.keys())
-    ax.set_xticklabels(x_ticks)
+    if simpl:
+        ax.set_xticks(x, data.keys())
+        ax.set_xticklabels(x_ticks)
+    else:
+        ax.set_xticks([], [])
 
-    box = ax.get_position()
-    ax.set_position([box.x0, box.y0 + box.height * 0.1,
-                 box.width, box.height * 0.9])
+    if simpl:
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0 + box.height * 0.1,
+                    box.width, box.height * 0.9])
 
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
-          fancybox=True, shadow=True, ncol=3)
+        ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1),
+            fancybox=False, shadow=True, ncol=2, fontsize=14)
     # ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),
     #       ncol=3, fancybox=True, shadow=True)
-    plt.savefig('extraction_time_im2col.png' if not simpl else 'extraction_time_im2col_simpl.png')
+    plt.savefig('extraction_time_im2col.pdf' if not simpl else 'extraction_time_im2col_simpl.pdf', bbox_inches='tight')
 
 def draw_egraph_sizes(data: dict, simpl: bool):
     plt.clf()
-    plt.title('EGraph Stats After Equality Saturation')
+    plt.title(r'EGraph Stats After Equality Saturation (\textsc{im2col} only)' if not simpl else r'EGraph Stats After Equality Saturation (\textsc{im2col} + \textsc{simpl})')
     fig, (ax1, ax2) = plt.subplots(1, 2)
     num_eclasses = []
     num_enodes = []
@@ -117,14 +127,25 @@ def draw_egraph_sizes(data: dict, simpl: bool):
     print(num_enodes)
     tick_loc = np.arange(len(xticks))
     tick_loc *= 2
-    ax1.bar(tick_loc, num_eclasses, width=1)
-    ax1.set_xticks(tick_loc, xticks, rotation=90)
-    ax1.set_title('Number of EClasses')
-    ax2.bar(tick_loc, num_enodes, width=1)
-    ax2.set_xticks(tick_loc, xticks, rotation=90)
-    ax2.set_title('Number of ENodes')
+    ax1.bar(tick_loc, num_eclasses, width=1, color='mediumslateblue')
+    if simpl:
+        ax1.set_xticks(tick_loc, xticks, rotation=90)
+    else:
+        ax1.set_xticks([], [])
+    ax1.set_title(r'\begin{center}Number of EClasses\\(\textsc{im2col} only)\end{center}' if not simpl else r'\begin{center}(\textsc{im2col} + \textsc{simpl})\end{center}', fontsize=16)
+    ax1.get_title()
+    ax2.bar(tick_loc, num_enodes, width=1, color='mediumslateblue')
+    if simpl:
+        ax2.set_xticks(tick_loc, xticks, rotation=90)
+    else:
+        ax2.set_xticks([], [])
+    ax2.set_title(r'\begin{center}Number of ENodes\\(\textsc{im2col} only)\end{center}' if not simpl else r'\begin{center}(\textsc{im2col} + \textsc{simpl})\end{center}', fontsize=16)
+    ax1.tick_params(axis='both', which='major', labelsize=14)
+    ax1.tick_params(axis='both', which='minor', labelsize=14)
+    ax2.tick_params(axis='both', which='major', labelsize=14)
+    ax2.tick_params(axis='both', which='minor', labelsize=14)
     plt.tight_layout()
-    plt.savefig('egraph_stats_im2col.png' if not simpl else 'egraph_stats_im2col_simpl.png')
+    plt.savefig('egraph_stats_im2col.pdf' if not simpl else 'egraph_stats_im2col_simpl.pdf')
 
 if __name__ == '__main__':
     import argparse
