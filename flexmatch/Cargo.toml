@@ -15,6 +15,7 @@ serde = "1.0.130"
 log = "0.4.14"
 env_logger = "0.9.0"
 rand = "0.8.5"
+coin_cbc = "0.1.6"
 
 [dependencies.glenside]
 git = "https://github.com/gussmith23/glenside"

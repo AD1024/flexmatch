@@ -1,0 +1,14 @@
+{
+    "rewrites": {
+        "simplify-multiple-accesses": [],
+        "simplify-multiple-transposes": [],
+        "simplify-multiple-access-reshapes": [],
+        "bubble-access-through-access-transpose": [],
+        "simplify-reduce-max": [],
+        "collapse-nested-transposes": []
+    },
+    "composites": {},
+    "compilers": {},
+    "debug_functions": {},
+    "out_dtypes": {}
+}

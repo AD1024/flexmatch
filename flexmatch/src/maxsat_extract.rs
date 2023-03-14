@@ -42,8 +42,8 @@ fn get_all_cycles<L, N>(
                 let nxt_hop = subpath[1].0;
                 for node_idx in egraph[*root].nodes.iter().map(|x| node_vars[x]) {
                     // if node_to_children[&node_idx].contains(&nxt_hop) {
-                        new_cycle[0] = node_idx;
-                        disjuct_negative(&new_cycle, problem_writer, top);
+                    new_cycle[0] = node_idx;
+                    disjuct_negative(&new_cycle, problem_writer, top);
                     // }
                 }
             }
