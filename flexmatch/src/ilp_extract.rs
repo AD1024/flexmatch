@@ -7,6 +7,33 @@ use egg::{Analysis, EGraph, Id, Language, RecExpr};
 use rand::Rng;
 use rplex::{self, var, Problem, VariableValue, WeightedVariable};
 
+fn encode_cycle<'a, L, N>(
+    egraph: &EGraph<L, N>,
+    path: &Vec<(Id, L)>,
+    problem: &mut Problem<'a>,
+    constraint: rplex::Constraint,
+    node_vars: &HashMap<L, usize>,
+) where
+    L: Language,
+    N: Analysis<L>,
+{
+    if path.len() == 0 {
+        problem.add_constraint(constraint).unwrap();
+    } else {
+        for node_idx in egraph[path[0].0].nodes.iter().map(|n| node_vars[n]) {
+            let mut new_constraint = constraint.clone();
+            new_constraint.add_wvar(WeightedVariable::new_idx(node_idx, 1.0));
+            encode_cycle(
+                egraph,
+                &path[1..].to_vec(),
+                problem,
+                new_constraint,
+                node_vars,
+            );
+        }
+    }
+}
+
 fn get_all_cycles<'a, L, N>(
     egraph: &EGraph<L, N>,
     root: &Id,
@@ -24,37 +51,39 @@ fn get_all_cycles<'a, L, N>(
     }
     if color.contains_key(root) && color[root] == 1 {
         if let Some((idx, _)) = path.iter().enumerate().find(|(_, (id, _))| id == root) {
-            let mut new_cycle = Vec::new();
-            let subpath = path[idx..].to_vec();
-            for (_, n) in &subpath {
-                new_cycle.push(node_vars[n]);
-            }
+            let mut subpath = path[idx..].to_vec();
             let mut rng = rand::thread_rng();
-            if new_cycle.len() == 1 {
+            if subpath.len() == 1 {
                 let mut constraint = rplex::Constraint::new(
                     rplex::ConstraintType::Eq,
                     0.0,
                     format!("cycle_{}_{}", root, rng.gen::<u64>()),
                 );
-                constraint.add_wvar(WeightedVariable::new_idx(new_cycle[0], 1.0));
+                constraint.add_wvar(WeightedVariable::new_idx(node_vars[&subpath[0].1], 1.0));
                 problem.add_constraint(constraint).unwrap();
             } else {
-                let nxt_hop = subpath[1].0;
-                for node_idx in egraph[*root].nodes.iter().map(|n| node_vars[n]) {
-                    // if node_to_children[&node_idx].contains(&nxt_hop) {
-                    new_cycle[0] = node_idx;
-                    // sum up <= len(new_cycle) - 1
-                    let mut constraint = rplex::Constraint::new(
-                        rplex::ConstraintType::LessThanEq,
-                        new_cycle.len() as f64 - 1.0,
-                        format!("cycle_{}_{}", root, rng.gen::<u64>()),
-                    );
-                    for node_idx in new_cycle.iter() {
-                        constraint.add_wvar(WeightedVariable::new_idx(*node_idx, 1.0));
-                    }
-                    problem.add_constraint(constraint).unwrap();
-                    // }
-                }
+                let mut constraint = rplex::Constraint::new(
+                    rplex::ConstraintType::LessThanEq,
+                    subpath.len() as f64 - 1.0,
+                    format!("cycle_{}_{}", root, rng.gen::<u64>()),
+                );
+                encode_cycle(egraph, &subpath, problem, constraint, node_vars);
+                // let nxt_hop = subpath[1].0;
+                // for node_idx in egraph[*root].nodes.iter().map(|n| node_vars[n]) {
+                //         // if node_to_children[&node_idx].contains(&nxt_hop) {
+                //     // sum up <= len(new_cycle) - 1
+                //     let mut constraint = rplex::Constraint::new(
+                //         rplex::ConstraintType::LessThanEq,
+                //         subpath.len() as f64 - 1.0,
+                //         format!("cycle_{}_{}", root, rng.gen::<u64>()),
+                //     );
+                //     constraint.add_wvar(WeightedVariable::new_idx(node_idx, 1.0));
+                //     for node_idx in subpath.iter().skip(1) {
+                //         constraint.add_wvar(WeightedVariable::new_idx(node_vars[&node_idx.1], 1.0));
+                //     }
+                //     problem.add_constraint(constraint).unwrap();
+                //         // }
+                // }
             }
             return;
         }
