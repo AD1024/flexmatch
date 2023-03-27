@@ -7,29 +7,155 @@ use egg::{Analysis, EGraph, Id, Language, RecExpr};
 use rand::Rng;
 use rplex::{self, var, Problem, VariableValue, WeightedVariable};
 
+fn aggregate_clauses<L, N>(
+    egraph: &EGraph<L, N>,
+    subpath: &Vec<(Id, L)>,
+    node_vars: &HashMap<L, usize>,
+    node_to_children: &HashMap<usize, HashSet<Id>>,
+) -> Vec<Vec<usize>>
+where
+    L: Language,
+    N: Analysis<L>,
+{
+    let mut clauses = Vec::new();
+    for i in 0..subpath.len() - 1 {
+        let mut clause = Vec::new();
+        let next_hop = subpath[i + 1].0;
+        for node_idx in egraph[subpath[i].0].nodes.iter().map(|x| node_vars[x]) {
+            if node_to_children[&node_idx].contains(&next_hop) {
+                clause.push(node_idx);
+            }
+        }
+        clauses.push(clause);
+    }
+    let next_hop = subpath[0].0;
+    let mut clause = Vec::new();
+    for node_idx in egraph[subpath[subpath.len() - 1].0]
+        .nodes
+        .iter()
+        .map(|x| node_vars[x])
+    {
+        if node_to_children[&node_idx].contains(&next_hop) {
+            clause.push(node_idx);
+        }
+    }
+    clauses.push(clause);
+    return clauses;
+}
+
+fn tseytin_encoding(clauses: Vec<Vec<usize>>, problem: &mut Problem<'_>) {
+    let mut var_map = HashMap::new();
+    for (i, c) in clauses.iter().enumerate() {
+        if c.len() > 1 {
+            // new variable to represent the clause
+            let name = format!("clause_{}", i);
+            let v = problem
+                .add_variable(var!(0.0 <= name <= 1.0 -> 0.0 as Integer))
+                .unwrap();
+            var_map.insert(i, v);
+            // v <-> c
+            // == v -> c /\ c -> v
+            // == -v \/ c /\ -c \/ v
+            // == -v \/ c AND -c \/ v
+            // for `c`, it is a conjunction of (negation of) variables therefore
+            // 1. -v \/ c == -v \/ -x /\ -v \/ -y /\ -v \/ -z ...
+            // -c \/ v == -(-x /\ -y /\ -z ...) \/ v
+            // 2. == x \/ y \/ z \/ ... \/ v
+
+            // Add 1 as hard clauses
+            for x in c {
+                let mut constraint = rplex::Constraint::new(
+                    rplex::ConstraintType::LessThanEq,
+                    1.0,
+                    format!("aux_constraint_{}_{}", i, x),
+                );
+                constraint.add_wvar(WeightedVariable::new_idx(*x, 1.0));
+                constraint.add_wvar(WeightedVariable::new_idx(v, 1.0));
+                problem.add_constraint(constraint).unwrap();
+            }
+            // Add 2 as hard clauses
+            let mut constraint = rplex::Constraint::new(
+                rplex::ConstraintType::GreaterThanEq,
+                1.0,
+                format!("aux_constraint_{}", i),
+            );
+            for x in c {
+                constraint.add_wvar(WeightedVariable::new_idx(*x, 1.0));
+            }
+            constraint.add_wvar(WeightedVariable::new_idx(v, 1.0));
+            problem.add_constraint(constraint).unwrap();
+        }
+    }
+    // Finally, tseytin encoding for the clauses
+    // == v1 \/ v2 \/ ... \/ vn
+    let mut wvars = Vec::new();
+    let mut nwvars = Vec::new();
+    for (i, c) in clauses.iter().enumerate() {
+        if c.len() > 1 {
+            wvars.push(WeightedVariable::new_idx(var_map[&i], 1.0));
+        } else {
+            nwvars.push(WeightedVariable::new_idx(c[0], -1.0));
+        }
+    }
+    let mut constraint = rplex::Constraint::new(
+        rplex::ConstraintType::GreaterThanEq,
+        1.0 - nwvars.len() as f64,
+        format!("aux_constraint"),
+    );
+    for vars in wvars.into_iter().chain(nwvars.into_iter()) {
+        constraint.add_wvar(vars);
+    }
+    problem.add_constraint(constraint).unwrap();
+}
+
+fn encode_cycle_tseytin<'a, L, N>(
+    egraph: &EGraph<L, N>,
+    path: &Vec<(Id, L)>,
+    problem: &mut Problem<'a>,
+    node_vars: &HashMap<L, usize>,
+    node_to_children: &HashMap<usize, HashSet<Id>>,
+) where
+    L: Language,
+    N: Analysis<L>,
+{
+    let clauses = aggregate_clauses(egraph, path, node_vars, node_to_children);
+    tseytin_encoding(clauses, problem);
+}
+
 fn encode_cycle<'a, L, N>(
+    depth: usize,
     egraph: &EGraph<L, N>,
     path: &Vec<(Id, L)>,
     problem: &mut Problem<'a>,
     constraint: rplex::Constraint,
     node_vars: &HashMap<L, usize>,
+    node_to_children: &HashMap<usize, HashSet<Id>>,
 ) where
     L: Language,
     N: Analysis<L>,
 {
-    if path.len() == 0 {
+    if depth == path.len() {
         problem.add_constraint(constraint).unwrap();
     } else {
-        for node_idx in egraph[path[0].0].nodes.iter().map(|n| node_vars[n]) {
-            let mut new_constraint = constraint.clone();
-            new_constraint.add_wvar(WeightedVariable::new_idx(node_idx, 1.0));
-            encode_cycle(
-                egraph,
-                &path[1..].to_vec(),
-                problem,
-                new_constraint,
-                node_vars,
-            );
+        let next_hop = if depth + 1 == path.len() {
+            path[0].0
+        } else {
+            path[depth + 1].0
+        };
+        for node_idx in egraph[path[depth].0].nodes.iter().map(|n| node_vars[n]) {
+            if node_to_children[&node_idx].contains(&next_hop) {
+                let mut new_constraint = constraint.clone();
+                new_constraint.add_wvar(WeightedVariable::new_idx(node_idx, 1.0));
+                encode_cycle(
+                    depth + 1,
+                    egraph,
+                    &path,
+                    problem,
+                    new_constraint,
+                    node_vars,
+                    node_to_children,
+                );
+            }
         }
     }
 }
@@ -41,7 +167,7 @@ fn get_all_cycles<'a, L, N>(
     path: &mut Vec<(Id, L)>,
     problem: &mut Problem<'a>,
     node_vars: &HashMap<L, usize>,
-    // node_to_children: &HashMap<usize, HashSet<Id>>,
+    node_to_children: &HashMap<usize, HashSet<Id>>,
 ) where
     L: Language,
     N: Analysis<L>,
@@ -51,7 +177,7 @@ fn get_all_cycles<'a, L, N>(
     }
     if color.contains_key(root) && color[root] == 1 {
         if let Some((idx, _)) = path.iter().enumerate().find(|(_, (id, _))| id == root) {
-            let mut subpath = path[idx..].to_vec();
+            let subpath = path[idx..].to_vec();
             let mut rng = rand::thread_rng();
             if subpath.len() == 1 {
                 let mut constraint = rplex::Constraint::new(
@@ -62,28 +188,13 @@ fn get_all_cycles<'a, L, N>(
                 constraint.add_wvar(WeightedVariable::new_idx(node_vars[&subpath[0].1], 1.0));
                 problem.add_constraint(constraint).unwrap();
             } else {
-                let mut constraint = rplex::Constraint::new(
-                    rplex::ConstraintType::LessThanEq,
-                    subpath.len() as f64 - 1.0,
-                    format!("cycle_{}_{}", root, rng.gen::<u64>()),
-                );
-                encode_cycle(egraph, &subpath, problem, constraint, node_vars);
-                // let nxt_hop = subpath[1].0;
-                // for node_idx in egraph[*root].nodes.iter().map(|n| node_vars[n]) {
-                //         // if node_to_children[&node_idx].contains(&nxt_hop) {
-                //     // sum up <= len(new_cycle) - 1
-                //     let mut constraint = rplex::Constraint::new(
-                //         rplex::ConstraintType::LessThanEq,
-                //         subpath.len() as f64 - 1.0,
-                //         format!("cycle_{}_{}", root, rng.gen::<u64>()),
-                //     );
-                //     constraint.add_wvar(WeightedVariable::new_idx(node_idx, 1.0));
-                //     for node_idx in subpath.iter().skip(1) {
-                //         constraint.add_wvar(WeightedVariable::new_idx(node_vars[&node_idx.1], 1.0));
-                //     }
-                //     problem.add_constraint(constraint).unwrap();
-                //         // }
-                // }
+                encode_cycle_tseytin(egraph, &subpath, problem, node_vars, node_to_children);
+                // let constraint = rplex::Constraint::new(
+                //     rplex::ConstraintType::LessThanEq,
+                //     subpath.len() as f64 - 1.0,
+                //     format!("cycle_{}_{}", root, rng.gen::<u64>()),
+                // );
+                // encode_cycle(0, egraph, &subpath, problem, constraint, node_vars, node_to_children);
             }
             return;
         }
@@ -94,8 +205,13 @@ fn get_all_cycles<'a, L, N>(
         path.push((*root, node.clone()));
         for ch in node.children() {
             get_all_cycles(
-                egraph, ch, color, path, problem, node_vars,
-                // node_to_children,
+                egraph,
+                ch,
+                color,
+                path,
+                problem,
+                node_vars,
+                node_to_children,
             );
         }
         path.pop();
@@ -242,15 +358,15 @@ where
         constraint.add_wvar(WeightedVariable::new_idx(node_idx, 1.0));
     }
     problem.add_constraint(constraint).unwrap();
-    // let mut node_to_children = HashMap::new();
+    let mut node_to_children = HashMap::new();
 
     // children constraint
     for eclass in egraph.classes() {
         for node in egraph[eclass.id].nodes.iter() {
             let node_idx = node_vars[node];
-            // let mut node_children_set = HashSet::new();
+            let mut node_children_set = HashSet::new();
             for (ch_idx, ch) in node.children().iter().enumerate() {
-                // node_children_set.insert(*ch);
+                node_children_set.insert(*ch);
                 let mut constraint = rplex::Constraint::new(
                     rplex::ConstraintType::GreaterThanEq,
                     0.0,
@@ -262,7 +378,7 @@ where
                 }
                 problem.add_constraint(constraint).unwrap();
             }
-            // node_to_children.insert(node_idx, node_children_set);
+            node_to_children.insert(node_idx, node_children_set);
         }
     }
 
@@ -303,7 +419,7 @@ where
                 &mut path,
                 &mut problem,
                 &node_vars,
-                // &node_to_children,
+                &node_to_children,
             );
         }
     }
