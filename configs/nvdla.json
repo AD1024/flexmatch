@@ -1,0 +1,17 @@
+{
+    "rewrites": {
+        "nvdla-layerrelu": []
+    },
+    "composites": {
+        "nvdla-layerrelu": "ilanvdla.sdp.layer_relu"
+    },
+    "compilers": {
+        "nvdla-layerrelu": "ilanvdla"
+    },
+    "debug_functions": {
+        "nvdla-layerrelu": "RelayOperators.RelayReLU"
+    },
+    "out_dtypes": {
+        "nvdla-layerrelu": "int16"
+    }
+}

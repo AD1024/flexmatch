@@ -126,7 +126,7 @@ fn main() {
         let (expr, shape_info, dtype_info, equiv_worklist) =
             glenside::language::from_relay::from_relay(
                 &module,
-                false,
+                true,
                 &vec![
                     RelayOperator::RelaySigmoid,
                     RelayOperator::RelayAvgPool2D,
@@ -135,6 +135,7 @@ fn main() {
                     RelayOperator::RelayLogSoftmax,
                     RelayOperator::RelayAdd,
                     RelayOperator::RelayStridedSlice,
+                    RelayOperator::RelayBatchNormInference,
                 ],
             );
         let mut env = HashMap::default();

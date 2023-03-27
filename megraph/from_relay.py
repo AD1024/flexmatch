@@ -13,6 +13,7 @@ def convert_relay_op(op):
             'nn.upsampling':        RelayOperators.RelayUpSampling,
             'nn.batch_flatten':     RelayOperators.RelayBatchFlatten,
             'nn.bias_add':          RelayOperators.RelayBiasAdd,
+            'nn.prelu':             RelayOperators.RelayPRelu,
             'nn.relu':              RelayOperators.RelayReLU,
             'nn.leaky_relu':        RelayOperators.RelayLeakyReLU,
             'reshape':              RelayOperators.RelayReshape,
@@ -20,5 +21,6 @@ def convert_relay_op(op):
             'add':                  RelayOperators.RelayAdd,
             'maximum':              RelayOperators.RelayMaximum,
             'sigmoid':              RelayOperators.RelaySigmoid,
-            'minimum':              RelayOperators.RelayMinimum
+            'minimum':              RelayOperators.RelayMinimum,
+            'equal':                RelayOperators.RelayEqual,
         }.get(op.name)
