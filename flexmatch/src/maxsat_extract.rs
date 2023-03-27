@@ -13,6 +13,110 @@ fn disjuct_negative(nodes: &Vec<usize>, problem_writer: &mut ProblemWriter, top:
     problem_writer.hard_clause(&clause, top);
 }
 
+fn aggregate_clauses<L, N>(
+    egraph: &EGraph<L, N>,
+    subpath: &Vec<(Id, L)>,
+    node_vars: &HashMap<L, usize>,
+    node_to_children: &HashMap<usize, HashSet<Id>>,
+) -> Vec<Vec<usize>>
+where
+    L: Language,
+    N: Analysis<L>,
+{
+    let mut clauses = Vec::new();
+    for i in 0..subpath.len() - 1 {
+        let mut clause = Vec::new();
+        let next_hop = subpath[i + 1].0;
+        for node_idx in egraph[subpath[i].0].nodes.iter().map(|x| node_vars[x]) {
+            if node_to_children[&node_idx].contains(&next_hop) {
+                clause.push(node_idx);
+            }
+        }
+        clauses.push(clause);
+    }
+    let next_hop = subpath[0].0;
+    let mut clause = Vec::new();
+    for node_idx in egraph[subpath[subpath.len() - 1].0]
+        .nodes
+        .iter()
+        .map(|x| node_vars[x])
+    {
+        if node_to_children[&node_idx].contains(&next_hop) {
+            clause.push(node_idx);
+        }
+    }
+    clauses.push(clause);
+    return clauses;
+}
+
+fn tseytin_encoding(clauses: Vec<Vec<usize>>, problem_writer: &mut ProblemWriter, top: f64) {
+    let mut var_map = HashMap::new();
+    for (i, c) in clauses.iter().enumerate() {
+        if c.len() > 1 {
+            // new variable to represent the clause
+            let v = problem_writer.new_var();
+            var_map.insert(i, v);
+            // v <-> c
+            // == v -> c /\ c -> v
+            // == -v \/ c /\ -c \/ v
+            // == -v \/ c AND -c \/ v
+            // for `c`, it is a conjunction of (negation of) variables therefore
+            // 1. -v \/ c == -v \/ -x /\ -v \/ -y /\ -v \/ -z ...
+            // -c \/ v == -(-x /\ -y /\ -z ...) \/ v
+            // 2. == x \/ y \/ z \/ ... \/ v
+
+            // Add 1 as hard clauses
+            for x in c {
+                problem_writer.hard_clause(&format!("-{} -{}", v, x), top);
+            }
+            // Add 2 as hard clauses
+            problem_writer.hard_clause(
+                &format!(
+                    "{} {}",
+                    c.iter()
+                        .map(|x| format!("{}", x))
+                        .collect::<Vec<_>>()
+                        .join(" "),
+                    v
+                ),
+                top,
+            );
+        }
+    }
+    // Finally, tseytin encoding for the clauses
+    // == v1 \/ v2 \/ ... \/ vn
+    problem_writer.hard_clause(
+        &clauses
+            .iter()
+            .enumerate()
+            .map(|(i, c)| {
+                if c.len() > 1 {
+                    format!("{}", var_map[&i])
+                } else {
+                    format!("-{}", c[0])
+                }
+            })
+            .collect::<Vec<_>>()
+            .join(" "),
+        top,
+    );
+}
+
+fn encode_cycle<L, N>(
+    egraph: &EGraph<L, N>,
+    subpath: &Vec<(Id, L)>,
+    node_vars: &HashMap<L, usize>,
+    node_to_children: &HashMap<usize, HashSet<Id>>,
+    problem_writer: &mut ProblemWriter,
+    top: f64,
+) where
+    L: Language,
+    N: Analysis<L>,
+{
+    let clauses = aggregate_clauses(egraph, subpath, node_vars, node_to_children);
+    tseytin_encoding(clauses, problem_writer, top);
+}
+
 fn get_all_cycles<L, N>(
     egraph: &EGraph<L, N>,
     root: &Id,
@@ -39,13 +143,21 @@ fn get_all_cycles<L, N>(
             if new_cycle.len() == 1 {
                 problem_writer.hard_clause(&format!("-{}", new_cycle[0]), top);
             } else {
-                let nxt_hop = subpath[1].0;
-                for node_idx in egraph[*root].nodes.iter().map(|x| node_vars[x]) {
-                    // if node_to_children[&node_idx].contains(&nxt_hop) {
-                    new_cycle[0] = node_idx;
-                    disjuct_negative(&new_cycle, problem_writer, top);
-                    // }
-                }
+                encode_cycle(
+                    egraph,
+                    &subpath,
+                    node_vars,
+                    node_to_children,
+                    problem_writer,
+                    top,
+                );
+                // let nxt_hop = subpath[1].0;
+                // for node_idx in egraph[*root].nodes.iter().map(|x| node_vars[x]) {
+                //     // if node_to_children[&node_idx].contains(&nxt_hop) {
+                //     new_cycle[0] = node_idx;
+                //     disjuct_negative(&new_cycle, problem_writer, top);
+                //     // }
+                // }
             }
             return;
         }
@@ -79,6 +191,7 @@ struct ProblemWriter {
     problem: String,
     parameters: String,
     clause_counter: usize,
+    var_counter: usize,
 }
 
 impl ProblemWriter {
@@ -88,17 +201,23 @@ impl ProblemWriter {
             problem: String::new(),
             parameters: String::new(),
             clause_counter: 0,
+            var_counter: 0,
         }
+    }
+
+    pub fn new_var(&mut self) -> usize {
+        self.var_counter += 1;
+        self.var_counter
     }
 
     pub fn comment(&mut self, comment: &str) {
         self.problem.push_str(&format!("c {}\n", comment));
     }
 
-    pub fn parameters(&mut self, num_vars: usize, top: f64) {
+    pub fn parameters(&mut self, top: f64) {
         self.parameters = format!(
             "p wcnf {} {} {}\n",
-            num_vars, self.clause_counter, top as i64
+            self.var_counter, self.clause_counter, top as i64
         );
     }
 
@@ -288,8 +407,7 @@ where
                     .join(" ");
                 self.problem_writer
                     .hard_clause(&cycle_elim_clause, self.top);
-                self.problem_writer
-                    .parameters(self.node_vars.len(), self.top);
+                self.problem_writer.parameters(self.top);
                 self.problem_writer.dump();
             } else {
                 let (t1, x, y) = x.unwrap();
@@ -339,14 +457,12 @@ where
         // \forall n, \forall C\in children(n), v_n -> \bigvee_cN v_cN \forall cN \in C
         self.writer.comment(&format!("Problem: {}", name));
         // create variables
-        let mut num_vars = 0;
         let mut top = 0 as f64;
         let mut node_vars = HashMap::default();
         let mut node_weight_map = HashMap::new();
         for c in self.egraph.classes() {
             for n in c.nodes.iter() {
-                node_vars.insert(n.clone(), num_vars + 1);
-                num_vars += 1;
+                node_vars.insert(n.clone(), self.writer.new_var());
 
                 node_weight_map.insert(n.clone(), cost_fn.node_cost(self.egraph, c.id, n));
                 top += cost_fn.node_cost(self.egraph, c.id, n);
@@ -410,8 +526,6 @@ where
             }
         }
 
-        let nbvars = num_vars;
-
         self.writer.comment("Hard clauses:");
         for clause in hard_clauses {
             self.writer.hard_clause(&clause, top);
@@ -422,7 +536,7 @@ where
             self.writer.soft_clause(&clause, node_weight_map[&n]);
         }
 
-        self.writer.parameters(nbvars, top);
+        self.writer.parameters(top);
 
         self.writer.dump();
 
