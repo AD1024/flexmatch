@@ -2,10 +2,10 @@ mod ilp_extract;
 mod maxsat_extract;
 mod rewrites;
 
-use egg::{EGraph, Extractor, Language, Runner};
+use egg::{EGraph, Extractor, Runner};
 use glenside::{
     extraction::AcceleratorCostFunction,
-    language::{serialize_analysis_data, MyAnalysis, MyAnalysisData, RelayOperator},
+    language::{serialize_analysis_data, MyAnalysis, RelayOperator},
 };
 use maxsat_extract::*;
 use rewrites::{get_rewrite_from_string, im2col_rewrites, linear_rewrites};
@@ -13,7 +13,7 @@ use serde::Deserialize;
 use serde_json::{self, json};
 use std::io::prelude::*;
 use std::{
-    collections::{BTreeMap, HashMap, HashSet},
+    collections::{HashMap, HashSet},
     env,
     fs::{self, OpenOptions},
     path::{Path, PathBuf},
@@ -27,6 +27,7 @@ extern crate log;
 
 use log::{debug, info};
 
+#[allow(dead_code)]
 #[derive(Deserialize, Clone, Debug)]
 struct RewriteConfig {
     rewrites: HashMap<String, Box<[i32]>>,
@@ -77,6 +78,7 @@ fn save_egraph_as_recexpr(
     }
 } */
 
+#[allow(dead_code)]
 fn save_expr_and_analysis(
     rec_expr_file: PathBuf,
     analysis_data_file: PathBuf,
@@ -359,7 +361,7 @@ fn main() {
             );
         }
         if use_maxsat {
-            let (solver_time, extract_time, cost, best) =
+            let (solver_time, extract_time, cost, _best) =
                 extract_with_maxsat(root_expr, &runner.egraph);
             println!("Solver time: {} ms", solver_time);
             println!("Extraction time: {} ms", extract_time);

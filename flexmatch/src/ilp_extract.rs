@@ -18,28 +18,16 @@ where
     N: Analysis<L>,
 {
     let mut clauses = Vec::new();
-    for i in 0..subpath.len() - 1 {
+    for i in 0..subpath.len() {
         let mut clause = Vec::new();
-        let next_hop = subpath[i + 1].0;
-        for node_idx in egraph[subpath[i].0].nodes.iter().map(|x| node_vars[x]) {
-            if node_to_children[&node_idx].contains(&next_hop) {
-                clause.push(node_idx);
-            }
-        }
-        clauses.push(clause);
-    }
-    let next_hop = subpath[0].0;
-    let mut clause = Vec::new();
-    for node_idx in egraph[subpath[subpath.len() - 1].0]
-        .nodes
-        .iter()
-        .map(|x| node_vars[x])
-    {
+        let next_hop = subpath[(i + 1) % subpath.len()].0;
+        // for node_idx in egraph[subpath[i].0].nodes.iter().map(|x| node_vars[x]) {
         if node_to_children[&node_idx].contains(&next_hop) {
             clause.push(node_idx);
         }
+        // }
+        clauses.push(clause);
     }
-    clauses.push(clause);
     return clauses;
 }
 
@@ -50,8 +38,9 @@ fn tseytin_encoding(clauses: Vec<Vec<usize>>, problem: &mut Problem<'_>) {
             // new variable to represent the clause
             let name = format!("clause_{}", i);
             let v = problem
-                .add_variable(var!(0.0 <= name <= 1.0 -> 0.0 as Integer))
+                .add_variable(var!(0.0 <= name <= 1.0 -> 0.0 as Binary))
                 .unwrap();
+            // println!("Clause {} {}", i, v);
             var_map.insert(i, v);
             // v <-> c
             // == v -> c /\ c -> v
@@ -122,6 +111,7 @@ fn encode_cycle_tseytin<'a, L, N>(
     tseytin_encoding(clauses, problem);
 }
 
+#[allow(dead_code)]
 fn encode_cycle<'a, L, N>(
     depth: usize,
     egraph: &EGraph<L, N>,
@@ -137,12 +127,9 @@ fn encode_cycle<'a, L, N>(
     if depth == path.len() {
         problem.add_constraint(constraint).unwrap();
     } else {
-        let next_hop = if depth + 1 == path.len() {
-            path[0].0
-        } else {
-            path[depth + 1].0
-        };
-        for node_idx in egraph[path[depth].0].nodes.iter().map(|n| node_vars[n]) {
+        let next_hop = path[(depth + 1) % path.len()].0;
+        for node in egraph[path[depth].0].nodes.iter() {
+            let node_idx = node_vars[node];
             if node_to_children[&node_idx].contains(&next_hop) {
                 let mut new_constraint = constraint.clone();
                 new_constraint.add_wvar(WeightedVariable::new_idx(node_idx, 1.0));

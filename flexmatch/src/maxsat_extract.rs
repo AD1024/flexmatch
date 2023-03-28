@@ -4,6 +4,7 @@ use egg::{Analysis, EGraph, Id, Language, RecExpr};
 use std::collections::{HashMap, HashSet};
 use std::time::Instant;
 
+#[allow(dead_code)]
 fn disjuct_negative(nodes: &Vec<usize>, problem_writer: &mut ProblemWriter, top: f64) {
     let clause = nodes
         .iter()
@@ -24,9 +25,9 @@ where
     N: Analysis<L>,
 {
     let mut clauses = Vec::new();
-    for i in 0..subpath.len() - 1 {
+    for i in 0..subpath.len() {
         let mut clause = Vec::new();
-        let next_hop = subpath[i + 1].0;
+        let next_hop = subpath[(i + 1) % subpath.len()].0;
         for node_idx in egraph[subpath[i].0].nodes.iter().map(|x| node_vars[x]) {
             // if node_to_children[&node_idx].contains(&next_hop) {
             clause.push(node_idx);
@@ -34,18 +35,18 @@ where
         }
         clauses.push(clause);
     }
-    let next_hop = subpath[0].0;
-    let mut clause = Vec::new();
-    for node_idx in egraph[subpath[subpath.len() - 1].0]
-        .nodes
-        .iter()
-        .map(|x| node_vars[x])
-    {
-        // if node_to_children[&node_idx].contains(&next_hop) {
-        clause.push(node_idx);
-        // }
-    }
-    clauses.push(clause);
+    // let next_hop = subpath[0].0;
+    // let mut clause = Vec::new();
+    // for node_idx in egraph[subpath[subpath.len() - 1].0]
+    //     .nodes
+    //     .iter()
+    //     .map(|x| node_vars[x])
+    // {
+    //     // if node_to_children[&node_idx].contains(&next_hop) {
+    //     clause.push(node_idx);
+    //     // }
+    // }
+    // clauses.push(clause);
     return clauses;
 }
 
