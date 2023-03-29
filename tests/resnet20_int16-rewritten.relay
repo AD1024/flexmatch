@@ -1,0 +1,1021 @@
+#[version = "0.0.5"]
+def @main(%data: Tensor[(1, 3, 32, 32), int16], %cifarresnetv11_conv0_weight: Tensor[(16, 3, 3, 3), int16], %cifarresnetv11_batchnorm0_gamma: Tensor[(16), int16], %cifarresnetv11_batchnorm0_beta: Tensor[(16), int16], %cifarresnetv11_batchnorm0_running_mean: Tensor[(16), int16], %cifarresnetv11_batchnorm0_running_var: Tensor[(16), int16], %cifarresnetv11_stage1_conv0_weight: Tensor[(16, 16, 3, 3), int16], %cifarresnetv11_stage1_conv1_weight: Tensor[(16, 16, 3, 3), int16], %cifarresnetv11_stage1_batchnorm1_gamma: Tensor[(16), int16], %cifarresnetv11_stage1_batchnorm1_beta: Tensor[(16), int16], %cifarresnetv11_stage1_batchnorm1_running_mean: Tensor[(16), int16], %cifarresnetv11_stage1_batchnorm1_running_var: Tensor[(16), int16], %cifarresnetv11_stage1_conv2_weight: Tensor[(16, 16, 3, 3), int16], %cifarresnetv11_stage1_conv3_weight: Tensor[(16, 16, 3, 3), int16], %cifarresnetv11_stage1_batchnorm3_gamma: Tensor[(16), int16], %cifarresnetv11_stage1_batchnorm3_beta: Tensor[(16), int16], %cifarresnetv11_stage1_batchnorm3_running_mean: Tensor[(16), int16], %cifarresnetv11_stage1_batchnorm3_running_var: Tensor[(16), int16], %cifarresnetv11_stage1_conv4_weight: Tensor[(16, 16, 3, 3), int16], %cifarresnetv11_stage1_conv5_weight: Tensor[(16, 16, 3, 3), int16], %cifarresnetv11_stage1_batchnorm5_gamma: Tensor[(16), int16], %cifarresnetv11_stage1_batchnorm5_beta: Tensor[(16), int16], %cifarresnetv11_stage1_batchnorm5_running_mean: Tensor[(16), int16], %cifarresnetv11_stage1_batchnorm5_running_var: Tensor[(16), int16], %cifarresnetv11_stage2_conv2_weight: Tensor[(32, 16, 1, 1), int16], %cifarresnetv11_stage2_conv0_weight: Tensor[(32, 16, 3, 3), int16], %cifarresnetv11_stage2_conv1_weight: Tensor[(32, 32, 3, 3), int16], %cifarresnetv11_stage2_batchnorm2_gamma: Tensor[(32), int16], %cifarresnetv11_stage2_batchnorm2_beta: Tensor[(32), int16], %cifarresnetv11_stage2_batchnorm2_running_mean: Tensor[(32), int16], %cifarresnetv11_stage2_batchnorm2_running_var: Tensor[(32), int16], %cifarresnetv11_stage2_batchnorm1_gamma: Tensor[(32), int16], %cifarresnetv11_stage2_batchnorm1_beta: Tensor[(32), int16], %cifarresnetv11_stage2_batchnorm1_running_mean: Tensor[(32), int16], %cifarresnetv11_stage2_batchnorm1_running_var: Tensor[(32), int16], %cifarresnetv11_stage2_conv3_weight: Tensor[(32, 32, 3, 3), int16], %cifarresnetv11_stage2_conv4_weight: Tensor[(32, 32, 3, 3), int16], %cifarresnetv11_stage2_batchnorm4_gamma: Tensor[(32), int16], %cifarresnetv11_stage2_batchnorm4_beta: Tensor[(32), int16], %cifarresnetv11_stage2_batchnorm4_running_mean: Tensor[(32), int16], %cifarresnetv11_stage2_batchnorm4_running_var: Tensor[(32), int16], %cifarresnetv11_stage2_conv5_weight: Tensor[(32, 32, 3, 3), int16], %cifarresnetv11_stage2_conv6_weight: Tensor[(32, 32, 3, 3), int16], %cifarresnetv11_stage2_batchnorm6_gamma: Tensor[(32), int16], %cifarresnetv11_stage2_batchnorm6_beta: Tensor[(32), int16], %cifarresnetv11_stage2_batchnorm6_running_mean: Tensor[(32), int16], %cifarresnetv11_stage2_batchnorm6_running_var: Tensor[(32), int16], %cifarresnetv11_stage3_conv2_weight: Tensor[(64, 32, 1, 1), int16], %cifarresnetv11_stage3_conv0_weight: Tensor[(64, 32, 3, 3), int16], %cifarresnetv11_stage3_conv1_weight: Tensor[(64, 64, 3, 3), int16], %cifarresnetv11_stage3_batchnorm2_gamma: Tensor[(64), int16], %cifarresnetv11_stage3_batchnorm2_beta: Tensor[(64), int16], %cifarresnetv11_stage3_batchnorm2_running_mean: Tensor[(64), int16], %cifarresnetv11_stage3_batchnorm2_running_var: Tensor[(64), int16], %cifarresnetv11_stage3_batchnorm1_gamma: Tensor[(64), int16], %cifarresnetv11_stage3_batchnorm1_beta: Tensor[(64), int16], %cifarresnetv11_stage3_batchnorm1_running_mean: Tensor[(64), int16], %cifarresnetv11_stage3_batchnorm1_running_var: Tensor[(64), int16], %cifarresnetv11_stage3_conv3_weight: Tensor[(64, 64, 3, 3), int16], %cifarresnetv11_stage3_conv4_weight: Tensor[(64, 64, 3, 3), int16], %cifarresnetv11_stage3_batchnorm4_gamma: Tensor[(64), int16], %cifarresnetv11_stage3_batchnorm4_beta: Tensor[(64), int16], %cifarresnetv11_stage3_batchnorm4_running_mean: Tensor[(64), int16], %cifarresnetv11_stage3_batchnorm4_running_var: Tensor[(64), int16], %cifarresnetv11_stage3_conv5_weight: Tensor[(64, 64, 3, 3), int16], %cifarresnetv11_stage3_conv6_weight: Tensor[(64, 64, 3, 3), int16], %cifarresnetv11_stage3_batchnorm6_gamma: Tensor[(64), int16], %cifarresnetv11_stage3_batchnorm6_beta: Tensor[(64), int16], %cifarresnetv11_stage3_batchnorm6_running_mean: Tensor[(64), int16], %cifarresnetv11_stage3_batchnorm6_running_var: Tensor[(64), int16], %cifarresnetv11_dense0_weight: Tensor[(10, 64), int16], %cifarresnetv11_dense0_bias: Tensor[(10), int16]) -> Tensor[(1, 10), int16] {
+  let %var_7: Tensor[(1, 16, 32, 32), int16] = nn.conv2d(%data, %cifarresnetv11_conv0_weight, padding=[1, 1, 1, 1], channels=16, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  %0 = nn.batch_norm(%var_7, %cifarresnetv11_batchnorm0_gamma, %cifarresnetv11_batchnorm0_beta, %cifarresnetv11_batchnorm0_running_mean, %cifarresnetv11_batchnorm0_running_var) /* ty=(Tensor[(1, 16, 32, 32), int16], Tensor[(16), int16], Tensor[(16), int16]) */;
+  %1 = %0.0;
+  let %var_13: Tensor[(1, 16, 32, 32), int16] = nn.conv2d(%1, %cifarresnetv11_stage1_conv0_weight, padding=[1, 1, 1, 1], channels=16, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  %3 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_0") -> Tensor[(1, 16, 32, 32), int16] {
+    %2 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 16, 32, 32), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][0]) /* ty=Tensor[(1, 16, 32, 32), int16] */
+    };
+    %2() /* ty=Tensor[(1, 16, 32, 32), int16] */
+  };
+  let %var_15: Tensor[(1, 16, 32, 32), int16] = %3() /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  let %var_20: Tensor[(1, 16, 32, 32), int16] = nn.conv2d(%var_15, %cifarresnetv11_stage1_conv1_weight, padding=[1, 1, 1, 1], channels=16, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  %4 = nn.batch_norm(%var_20, %cifarresnetv11_stage1_batchnorm1_gamma, %cifarresnetv11_stage1_batchnorm1_beta, %cifarresnetv11_stage1_batchnorm1_running_mean, %cifarresnetv11_stage1_batchnorm1_running_var) /* ty=(Tensor[(1, 16, 32, 32), int16], Tensor[(16), int16], Tensor[(16), int16]) */;
+  %5 = %4.0;
+  let %var_21: Tensor[(1, 16, 32, 32), int16] = add(%1, %5) /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  %7 = fn (%outer_arg_0: Tensor[(1, 16, 32, 32), int16], Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_2") -> Tensor[(1, 16, 32, 32), int16] {
+    %6 = fn (%inner_arg_0: Tensor[(1, 16, 32, 32), int16], Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 16, 32, 32), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][1]) /* ty=Tensor[(1, 16, 32, 32), int16] */
+    };
+    %6(%outer_arg_0) /* ty=Tensor[(1, 16, 32, 32), int16] */
+  };
+  let %var_23: Tensor[(1, 16, 32, 32), int16] = %7(%var_21) /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  let %var_28: Tensor[(1, 16, 32, 32), int16] = nn.conv2d(%var_23, %cifarresnetv11_stage1_conv2_weight, padding=[1, 1, 1, 1], channels=16, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  %9 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_3") -> Tensor[(1, 16, 32, 32), int16] {
+    %8 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 16, 32, 32), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][2]) /* ty=Tensor[(1, 16, 32, 32), int16] */
+    };
+    %8() /* ty=Tensor[(1, 16, 32, 32), int16] */
+  };
+  let %var_30: Tensor[(1, 16, 32, 32), int16] = %9() /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  let %var_35: Tensor[(1, 16, 32, 32), int16] = nn.conv2d(%var_30, %cifarresnetv11_stage1_conv3_weight, padding=[1, 1, 1, 1], channels=16, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  %10 = nn.batch_norm(%var_35, %cifarresnetv11_stage1_batchnorm3_gamma, %cifarresnetv11_stage1_batchnorm3_beta, %cifarresnetv11_stage1_batchnorm3_running_mean, %cifarresnetv11_stage1_batchnorm3_running_var) /* ty=(Tensor[(1, 16, 32, 32), int16], Tensor[(16), int16], Tensor[(16), int16]) */;
+  %11 = %10.0;
+  let %var_36: Tensor[(1, 16, 32, 32), int16] = add(%var_23, %11) /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  %13 = fn (%outer_arg_01: Tensor[(1, 16, 32, 32), int16], Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_5") -> Tensor[(1, 16, 32, 32), int16] {
+    %12 = fn (%inner_arg_01: Tensor[(1, 16, 32, 32), int16], Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 16, 32, 32), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][3]) /* ty=Tensor[(1, 16, 32, 32), int16] */
+    };
+    %12(%outer_arg_01) /* ty=Tensor[(1, 16, 32, 32), int16] */
+  };
+  let %var_38: Tensor[(1, 16, 32, 32), int16] = %13(%var_36) /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  let %var_43: Tensor[(1, 16, 32, 32), int16] = nn.conv2d(%var_38, %cifarresnetv11_stage1_conv4_weight, padding=[1, 1, 1, 1], channels=16, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  %15 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_6") -> Tensor[(1, 16, 32, 32), int16] {
+    %14 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 16, 32, 32), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][4]) /* ty=Tensor[(1, 16, 32, 32), int16] */
+    };
+    %14() /* ty=Tensor[(1, 16, 32, 32), int16] */
+  };
+  let %var_45: Tensor[(1, 16, 32, 32), int16] = %15() /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  let %var_50: Tensor[(1, 16, 32, 32), int16] = nn.conv2d(%var_45, %cifarresnetv11_stage1_conv5_weight, padding=[1, 1, 1, 1], channels=16, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  %16 = nn.batch_norm(%var_50, %cifarresnetv11_stage1_batchnorm5_gamma, %cifarresnetv11_stage1_batchnorm5_beta, %cifarresnetv11_stage1_batchnorm5_running_mean, %cifarresnetv11_stage1_batchnorm5_running_var) /* ty=(Tensor[(1, 16, 32, 32), int16], Tensor[(16), int16], Tensor[(16), int16]) */;
+  %17 = %16.0;
+  let %var_51: Tensor[(1, 16, 32, 32), int16] = add(%var_38, %17) /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  %19 = fn (%outer_arg_02: Tensor[(1, 16, 32, 32), int16], Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_7") -> Tensor[(1, 16, 32, 32), int16] {
+    %18 = fn (%inner_arg_02: Tensor[(1, 16, 32, 32), int16], Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 16, 32, 32), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][5]) /* ty=Tensor[(1, 16, 32, 32), int16] */
+    };
+    %18(%outer_arg_02) /* ty=Tensor[(1, 16, 32, 32), int16] */
+  };
+  let %var_53: Tensor[(1, 16, 32, 32), int16] = %19(%var_51) /* ty=Tensor[(1, 16, 32, 32), int16] */;
+  let %var_58: Tensor[(1, 32, 16, 16), int16] = nn.conv2d(%var_53, %cifarresnetv11_stage2_conv2_weight, strides=[2, 2], padding=[0, 0, 0, 0], channels=32, kernel_size=[1, 1], out_dtype="int16") /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  let %var_64: Tensor[(1, 32, 16, 16), int16] = nn.conv2d(%var_53, %cifarresnetv11_stage2_conv0_weight, strides=[2, 2], padding=[1, 1, 1, 1], channels=32, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  %21 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_8") -> Tensor[(1, 32, 16, 16), int16] {
+    %20 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 32, 16, 16), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][6]) /* ty=Tensor[(1, 32, 16, 16), int16] */
+    };
+    %20() /* ty=Tensor[(1, 32, 16, 16), int16] */
+  };
+  let %var_66: Tensor[(1, 32, 16, 16), int16] = %21() /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  let %var_71: Tensor[(1, 32, 16, 16), int16] = nn.conv2d(%var_66, %cifarresnetv11_stage2_conv1_weight, padding=[1, 1, 1, 1], channels=32, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  %22 = nn.batch_norm(%var_58, %cifarresnetv11_stage2_batchnorm2_gamma, %cifarresnetv11_stage2_batchnorm2_beta, %cifarresnetv11_stage2_batchnorm2_running_mean, %cifarresnetv11_stage2_batchnorm2_running_var) /* ty=(Tensor[(1, 32, 16, 16), int16], Tensor[(32), int16], Tensor[(32), int16]) */;
+  %23 = nn.batch_norm(%var_71, %cifarresnetv11_stage2_batchnorm1_gamma, %cifarresnetv11_stage2_batchnorm1_beta, %cifarresnetv11_stage2_batchnorm1_running_mean, %cifarresnetv11_stage2_batchnorm1_running_var) /* ty=(Tensor[(1, 32, 16, 16), int16], Tensor[(32), int16], Tensor[(32), int16]) */;
+  %24 = %22.0;
+  %25 = %23.0;
+  let %var_72: Tensor[(1, 32, 16, 16), int16] = add(%24, %25) /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  %27 = fn (%outer_arg_03: Tensor[(1, 32, 16, 16), int16], Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_10") -> Tensor[(1, 32, 16, 16), int16] {
+    %26 = fn (%inner_arg_03: Tensor[(1, 32, 16, 16), int16], Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 32, 16, 16), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][7]) /* ty=Tensor[(1, 32, 16, 16), int16] */
+    };
+    %26(%outer_arg_03) /* ty=Tensor[(1, 32, 16, 16), int16] */
+  };
+  let %var_74: Tensor[(1, 32, 16, 16), int16] = %27(%var_72) /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  let %var_79: Tensor[(1, 32, 16, 16), int16] = nn.conv2d(%var_74, %cifarresnetv11_stage2_conv3_weight, padding=[1, 1, 1, 1], channels=32, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  %29 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_11") -> Tensor[(1, 32, 16, 16), int16] {
+    %28 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 32, 16, 16), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][8]) /* ty=Tensor[(1, 32, 16, 16), int16] */
+    };
+    %28() /* ty=Tensor[(1, 32, 16, 16), int16] */
+  };
+  let %var_81: Tensor[(1, 32, 16, 16), int16] = %29() /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  let %var_86: Tensor[(1, 32, 16, 16), int16] = nn.conv2d(%var_81, %cifarresnetv11_stage2_conv4_weight, padding=[1, 1, 1, 1], channels=32, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  %30 = nn.batch_norm(%var_86, %cifarresnetv11_stage2_batchnorm4_gamma, %cifarresnetv11_stage2_batchnorm4_beta, %cifarresnetv11_stage2_batchnorm4_running_mean, %cifarresnetv11_stage2_batchnorm4_running_var) /* ty=(Tensor[(1, 32, 16, 16), int16], Tensor[(32), int16], Tensor[(32), int16]) */;
+  %31 = %30.0;
+  let %var_87: Tensor[(1, 32, 16, 16), int16] = add(%var_74, %31) /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  %33 = fn (%outer_arg_04: Tensor[(1, 32, 16, 16), int16], Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_13") -> Tensor[(1, 32, 16, 16), int16] {
+    %32 = fn (%inner_arg_04: Tensor[(1, 32, 16, 16), int16], Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 32, 16, 16), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][9]) /* ty=Tensor[(1, 32, 16, 16), int16] */
+    };
+    %32(%outer_arg_04) /* ty=Tensor[(1, 32, 16, 16), int16] */
+  };
+  let %var_89: Tensor[(1, 32, 16, 16), int16] = %33(%var_87) /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  let %var_94: Tensor[(1, 32, 16, 16), int16] = nn.conv2d(%var_89, %cifarresnetv11_stage2_conv5_weight, padding=[1, 1, 1, 1], channels=32, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  %35 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_14") -> Tensor[(1, 32, 16, 16), int16] {
+    %34 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 32, 16, 16), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][10]) /* ty=Tensor[(1, 32, 16, 16), int16] */
+    };
+    %34() /* ty=Tensor[(1, 32, 16, 16), int16] */
+  };
+  let %var_96: Tensor[(1, 32, 16, 16), int16] = %35() /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  let %var_101: Tensor[(1, 32, 16, 16), int16] = nn.conv2d(%var_96, %cifarresnetv11_stage2_conv6_weight, padding=[1, 1, 1, 1], channels=32, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  %36 = nn.batch_norm(%var_101, %cifarresnetv11_stage2_batchnorm6_gamma, %cifarresnetv11_stage2_batchnorm6_beta, %cifarresnetv11_stage2_batchnorm6_running_mean, %cifarresnetv11_stage2_batchnorm6_running_var) /* ty=(Tensor[(1, 32, 16, 16), int16], Tensor[(32), int16], Tensor[(32), int16]) */;
+  %37 = %36.0;
+  let %var_102: Tensor[(1, 32, 16, 16), int16] = add(%var_89, %37) /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  %39 = fn (%outer_arg_05: Tensor[(1, 32, 16, 16), int16], Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_15") -> Tensor[(1, 32, 16, 16), int16] {
+    %38 = fn (%inner_arg_05: Tensor[(1, 32, 16, 16), int16], Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 32, 16, 16), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][11]) /* ty=Tensor[(1, 32, 16, 16), int16] */
+    };
+    %38(%outer_arg_05) /* ty=Tensor[(1, 32, 16, 16), int16] */
+  };
+  let %var_104: Tensor[(1, 32, 16, 16), int16] = %39(%var_102) /* ty=Tensor[(1, 32, 16, 16), int16] */;
+  let %var_109: Tensor[(1, 64, 8, 8), int16] = nn.conv2d(%var_104, %cifarresnetv11_stage3_conv2_weight, strides=[2, 2], padding=[0, 0, 0, 0], channels=64, kernel_size=[1, 1], out_dtype="int16") /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  let %var_115: Tensor[(1, 64, 8, 8), int16] = nn.conv2d(%var_104, %cifarresnetv11_stage3_conv0_weight, strides=[2, 2], padding=[1, 1, 1, 1], channels=64, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  %41 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_16") -> Tensor[(1, 64, 8, 8), int16] {
+    %40 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 64, 8, 8), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][12]) /* ty=Tensor[(1, 64, 8, 8), int16] */
+    };
+    %40() /* ty=Tensor[(1, 64, 8, 8), int16] */
+  };
+  let %var_117: Tensor[(1, 64, 8, 8), int16] = %41() /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  let %var_122: Tensor[(1, 64, 8, 8), int16] = nn.conv2d(%var_117, %cifarresnetv11_stage3_conv1_weight, padding=[1, 1, 1, 1], channels=64, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  %42 = nn.batch_norm(%var_109, %cifarresnetv11_stage3_batchnorm2_gamma, %cifarresnetv11_stage3_batchnorm2_beta, %cifarresnetv11_stage3_batchnorm2_running_mean, %cifarresnetv11_stage3_batchnorm2_running_var) /* ty=(Tensor[(1, 64, 8, 8), int16], Tensor[(64), int16], Tensor[(64), int16]) */;
+  %43 = nn.batch_norm(%var_122, %cifarresnetv11_stage3_batchnorm1_gamma, %cifarresnetv11_stage3_batchnorm1_beta, %cifarresnetv11_stage3_batchnorm1_running_mean, %cifarresnetv11_stage3_batchnorm1_running_var) /* ty=(Tensor[(1, 64, 8, 8), int16], Tensor[(64), int16], Tensor[(64), int16]) */;
+  %44 = %42.0;
+  %45 = %43.0;
+  let %var_123: Tensor[(1, 64, 8, 8), int16] = add(%44, %45) /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  %47 = fn (%outer_arg_06: Tensor[(1, 64, 8, 8), int16], Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_18") -> Tensor[(1, 64, 8, 8), int16] {
+    %46 = fn (%inner_arg_06: Tensor[(1, 64, 8, 8), int16], Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 64, 8, 8), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][13]) /* ty=Tensor[(1, 64, 8, 8), int16] */
+    };
+    %46(%outer_arg_06) /* ty=Tensor[(1, 64, 8, 8), int16] */
+  };
+  let %var_125: Tensor[(1, 64, 8, 8), int16] = %47(%var_123) /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  let %var_130: Tensor[(1, 64, 8, 8), int16] = nn.conv2d(%var_125, %cifarresnetv11_stage3_conv3_weight, padding=[1, 1, 1, 1], channels=64, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  %49 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_19") -> Tensor[(1, 64, 8, 8), int16] {
+    %48 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 64, 8, 8), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][14]) /* ty=Tensor[(1, 64, 8, 8), int16] */
+    };
+    %48() /* ty=Tensor[(1, 64, 8, 8), int16] */
+  };
+  let %var_132: Tensor[(1, 64, 8, 8), int16] = %49() /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  let %var_137: Tensor[(1, 64, 8, 8), int16] = nn.conv2d(%var_132, %cifarresnetv11_stage3_conv4_weight, padding=[1, 1, 1, 1], channels=64, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  %50 = nn.batch_norm(%var_137, %cifarresnetv11_stage3_batchnorm4_gamma, %cifarresnetv11_stage3_batchnorm4_beta, %cifarresnetv11_stage3_batchnorm4_running_mean, %cifarresnetv11_stage3_batchnorm4_running_var) /* ty=(Tensor[(1, 64, 8, 8), int16], Tensor[(64), int16], Tensor[(64), int16]) */;
+  %51 = %50.0;
+  let %var_138: Tensor[(1, 64, 8, 8), int16] = add(%var_125, %51) /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  %53 = fn (%outer_arg_07: Tensor[(1, 64, 8, 8), int16], Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_21") -> Tensor[(1, 64, 8, 8), int16] {
+    %52 = fn (%inner_arg_07: Tensor[(1, 64, 8, 8), int16], Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 64, 8, 8), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][15]) /* ty=Tensor[(1, 64, 8, 8), int16] */
+    };
+    %52(%outer_arg_07) /* ty=Tensor[(1, 64, 8, 8), int16] */
+  };
+  let %var_140: Tensor[(1, 64, 8, 8), int16] = %53(%var_138) /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  let %var_145: Tensor[(1, 64, 8, 8), int16] = nn.conv2d(%var_140, %cifarresnetv11_stage3_conv5_weight, padding=[1, 1, 1, 1], channels=64, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  %55 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_22") -> Tensor[(1, 64, 8, 8), int16] {
+    %54 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 64, 8, 8), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][16]) /* ty=Tensor[(1, 64, 8, 8), int16] */
+    };
+    %54() /* ty=Tensor[(1, 64, 8, 8), int16] */
+  };
+  let %var_147: Tensor[(1, 64, 8, 8), int16] = %55() /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  let %var_152: Tensor[(1, 64, 8, 8), int16] = nn.conv2d(%var_147, %cifarresnetv11_stage3_conv6_weight, padding=[1, 1, 1, 1], channels=64, kernel_size=[3, 3], out_dtype="int16") /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  %56 = nn.batch_norm(%var_152, %cifarresnetv11_stage3_batchnorm6_gamma, %cifarresnetv11_stage3_batchnorm6_beta, %cifarresnetv11_stage3_batchnorm6_running_mean, %cifarresnetv11_stage3_batchnorm6_running_var) /* ty=(Tensor[(1, 64, 8, 8), int16], Tensor[(64), int16], Tensor[(64), int16]) */;
+  %57 = %56.0;
+  let %var_153: Tensor[(1, 64, 8, 8), int16] = add(%var_140, %57) /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  %59 = fn (%outer_arg_08: Tensor[(1, 64, 8, 8), int16], Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_23") -> Tensor[(1, 64, 8, 8), int16] {
+    %58 = fn (%inner_arg_08: Tensor[(1, 64, 8, 8), int16], Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 64, 8, 8), int16] {
+      accelerator_call(meta[relay.attrs.AcceleratorCallAttrs][17]) /* ty=Tensor[(1, 64, 8, 8), int16] */
+    };
+    %58(%outer_arg_08) /* ty=Tensor[(1, 64, 8, 8), int16] */
+  };
+  let %var_154: Tensor[(1, 64, 8, 8), int16] = %59(%var_153) /* ty=Tensor[(1, 64, 8, 8), int16] */;
+  let %var_155: Tensor[(1, 64, 1, 1), int16] = nn.global_avg_pool2d(%var_154) /* ty=Tensor[(1, 64, 1, 1), int16] */;
+  let %var_157: Tensor[(1, 64), int16] = reshape(%var_155, newshape=[1, 64]) /* ty=Tensor[(1, 64), int16] */;
+  let %var_159: Tensor[(1, 10), int16] = nn.dense(%var_157, %cifarresnetv11_dense0_weight, units=None) /* ty=Tensor[(1, 10), int16] */;
+  nn.bias_add(%var_159, %cifarresnetv11_dense0_bias) /* ty=Tensor[(1, 10), int16] */
+}
+
+#[metadata]
+{
+  "root": 1, 
+  "nodes": [
+    {
+      "type_key": ""
+    }, 
+    {
+      "type_key": "Map", 
+      "keys": [
+        "relay.attrs.AcceleratorCallAttrs"
+      ], 
+      "data": [2]
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [
+        3, 
+        9, 
+        15, 
+        21, 
+        27, 
+        33, 
+        39, 
+        45, 
+        51, 
+        57, 
+        63, 
+        69, 
+        75, 
+        81, 
+        87, 
+        93, 
+        99, 
+        105
+      ]
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "4"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [5, 6, 7, 8]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "10"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [11, 12, 13, 14]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "16"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [17, 18, 19, 20]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "22"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [23, 24, 25, 26]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "28"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [29, 30, 31, 32]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "34"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [35, 36, 37, 38]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "40"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [41, 42, 43, 44]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "46"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [47, 48, 49, 50]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "52"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [53, 54, 55, 56]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "58"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [59, 60, 61, 62]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "64"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [65, 66, 67, 68]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "70"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [71, 72, 73, 74]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "32"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "16"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "76"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [77, 78, 79, 80]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "64"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "8"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "8"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "82"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [83, 84, 85, 86]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "64"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "8"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "8"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "88"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [89, 90, 91, 92]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "64"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "8"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "8"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "94"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [95, 96, 97, 98]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "64"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "8"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "8"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "100"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [101, 102, 103, 104]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "64"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "8"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "8"
+      }
+    }, 
+    {
+      "type_key": "relay.attrs.AcceleratorCallAttrs", 
+      "attrs": {
+        "func_name": "nvdla-layerrelu", 
+        "output_dtype": "int16", 
+        "output_shape": "106"
+      }
+    }, 
+    {
+      "type_key": "Array", 
+      "data": [107, 108, 109, 110]
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "1"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "64"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "8"
+      }
+    }, 
+    {
+      "type_key": "IntImm", 
+      "attrs": {
+        "dtype": "int32", 
+        "span": "0", 
+        "value": "8"
+      }
+    }
+  ], 
+  "b64ndarrays": [], 
+  "attrs": {"tvm_version": "0.9.dev0"}
+}

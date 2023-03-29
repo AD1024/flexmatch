@@ -64,7 +64,7 @@ class RelayOperators(enum.Enum):
     RelayCopy = relay.copy,
     RelayArgMax = relay.argmax,
 
-    def __call__(self, *x):
+    def __call__(self, *x, dtype='int16'):
         # TODO: TDC/ MIKE relayEqual and RelayPrelu need to be implemented here
         # Handle special case of relay operator calls
         # could be mitigated by spliting parameters from attributes in glenside
@@ -115,21 +115,17 @@ class RelayOperators(enum.Enum):
             # TODO: Assuming data is NCHW and kernel is OHWI
             # which means changing to another layout can break the
             # compliation (b/c of the `kernel_size` argument)
-            print('data', x[0])
-            print('weight', x[1])
-            print('strides', x[2][1:])
-            print('padding', x[3])
-            print('groups', int(x[4]))
-            print('channels', int(x[5]))
-            print('kernel_size', [int(x[6][1]), int(x[6][2])])
             return self.value[0](x[0], x[1], strides=tuple(x[2][1:]), padding=tuple(x[3]),
-                    groups=int(x[4]), channels=int(x[5]), kernel_size=(int(x[6][1]), int(x[6][2])),
-                    data_layout="NCHW", kernel_layout="OIHW")
+                                 groups=int(x[4]), channels=int(x[5]), kernel_size=(int(x[6][1]), int(x[6][2])),
+                                 data_layout="NCHW", kernel_layout="OIHW", out_dtype=dtype)
         if self.value[0] == relay.nn.avg_pool2d:
             assert (len(x) == 5)
             data_layout = x[-1].value
             return nn.avg_pool2d(x[0], pool_size=x[1], strides=x[2], padding=x[3], layout=data_layout)
+
         x = list(map(lambda x: relay.const(x) if isinstance(x, float) else x, x))
+        x = list(map(lambda x: relay.const(x, dtype='int16')
+                 if isinstance(x, int) else x, x))
         try:
             return self.value[0](*x)
         except Exception as e:
@@ -359,6 +355,8 @@ class RecExprCompiler:
 
         if isinstance(enode, RelayOperatorCall):
             op = enode.symbol
+            ch_vars = [relay.TupleGetItem(ch.astuple(), 0) if isinstance(
+                ch, relay.TupleWrapper) else ch for ch in ch_vars]
             return op(*ch_vars)
         elif isinstance(enode, Access):
             if int(children_exprs[1]) == 0:
@@ -402,7 +400,6 @@ class RecExprCompiler:
             if access_pattern['item_shape'] != []:
                 newshape += [reduce(lambda x, y: x * y,
                                     access_pattern['item_shape'])]
-            # print(newshape, self.eclass_analysis[index]['relay_shape'])
             return relay.reshape(ch_vars[0], newshape)
         elif isinstance(enode, AccessLiteral) or isinstance(enode, LiteralNode):
             return children_exprs[0]
@@ -494,6 +491,7 @@ class RecExprCompiler:
                 return self.accelerator_func_lib[func](*ch_vars[:-1])
             else:
                 # In Glenside, the last parameter to accelerator-call is the inferred type
+                # NB (shape not type)
                 inferred_type = self.eclass_analysis[index]['relay_shape']
                 accelerator_call = relay.accelerator_call(
                     func, inferred_type, out_dtype=self.out_dtypes[func])
@@ -506,12 +504,12 @@ class RecExprCompiler:
                 inner_args = [relay.Var(f'inner_arg_{i}')
                               for i in range(len(ch_vars))]
                 inner_func = relay.Function(
-                    inner_args, accelerator_call, ret_type=relay.TensorType(inferred_type))
+                    inner_args, accelerator_call, ret_type=relay.TensorType(inferred_type, dtype=self.out_dtypes[func]))
                 inner_func = inner_func.with_attr("Composite", composite_name)
                 outer_args = [relay.var(f'outer_arg_{i}')
                               for i in range(len(ch_vars))]
                 outer_func = relay.Function(outer_args, inner_func(
-                    *outer_args), ret_type=relay.TensorType(inferred_type))
+                    *outer_args), ret_type=relay.TensorType(inferred_type, dtype=self.out_dtypes[func]))
                 outer_func = outer_func.with_attr("Compiler", compiler_name)
                 outer_func = outer_func.with_attr(
                     "Primitive", tvm.tir.IntImm("int32", 1))
@@ -709,7 +707,6 @@ def downcast(enode: ENode):
     }.get(symbol)
     if lang is not None:
         return AcceleratorCall(lang, enode.children)
-
     lang = {
         'int64': DType.i64,
         'int32': DType.i32,

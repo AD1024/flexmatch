@@ -1,0 +1,2164 @@
+Output file written to:  /root/flexmatch/tests/resnet20_int16-rewritten.json /root/flexmatch/tests/resnet20_int16-data.json
+0: (RelayOperators.RelayDense [311, 313])
+Found tuplegetitem: False
+1: (access-tensor [315])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (access-flatten [310])
+Found tuplegetitem: False
+1: (access-tensor [312])
+Found tuplegetitem: False
+0: (access [309, 11])
+Found tuplegetitem: False
+0: (RelayOperators.RelayGlobalAvgPool2D [308, 17])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [307, 44])
+Found tuplegetitem: False
+1: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayAdd [281, 306])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [280, 44])
+Found tuplegetitem: False
+1: (RelayOperators.RelayBatchNormInference [297, 299, 301, 303, 305, 11, 28])
+Found tuplegetitem: False
+0: (RelayOperators.RelayAdd [254, 279])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [253, 44])
+Found tuplegetitem: False
+1: (RelayOperators.RelayBatchNormInference [270, 272, 274, 276, 278, 11, 28])
+Found tuplegetitem: False
+0: (RelayOperators.RelayAdd [226, 252])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (RelayOperators.RelayBatchNormInference [217, 219, 221, 223, 225, 11, 28])
+Found tuplegetitem: False
+1: (RelayOperators.RelayBatchNormInference [243, 245, 247, 249, 251, 11, 28])
+Found tuplegetitem: False
+0: (RelayOperators.RelayConv2D [212, 214, 117, 118, 11, 215, 216, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [218])
+Found tuplegetitem: False
+2: (access-tensor [220])
+Found tuplegetitem: False
+3: (access-tensor [222])
+Found tuplegetitem: False
+4: (access-tensor [224])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [211, 44])
+Found tuplegetitem: False
+1: (access-tensor [213])
+Found tuplegetitem: False
+2: (shape [11, 116, 116])
+Found tuplegetitem: False
+3: (shape [43, 43, 43, 43])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (64 [])
+Found tuplegetitem: False
+6: (shape [119, 11, 11])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayAdd [185, 210])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [184, 44])
+Found tuplegetitem: False
+1: (RelayOperators.RelayBatchNormInference [201, 203, 205, 207, 209, 11, 28])
+Found tuplegetitem: False
+0: (RelayOperators.RelayAdd [158, 183])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [157, 44])
+Found tuplegetitem: False
+1: (RelayOperators.RelayBatchNormInference [174, 176, 178, 180, 182, 11, 28])
+Found tuplegetitem: False
+0: (RelayOperators.RelayAdd [130, 156])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (RelayOperators.RelayBatchNormInference [121, 123, 125, 127, 129, 11, 28])
+Found tuplegetitem: False
+1: (RelayOperators.RelayBatchNormInference [147, 149, 151, 153, 155, 11, 28])
+Found tuplegetitem: False
+0: (RelayOperators.RelayConv2D [113, 115, 117, 118, 11, 119, 120, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [122])
+Found tuplegetitem: False
+2: (access-tensor [124])
+Found tuplegetitem: False
+3: (access-tensor [126])
+Found tuplegetitem: False
+4: (access-tensor [128])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [112, 44])
+Found tuplegetitem: False
+1: (access-tensor [114])
+Found tuplegetitem: False
+2: (shape [11, 116, 116])
+Found tuplegetitem: False
+3: (shape [43, 43, 43, 43])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (32 [])
+Found tuplegetitem: False
+6: (shape [14, 11, 11])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayAdd [86, 111])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [85, 44])
+Found tuplegetitem: False
+1: (RelayOperators.RelayBatchNormInference [102, 104, 106, 108, 110, 11, 28])
+Found tuplegetitem: False
+0: (RelayOperators.RelayAdd [59, 84])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [58, 44])
+Found tuplegetitem: False
+1: (RelayOperators.RelayBatchNormInference [75, 77, 79, 81, 83, 11, 28])
+Found tuplegetitem: False
+0: (RelayOperators.RelayAdd [29, 57])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (RelayOperators.RelayBatchNormInference [19, 21, 23, 25, 27, 11, 28])
+Found tuplegetitem: False
+1: (RelayOperators.RelayBatchNormInference [48, 50, 52, 54, 56, 11, 28])
+Found tuplegetitem: False
+0: (RelayOperators.RelayConv2D [8, 10, 12, 13, 11, 14, 16, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [20])
+Found tuplegetitem: False
+2: (access-tensor [22])
+Found tuplegetitem: False
+3: (access-tensor [24])
+Found tuplegetitem: False
+4: (access-tensor [26])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (access-tensor [7])
+Found tuplegetitem: False
+1: (access-tensor [9])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (16 [])
+Found tuplegetitem: False
+6: (shape [15, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (Symbol (data []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_conv0_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (3 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %data: Tensor[(1, 3, 32, 32), int16];
+%data
+weight free_var %cifarresnetv11_conv0_weight: Tensor[(16, 3, 3, 3), int16];
+%cifarresnetv11_conv0_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 16
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_batchnorm0_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_batchnorm0_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_batchnorm0_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_batchnorm0_running_var []))
+Found tuplegetitem: False
+dtype int16
+0: (RelayOperators.RelayConv2D [45, 47, 12, 13, 11, 14, 32, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [49])
+Found tuplegetitem: False
+2: (access-tensor [51])
+Found tuplegetitem: False
+3: (access-tensor [53])
+Found tuplegetitem: False
+4: (access-tensor [55])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [42, 44])
+Found tuplegetitem: False
+1: (access-tensor [46])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (16 [])
+Found tuplegetitem: False
+6: (shape [14, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayBatchNormInference [33, 35, 37, 39, 41, 11, 28])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (RelayOperators.RelayConv2D [29, 31, 12, 13, 11, 14, 32, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [34])
+Found tuplegetitem: False
+2: (access-tensor [36])
+Found tuplegetitem: False
+3: (access-tensor [38])
+Found tuplegetitem: False
+4: (access-tensor [40])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (RelayOperators.RelayBatchNormInference [19, 21, 23, 25, 27, 11, 28])
+Found tuplegetitem: False
+1: (access-tensor [30])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (16 [])
+Found tuplegetitem: False
+6: (shape [14, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayConv2D [8, 10, 12, 13, 11, 14, 16, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [20])
+Found tuplegetitem: False
+2: (access-tensor [22])
+Found tuplegetitem: False
+3: (access-tensor [24])
+Found tuplegetitem: False
+4: (access-tensor [26])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (Symbol (cifarresnetv11_batchnorm0_gamma []))
+Found tuplegetitem: False
+0: (Symbol (cifarresnetv11_batchnorm0_beta []))
+Found tuplegetitem: False
+0: (Symbol (cifarresnetv11_batchnorm0_running_mean []))
+Found tuplegetitem: False
+0: (Symbol (cifarresnetv11_batchnorm0_running_var []))
+Found tuplegetitem: False
+0: (Symbol (cifarresnetv11_stage1_conv0_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (16 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_7;
+free_var %cifarresnetv11_batchnorm0_gamma: Tensor[(16), int16];
+free_var %cifarresnetv11_batchnorm0_beta: Tensor[(16), int16];
+free_var %cifarresnetv11_batchnorm0_running_mean: Tensor[(16), int16];
+free_var %cifarresnetv11_batchnorm0_running_var: Tensor[(16), int16];
+%0 = nn.batch_norm(%var_7, %cifarresnetv11_batchnorm0_gamma, %cifarresnetv11_batchnorm0_beta, %cifarresnetv11_batchnorm0_running_mean, %cifarresnetv11_batchnorm0_running_var);
+%0.0
+weight free_var %cifarresnetv11_stage1_conv0_weight: Tensor[(16, 16, 3, 3), int16];
+%cifarresnetv11_stage1_conv0_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 16
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage1_batchnorm0_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm0_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm0_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm0_running_var []))
+Found tuplegetitem: False
+dtype int16
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 16, 32, 32]
+0: (Symbol (cifarresnetv11_stage1_conv1_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (16 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_15;
+%var_15
+weight free_var %cifarresnetv11_stage1_conv1_weight: Tensor[(16, 16, 3, 3), int16];
+%cifarresnetv11_stage1_conv1_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 16
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage1_batchnorm1_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm1_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm1_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm1_running_var []))
+Found tuplegetitem: False
+dtype int16
+try thing [TupleGetItemNode(CallNode(Op(nn.batch_norm), [Var(var_7), Var(cifarresnetv11_batchnorm0_gamma, ty=TensorType([16], int16)), Var(cifarresnetv11_batchnorm0_beta, ty=TensorType([16], int16)), Var(cifarresnetv11_batchnorm0_running_mean, ty=TensorType([16], int16)), Var(cifarresnetv11_batchnorm0_running_var, ty=TensorType([16], int16))], relay.attrs.BatchNormAttrs(0x2fd3d58), []), 0), TupleGetItemNode(CallNode(Op(nn.batch_norm), [Var(var_20), Var(cifarresnetv11_stage1_batchnorm1_gamma, ty=TensorType([16], int16)), Var(cifarresnetv11_stage1_batchnorm1_beta, ty=TensorType([16], int16)), Var(cifarresnetv11_stage1_batchnorm1_running_mean, ty=TensorType([16], int16)), Var(cifarresnetv11_stage1_batchnorm1_running_var, ty=TensorType([16], int16))], relay.attrs.BatchNormAttrs(0x2fd1168), []), 0)]
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 16, 32, 32]
+0: (RelayOperators.RelayConv2D [72, 74, 12, 13, 11, 14, 32, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [76])
+Found tuplegetitem: False
+2: (access-tensor [78])
+Found tuplegetitem: False
+3: (access-tensor [80])
+Found tuplegetitem: False
+4: (access-tensor [82])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [71, 44])
+Found tuplegetitem: False
+1: (access-tensor [73])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (16 [])
+Found tuplegetitem: False
+6: (shape [14, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayBatchNormInference [62, 64, 66, 68, 70, 11, 28])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (RelayOperators.RelayConv2D [59, 61, 12, 13, 11, 14, 32, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [63])
+Found tuplegetitem: False
+2: (access-tensor [65])
+Found tuplegetitem: False
+3: (access-tensor [67])
+Found tuplegetitem: False
+4: (access-tensor [69])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [58, 44])
+Found tuplegetitem: False
+1: (access-tensor [60])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (16 [])
+Found tuplegetitem: False
+6: (shape [14, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayAdd [29, 57])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 16, 32, 32]
+0: (Symbol (cifarresnetv11_stage1_conv2_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (16 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_23;
+%var_23
+weight free_var %cifarresnetv11_stage1_conv2_weight: Tensor[(16, 16, 3, 3), int16];
+%cifarresnetv11_stage1_conv2_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 16
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage1_batchnorm2_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm2_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm2_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm2_running_var []))
+Found tuplegetitem: False
+dtype int16
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 16, 32, 32]
+0: (Symbol (cifarresnetv11_stage1_conv3_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (16 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_30;
+%var_30
+weight free_var %cifarresnetv11_stage1_conv3_weight: Tensor[(16, 16, 3, 3), int16];
+%cifarresnetv11_stage1_conv3_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 16
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage1_batchnorm3_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm3_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm3_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm3_running_var []))
+Found tuplegetitem: False
+dtype int16
+try thing [Var(var_23), TupleGetItemNode(CallNode(Op(nn.batch_norm), [Var(var_35), Var(cifarresnetv11_stage1_batchnorm3_gamma, ty=TensorType([16], int16)), Var(cifarresnetv11_stage1_batchnorm3_beta, ty=TensorType([16], int16)), Var(cifarresnetv11_stage1_batchnorm3_running_mean, ty=TensorType([16], int16)), Var(cifarresnetv11_stage1_batchnorm3_running_var, ty=TensorType([16], int16))], relay.attrs.BatchNormAttrs(0x2f35288), []), 0)]
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 16, 32, 32]
+0: (RelayOperators.RelayConv2D [99, 101, 12, 13, 11, 14, 32, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [103])
+Found tuplegetitem: False
+2: (access-tensor [105])
+Found tuplegetitem: False
+3: (access-tensor [107])
+Found tuplegetitem: False
+4: (access-tensor [109])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [98, 44])
+Found tuplegetitem: False
+1: (access-tensor [100])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (16 [])
+Found tuplegetitem: False
+6: (shape [14, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayBatchNormInference [89, 91, 93, 95, 97, 11, 28])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (RelayOperators.RelayConv2D [86, 88, 12, 13, 11, 14, 32, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [90])
+Found tuplegetitem: False
+2: (access-tensor [92])
+Found tuplegetitem: False
+3: (access-tensor [94])
+Found tuplegetitem: False
+4: (access-tensor [96])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [85, 44])
+Found tuplegetitem: False
+1: (access-tensor [87])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (16 [])
+Found tuplegetitem: False
+6: (shape [14, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayAdd [59, 84])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 16, 32, 32]
+0: (Symbol (cifarresnetv11_stage1_conv4_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (16 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_38;
+%var_38
+weight free_var %cifarresnetv11_stage1_conv4_weight: Tensor[(16, 16, 3, 3), int16];
+%cifarresnetv11_stage1_conv4_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 16
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage1_batchnorm4_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm4_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm4_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm4_running_var []))
+Found tuplegetitem: False
+dtype int16
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 16, 32, 32]
+0: (Symbol (cifarresnetv11_stage1_conv5_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (16 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_45;
+%var_45
+weight free_var %cifarresnetv11_stage1_conv5_weight: Tensor[(16, 16, 3, 3), int16];
+%cifarresnetv11_stage1_conv5_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 16
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage1_batchnorm5_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm5_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm5_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage1_batchnorm5_running_var []))
+Found tuplegetitem: False
+dtype int16
+try thing [Var(var_38), TupleGetItemNode(CallNode(Op(nn.batch_norm), [Var(var_50), Var(cifarresnetv11_stage1_batchnorm5_gamma, ty=TensorType([16], int16)), Var(cifarresnetv11_stage1_batchnorm5_beta, ty=TensorType([16], int16)), Var(cifarresnetv11_stage1_batchnorm5_running_mean, ty=TensorType([16], int16)), Var(cifarresnetv11_stage1_batchnorm5_running_var, ty=TensorType([16], int16))], relay.attrs.BatchNormAttrs(0x2f7a9e8), []), 0)]
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 16, 32, 32]
+0: (Symbol (cifarresnetv11_stage2_conv2_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (2 [])
+Found tuplegetitem: False
+2: (2 [])
+Found tuplegetitem: False
+0: (0 [])
+Found tuplegetitem: False
+1: (0 [])
+Found tuplegetitem: False
+2: (0 [])
+Found tuplegetitem: False
+3: (0 [])
+Found tuplegetitem: False
+0: (16 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+data free_var %var_53;
+%var_53
+weight free_var %cifarresnetv11_stage2_conv2_weight: Tensor[(32, 16, 1, 1), int16];
+%cifarresnetv11_stage2_conv2_weight
+strides (2, 2)
+padding (0, 0, 0, 0)
+groups 1
+channels 32
+kernel_size [1, 1]
+0: (Symbol (cifarresnetv11_stage2_batchnorm2_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm2_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm2_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm2_running_var []))
+Found tuplegetitem: False
+dtype int16
+0: (RelayOperators.RelayConv2D [143, 145, 12, 13, 11, 119, 146, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [148])
+Found tuplegetitem: False
+2: (access-tensor [150])
+Found tuplegetitem: False
+3: (access-tensor [152])
+Found tuplegetitem: False
+4: (access-tensor [154])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [142, 44])
+Found tuplegetitem: False
+1: (access-tensor [144])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (32 [])
+Found tuplegetitem: False
+6: (shape [119, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayBatchNormInference [133, 135, 137, 139, 141, 11, 28])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (RelayOperators.RelayConv2D [113, 132, 117, 13, 11, 119, 32, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [134])
+Found tuplegetitem: False
+2: (access-tensor [136])
+Found tuplegetitem: False
+3: (access-tensor [138])
+Found tuplegetitem: False
+4: (access-tensor [140])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [112, 44])
+Found tuplegetitem: False
+1: (access-tensor [131])
+Found tuplegetitem: False
+2: (shape [11, 116, 116])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (32 [])
+Found tuplegetitem: False
+6: (shape [14, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (Symbol (cifarresnetv11_stage2_conv0_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (2 [])
+Found tuplegetitem: False
+2: (2 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (16 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_53;
+%var_53
+weight free_var %cifarresnetv11_stage2_conv0_weight: Tensor[(32, 16, 3, 3), int16];
+%cifarresnetv11_stage2_conv0_weight
+strides (2, 2)
+padding (1, 1, 1, 1)
+groups 1
+channels 32
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage2_batchnorm0_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm0_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm0_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm0_running_var []))
+Found tuplegetitem: False
+dtype int16
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 32, 16, 16]
+0: (Symbol (cifarresnetv11_stage2_conv1_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (32 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_66;
+%var_66
+weight free_var %cifarresnetv11_stage2_conv1_weight: Tensor[(32, 32, 3, 3), int16];
+%cifarresnetv11_stage2_conv1_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 32
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage2_batchnorm1_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm1_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm1_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm1_running_var []))
+Found tuplegetitem: False
+dtype int16
+try thing [TupleGetItemNode(CallNode(Op(nn.batch_norm), [Var(var_58), Var(cifarresnetv11_stage2_batchnorm2_gamma, ty=TensorType([32], int16)), Var(cifarresnetv11_stage2_batchnorm2_beta, ty=TensorType([32], int16)), Var(cifarresnetv11_stage2_batchnorm2_running_mean, ty=TensorType([32], int16)), Var(cifarresnetv11_stage2_batchnorm2_running_var, ty=TensorType([32], int16))], relay.attrs.BatchNormAttrs(0x2f3dc08), []), 0), TupleGetItemNode(CallNode(Op(nn.batch_norm), [Var(var_71), Var(cifarresnetv11_stage2_batchnorm1_gamma, ty=TensorType([32], int16)), Var(cifarresnetv11_stage2_batchnorm1_beta, ty=TensorType([32], int16)), Var(cifarresnetv11_stage2_batchnorm1_running_mean, ty=TensorType([32], int16)), Var(cifarresnetv11_stage2_batchnorm1_running_var, ty=TensorType([32], int16))], relay.attrs.BatchNormAttrs(0x2feeb08), []), 0)]
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 32, 16, 16]
+0: (RelayOperators.RelayConv2D [171, 173, 12, 13, 11, 119, 146, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [175])
+Found tuplegetitem: False
+2: (access-tensor [177])
+Found tuplegetitem: False
+3: (access-tensor [179])
+Found tuplegetitem: False
+4: (access-tensor [181])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [170, 44])
+Found tuplegetitem: False
+1: (access-tensor [172])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (32 [])
+Found tuplegetitem: False
+6: (shape [119, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayBatchNormInference [161, 163, 165, 167, 169, 11, 28])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (RelayOperators.RelayConv2D [158, 160, 12, 13, 11, 119, 146, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [162])
+Found tuplegetitem: False
+2: (access-tensor [164])
+Found tuplegetitem: False
+3: (access-tensor [166])
+Found tuplegetitem: False
+4: (access-tensor [168])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [157, 44])
+Found tuplegetitem: False
+1: (access-tensor [159])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (32 [])
+Found tuplegetitem: False
+6: (shape [119, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayAdd [130, 156])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 32, 16, 16]
+0: (Symbol (cifarresnetv11_stage2_conv3_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (32 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_74;
+%var_74
+weight free_var %cifarresnetv11_stage2_conv3_weight: Tensor[(32, 32, 3, 3), int16];
+%cifarresnetv11_stage2_conv3_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 32
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage2_batchnorm3_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm3_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm3_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm3_running_var []))
+Found tuplegetitem: False
+dtype int16
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 32, 16, 16]
+0: (Symbol (cifarresnetv11_stage2_conv4_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (32 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_81;
+%var_81
+weight free_var %cifarresnetv11_stage2_conv4_weight: Tensor[(32, 32, 3, 3), int16];
+%cifarresnetv11_stage2_conv4_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 32
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage2_batchnorm4_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm4_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm4_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm4_running_var []))
+Found tuplegetitem: False
+dtype int16
+try thing [Var(var_74), TupleGetItemNode(CallNode(Op(nn.batch_norm), [Var(var_86), Var(cifarresnetv11_stage2_batchnorm4_gamma, ty=TensorType([32], int16)), Var(cifarresnetv11_stage2_batchnorm4_beta, ty=TensorType([32], int16)), Var(cifarresnetv11_stage2_batchnorm4_running_mean, ty=TensorType([32], int16)), Var(cifarresnetv11_stage2_batchnorm4_running_var, ty=TensorType([32], int16))], relay.attrs.BatchNormAttrs(0x2f7c7a8), []), 0)]
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 32, 16, 16]
+0: (RelayOperators.RelayConv2D [198, 200, 12, 13, 11, 119, 146, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [202])
+Found tuplegetitem: False
+2: (access-tensor [204])
+Found tuplegetitem: False
+3: (access-tensor [206])
+Found tuplegetitem: False
+4: (access-tensor [208])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [197, 44])
+Found tuplegetitem: False
+1: (access-tensor [199])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (32 [])
+Found tuplegetitem: False
+6: (shape [119, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayBatchNormInference [188, 190, 192, 194, 196, 11, 28])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (RelayOperators.RelayConv2D [185, 187, 12, 13, 11, 119, 146, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [189])
+Found tuplegetitem: False
+2: (access-tensor [191])
+Found tuplegetitem: False
+3: (access-tensor [193])
+Found tuplegetitem: False
+4: (access-tensor [195])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [184, 44])
+Found tuplegetitem: False
+1: (access-tensor [186])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (32 [])
+Found tuplegetitem: False
+6: (shape [119, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayAdd [158, 183])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 32, 16, 16]
+0: (Symbol (cifarresnetv11_stage2_conv5_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (32 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_89;
+%var_89
+weight free_var %cifarresnetv11_stage2_conv5_weight: Tensor[(32, 32, 3, 3), int16];
+%cifarresnetv11_stage2_conv5_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 32
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage2_batchnorm5_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm5_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm5_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm5_running_var []))
+Found tuplegetitem: False
+dtype int16
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 32, 16, 16]
+0: (Symbol (cifarresnetv11_stage2_conv6_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (32 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_96;
+%var_96
+weight free_var %cifarresnetv11_stage2_conv6_weight: Tensor[(32, 32, 3, 3), int16];
+%cifarresnetv11_stage2_conv6_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 32
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage2_batchnorm6_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm6_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm6_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage2_batchnorm6_running_var []))
+Found tuplegetitem: False
+dtype int16
+try thing [Var(var_89), TupleGetItemNode(CallNode(Op(nn.batch_norm), [Var(var_101), Var(cifarresnetv11_stage2_batchnorm6_gamma, ty=TensorType([32], int16)), Var(cifarresnetv11_stage2_batchnorm6_beta, ty=TensorType([32], int16)), Var(cifarresnetv11_stage2_batchnorm6_running_mean, ty=TensorType([32], int16)), Var(cifarresnetv11_stage2_batchnorm6_running_var, ty=TensorType([32], int16))], relay.attrs.BatchNormAttrs(0x2f47cc8), []), 0)]
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 32, 16, 16]
+0: (Symbol (cifarresnetv11_stage3_conv2_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (2 [])
+Found tuplegetitem: False
+2: (2 [])
+Found tuplegetitem: False
+0: (0 [])
+Found tuplegetitem: False
+1: (0 [])
+Found tuplegetitem: False
+2: (0 [])
+Found tuplegetitem: False
+3: (0 [])
+Found tuplegetitem: False
+0: (32 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+data free_var %var_104;
+%var_104
+weight free_var %cifarresnetv11_stage3_conv2_weight: Tensor[(64, 32, 1, 1), int16];
+%cifarresnetv11_stage3_conv2_weight
+strides (2, 2)
+padding (0, 0, 0, 0)
+groups 1
+channels 64
+kernel_size [1, 1]
+0: (Symbol (cifarresnetv11_stage3_batchnorm2_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm2_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm2_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm2_running_var []))
+Found tuplegetitem: False
+dtype int16
+0: (RelayOperators.RelayConv2D [239, 241, 12, 13, 11, 215, 242, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [244])
+Found tuplegetitem: False
+2: (access-tensor [246])
+Found tuplegetitem: False
+3: (access-tensor [248])
+Found tuplegetitem: False
+4: (access-tensor [250])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [238, 44])
+Found tuplegetitem: False
+1: (access-tensor [240])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (64 [])
+Found tuplegetitem: False
+6: (shape [215, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayBatchNormInference [229, 231, 233, 235, 237, 11, 28])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (RelayOperators.RelayConv2D [212, 228, 117, 13, 11, 215, 146, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [230])
+Found tuplegetitem: False
+2: (access-tensor [232])
+Found tuplegetitem: False
+3: (access-tensor [234])
+Found tuplegetitem: False
+4: (access-tensor [236])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [211, 44])
+Found tuplegetitem: False
+1: (access-tensor [227])
+Found tuplegetitem: False
+2: (shape [11, 116, 116])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (64 [])
+Found tuplegetitem: False
+6: (shape [119, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (Symbol (cifarresnetv11_stage3_conv0_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (2 [])
+Found tuplegetitem: False
+2: (2 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (32 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_104;
+%var_104
+weight free_var %cifarresnetv11_stage3_conv0_weight: Tensor[(64, 32, 3, 3), int16];
+%cifarresnetv11_stage3_conv0_weight
+strides (2, 2)
+padding (1, 1, 1, 1)
+groups 1
+channels 64
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage3_batchnorm0_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm0_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm0_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm0_running_var []))
+Found tuplegetitem: False
+dtype int16
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 64, 8, 8]
+0: (Symbol (cifarresnetv11_stage3_conv1_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (64 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_117;
+%var_117
+weight free_var %cifarresnetv11_stage3_conv1_weight: Tensor[(64, 64, 3, 3), int16];
+%cifarresnetv11_stage3_conv1_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 64
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage3_batchnorm1_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm1_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm1_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm1_running_var []))
+Found tuplegetitem: False
+dtype int16
+try thing [TupleGetItemNode(CallNode(Op(nn.batch_norm), [Var(var_109), Var(cifarresnetv11_stage3_batchnorm2_gamma, ty=TensorType([64], int16)), Var(cifarresnetv11_stage3_batchnorm2_beta, ty=TensorType([64], int16)), Var(cifarresnetv11_stage3_batchnorm2_running_mean, ty=TensorType([64], int16)), Var(cifarresnetv11_stage3_batchnorm2_running_var, ty=TensorType([64], int16))], relay.attrs.BatchNormAttrs(0x2f29ee8), []), 0), TupleGetItemNode(CallNode(Op(nn.batch_norm), [Var(var_122), Var(cifarresnetv11_stage3_batchnorm1_gamma, ty=TensorType([64], int16)), Var(cifarresnetv11_stage3_batchnorm1_beta, ty=TensorType([64], int16)), Var(cifarresnetv11_stage3_batchnorm1_running_mean, ty=TensorType([64], int16)), Var(cifarresnetv11_stage3_batchnorm1_running_var, ty=TensorType([64], int16))], relay.attrs.BatchNormAttrs(0x2ee5fa8), []), 0)]
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 64, 8, 8]
+0: (RelayOperators.RelayConv2D [267, 269, 12, 13, 11, 215, 242, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [271])
+Found tuplegetitem: False
+2: (access-tensor [273])
+Found tuplegetitem: False
+3: (access-tensor [275])
+Found tuplegetitem: False
+4: (access-tensor [277])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [266, 44])
+Found tuplegetitem: False
+1: (access-tensor [268])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (64 [])
+Found tuplegetitem: False
+6: (shape [215, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayBatchNormInference [257, 259, 261, 263, 265, 11, 28])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (RelayOperators.RelayConv2D [254, 256, 12, 13, 11, 215, 242, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [258])
+Found tuplegetitem: False
+2: (access-tensor [260])
+Found tuplegetitem: False
+3: (access-tensor [262])
+Found tuplegetitem: False
+4: (access-tensor [264])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [253, 44])
+Found tuplegetitem: False
+1: (access-tensor [255])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (64 [])
+Found tuplegetitem: False
+6: (shape [215, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayAdd [226, 252])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 64, 8, 8]
+0: (Symbol (cifarresnetv11_stage3_conv3_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (64 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_125;
+%var_125
+weight free_var %cifarresnetv11_stage3_conv3_weight: Tensor[(64, 64, 3, 3), int16];
+%cifarresnetv11_stage3_conv3_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 64
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage3_batchnorm3_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm3_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm3_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm3_running_var []))
+Found tuplegetitem: False
+dtype int16
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 64, 8, 8]
+0: (Symbol (cifarresnetv11_stage3_conv4_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (64 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_132;
+%var_132
+weight free_var %cifarresnetv11_stage3_conv4_weight: Tensor[(64, 64, 3, 3), int16];
+%cifarresnetv11_stage3_conv4_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 64
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage3_batchnorm4_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm4_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm4_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm4_running_var []))
+Found tuplegetitem: False
+dtype int16
+try thing [Var(var_125), TupleGetItemNode(CallNode(Op(nn.batch_norm), [Var(var_137), Var(cifarresnetv11_stage3_batchnorm4_gamma, ty=TensorType([64], int16)), Var(cifarresnetv11_stage3_batchnorm4_beta, ty=TensorType([64], int16)), Var(cifarresnetv11_stage3_batchnorm4_running_mean, ty=TensorType([64], int16)), Var(cifarresnetv11_stage3_batchnorm4_running_var, ty=TensorType([64], int16))], relay.attrs.BatchNormAttrs(0x2fdcb58), []), 0)]
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 64, 8, 8]
+0: (RelayOperators.RelayConv2D [294, 296, 12, 13, 11, 215, 242, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [298])
+Found tuplegetitem: False
+2: (access-tensor [300])
+Found tuplegetitem: False
+3: (access-tensor [302])
+Found tuplegetitem: False
+4: (access-tensor [304])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [293, 44])
+Found tuplegetitem: False
+1: (access-tensor [295])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (64 [])
+Found tuplegetitem: False
+6: (shape [215, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayBatchNormInference [284, 286, 288, 290, 292, 11, 28])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (RelayOperators.RelayConv2D [281, 283, 12, 13, 11, 215, 242, 17, 18])
+Found tuplegetitem: False
+1: (access-tensor [285])
+Found tuplegetitem: False
+2: (access-tensor [287])
+Found tuplegetitem: False
+3: (access-tensor [289])
+Found tuplegetitem: False
+4: (access-tensor [291])
+Found tuplegetitem: False
+5: (1 [])
+Found tuplegetitem: False
+6: (0.00001 [])
+Found tuplegetitem: False
+0: (nvdla-layerrelu [280, 44])
+Found tuplegetitem: False
+1: (access-tensor [282])
+Found tuplegetitem: False
+2: (shape [11, 11, 11])
+Found tuplegetitem: False
+3: (shape [11, 11, 11, 11])
+Found tuplegetitem: False
+4: (1 [])
+Found tuplegetitem: False
+5: (64 [])
+Found tuplegetitem: False
+6: (shape [215, 15, 15])
+Found tuplegetitem: False
+7: RelayActivationLayout.NCHW
+Found tuplegetitem: False
+8: RelayKernelLayout.OIHW
+Found tuplegetitem: False
+0: (RelayOperators.RelayAdd [254, 279])
+Found tuplegetitem: False
+1: (shape [43])
+Found tuplegetitem: False
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 64, 8, 8]
+0: (Symbol (cifarresnetv11_stage3_conv5_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (64 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_140;
+%var_140
+weight free_var %cifarresnetv11_stage3_conv5_weight: Tensor[(64, 64, 3, 3), int16];
+%cifarresnetv11_stage3_conv5_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 64
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage3_batchnorm5_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm5_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm5_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm5_running_var []))
+Found tuplegetitem: False
+dtype int16
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 64, 8, 8]
+0: (Symbol (cifarresnetv11_stage3_conv6_weight []))
+Found tuplegetitem: False
+dtype int16
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+0: (1 [])
+Found tuplegetitem: False
+1: (1 [])
+Found tuplegetitem: False
+2: (1 [])
+Found tuplegetitem: False
+3: (1 [])
+Found tuplegetitem: False
+0: (64 [])
+Found tuplegetitem: False
+1: (3 [])
+Found tuplegetitem: False
+2: (3 [])
+Found tuplegetitem: False
+data free_var %var_147;
+%var_147
+weight free_var %cifarresnetv11_stage3_conv6_weight: Tensor[(64, 64, 3, 3), int16];
+%cifarresnetv11_stage3_conv6_weight
+strides (1, 1)
+padding (1, 1, 1, 1)
+groups 1
+channels 64
+kernel_size [3, 3]
+0: (Symbol (cifarresnetv11_stage3_batchnorm6_gamma []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm6_beta []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm6_running_mean []))
+Found tuplegetitem: False
+dtype int16
+0: (Symbol (cifarresnetv11_stage3_batchnorm6_running_var []))
+Found tuplegetitem: False
+dtype int16
+try thing [Var(var_140), TupleGetItemNode(CallNode(Op(nn.batch_norm), [Var(var_152), Var(cifarresnetv11_stage3_batchnorm6_gamma, ty=TensorType([64], int16)), Var(cifarresnetv11_stage3_batchnorm6_beta, ty=TensorType([64], int16)), Var(cifarresnetv11_stage3_batchnorm6_running_mean, ty=TensorType([64], int16)), Var(cifarresnetv11_stage3_batchnorm6_running_var, ty=TensorType([64], int16))], relay.attrs.BatchNormAttrs(0x2fd8f48), []), 0)]
+0: (0 [])
+Found tuplegetitem: False
+reacheddd hereee
+infered type:  [1, 64, 8, 8]
+0: (Symbol (cifarresnetv11_dense0_weight []))
+Found tuplegetitem: False
+dtype int16
+try thing [Var(var_157), Var(cifarresnetv11_dense0_weight, ty=TensorType([10, 64], int16))]
+0: (Symbol (cifarresnetv11_dense0_bias []))
+Found tuplegetitem: False
+dtype int16
+------------------------------------------
+------------------------------------------
+------------------------------------------
+free_var %data: Tensor[(1, 3, 32, 32), int16];
+free_var %cifarresnetv11_conv0_weight: Tensor[(16, 3, 3, 3), int16];
+let %var_7 = nn.conv2d(%data, %cifarresnetv11_conv0_weight, padding=[1, 1, 1, 1], channels=16, kernel_size=[3, 3], out_dtype="int16");
+free_var %cifarresnetv11_batchnorm0_gamma: Tensor[(16), int16];
+free_var %cifarresnetv11_batchnorm0_beta: Tensor[(16), int16];
+free_var %cifarresnetv11_batchnorm0_running_mean: Tensor[(16), int16];
+free_var %cifarresnetv11_batchnorm0_running_var: Tensor[(16), int16];
+%0 = nn.batch_norm(%var_7, %cifarresnetv11_batchnorm0_gamma, %cifarresnetv11_batchnorm0_beta, %cifarresnetv11_batchnorm0_running_mean, %cifarresnetv11_batchnorm0_running_var);
+%1 = %0.0;
+free_var %cifarresnetv11_stage1_conv0_weight: Tensor[(16, 16, 3, 3), int16];
+let %var_13 = nn.conv2d(%1, %cifarresnetv11_stage1_conv0_weight, padding=[1, 1, 1, 1], channels=16, kernel_size=[3, 3], out_dtype="int16");
+%3 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_0") -> Tensor[(1, 16, 32, 32), int16] {
+  %2 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 16, 32, 32), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 16, 32, 32], output_dtype="int16")
+  };
+  %2()
+};
+let %var_15 = %3();
+free_var %cifarresnetv11_stage1_conv1_weight: Tensor[(16, 16, 3, 3), int16];
+let %var_20 = nn.conv2d(%var_15, %cifarresnetv11_stage1_conv1_weight, padding=[1, 1, 1, 1], channels=16, kernel_size=[3, 3], out_dtype="int16");
+%4 = nn.batch_norm(%var_7, %cifarresnetv11_batchnorm0_gamma, %cifarresnetv11_batchnorm0_beta, %cifarresnetv11_batchnorm0_running_mean, %cifarresnetv11_batchnorm0_running_var);
+free_var %cifarresnetv11_stage1_batchnorm1_gamma: Tensor[(16), int16];
+free_var %cifarresnetv11_stage1_batchnorm1_beta: Tensor[(16), int16];
+free_var %cifarresnetv11_stage1_batchnorm1_running_mean: Tensor[(16), int16];
+free_var %cifarresnetv11_stage1_batchnorm1_running_var: Tensor[(16), int16];
+%5 = nn.batch_norm(%var_20, %cifarresnetv11_stage1_batchnorm1_gamma, %cifarresnetv11_stage1_batchnorm1_beta, %cifarresnetv11_stage1_batchnorm1_running_mean, %cifarresnetv11_stage1_batchnorm1_running_var);
+%6 = %4.0;
+%7 = %5.0;
+let %var_21 = add(%6, %7);
+%9 = fn (%outer_arg_0, Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_2") -> Tensor[(1, 16, 32, 32), int16] {
+  %8 = fn (%inner_arg_0, Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 16, 32, 32), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 16, 32, 32], output_dtype="int16")
+  };
+  %8(%outer_arg_0)
+};
+let %var_23 = %9(%var_21);
+free_var %cifarresnetv11_stage1_conv2_weight: Tensor[(16, 16, 3, 3), int16];
+let %var_28 = nn.conv2d(%var_23, %cifarresnetv11_stage1_conv2_weight, padding=[1, 1, 1, 1], channels=16, kernel_size=[3, 3], out_dtype="int16");
+%11 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_3") -> Tensor[(1, 16, 32, 32), int16] {
+  %10 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 16, 32, 32), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 16, 32, 32], output_dtype="int16")
+  };
+  %10()
+};
+let %var_30 = %11();
+free_var %cifarresnetv11_stage1_conv3_weight: Tensor[(16, 16, 3, 3), int16];
+let %var_35 = nn.conv2d(%var_30, %cifarresnetv11_stage1_conv3_weight, padding=[1, 1, 1, 1], channels=16, kernel_size=[3, 3], out_dtype="int16");
+free_var %cifarresnetv11_stage1_batchnorm3_gamma: Tensor[(16), int16];
+free_var %cifarresnetv11_stage1_batchnorm3_beta: Tensor[(16), int16];
+free_var %cifarresnetv11_stage1_batchnorm3_running_mean: Tensor[(16), int16];
+free_var %cifarresnetv11_stage1_batchnorm3_running_var: Tensor[(16), int16];
+%12 = nn.batch_norm(%var_35, %cifarresnetv11_stage1_batchnorm3_gamma, %cifarresnetv11_stage1_batchnorm3_beta, %cifarresnetv11_stage1_batchnorm3_running_mean, %cifarresnetv11_stage1_batchnorm3_running_var);
+%13 = %12.0;
+let %var_36 = add(%var_23, %13);
+%15 = fn (%outer_arg_01, Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_5") -> Tensor[(1, 16, 32, 32), int16] {
+  %14 = fn (%inner_arg_01, Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 16, 32, 32), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 16, 32, 32], output_dtype="int16")
+  };
+  %14(%outer_arg_01)
+};
+let %var_38 = %15(%var_36);
+free_var %cifarresnetv11_stage1_conv4_weight: Tensor[(16, 16, 3, 3), int16];
+let %var_43 = nn.conv2d(%var_38, %cifarresnetv11_stage1_conv4_weight, padding=[1, 1, 1, 1], channels=16, kernel_size=[3, 3], out_dtype="int16");
+%17 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_6") -> Tensor[(1, 16, 32, 32), int16] {
+  %16 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 16, 32, 32), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 16, 32, 32], output_dtype="int16")
+  };
+  %16()
+};
+let %var_45 = %17();
+free_var %cifarresnetv11_stage1_conv5_weight: Tensor[(16, 16, 3, 3), int16];
+let %var_50 = nn.conv2d(%var_45, %cifarresnetv11_stage1_conv5_weight, padding=[1, 1, 1, 1], channels=16, kernel_size=[3, 3], out_dtype="int16");
+free_var %cifarresnetv11_stage1_batchnorm5_gamma: Tensor[(16), int16];
+free_var %cifarresnetv11_stage1_batchnorm5_beta: Tensor[(16), int16];
+free_var %cifarresnetv11_stage1_batchnorm5_running_mean: Tensor[(16), int16];
+free_var %cifarresnetv11_stage1_batchnorm5_running_var: Tensor[(16), int16];
+%18 = nn.batch_norm(%var_50, %cifarresnetv11_stage1_batchnorm5_gamma, %cifarresnetv11_stage1_batchnorm5_beta, %cifarresnetv11_stage1_batchnorm5_running_mean, %cifarresnetv11_stage1_batchnorm5_running_var);
+%19 = %18.0;
+let %var_51 = add(%var_38, %19);
+%21 = fn (%outer_arg_02, Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_7") -> Tensor[(1, 16, 32, 32), int16] {
+  %20 = fn (%inner_arg_02, Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 16, 32, 32), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 16, 32, 32], output_dtype="int16")
+  };
+  %20(%outer_arg_02)
+};
+let %var_53 = %21(%var_51);
+free_var %cifarresnetv11_stage2_conv2_weight: Tensor[(32, 16, 1, 1), int16];
+let %var_58 = nn.conv2d(%var_53, %cifarresnetv11_stage2_conv2_weight, strides=[2, 2], padding=[0, 0, 0, 0], channels=32, kernel_size=[1, 1], out_dtype="int16");
+free_var %cifarresnetv11_stage2_conv0_weight: Tensor[(32, 16, 3, 3), int16];
+let %var_64 = nn.conv2d(%var_53, %cifarresnetv11_stage2_conv0_weight, strides=[2, 2], padding=[1, 1, 1, 1], channels=32, kernel_size=[3, 3], out_dtype="int16");
+%23 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_8") -> Tensor[(1, 32, 16, 16), int16] {
+  %22 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 32, 16, 16), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 32, 16, 16], output_dtype="int16")
+  };
+  %22()
+};
+let %var_66 = %23();
+free_var %cifarresnetv11_stage2_conv1_weight: Tensor[(32, 32, 3, 3), int16];
+let %var_71 = nn.conv2d(%var_66, %cifarresnetv11_stage2_conv1_weight, padding=[1, 1, 1, 1], channels=32, kernel_size=[3, 3], out_dtype="int16");
+free_var %cifarresnetv11_stage2_batchnorm2_gamma: Tensor[(32), int16];
+free_var %cifarresnetv11_stage2_batchnorm2_beta: Tensor[(32), int16];
+free_var %cifarresnetv11_stage2_batchnorm2_running_mean: Tensor[(32), int16];
+free_var %cifarresnetv11_stage2_batchnorm2_running_var: Tensor[(32), int16];
+%24 = nn.batch_norm(%var_58, %cifarresnetv11_stage2_batchnorm2_gamma, %cifarresnetv11_stage2_batchnorm2_beta, %cifarresnetv11_stage2_batchnorm2_running_mean, %cifarresnetv11_stage2_batchnorm2_running_var);
+free_var %cifarresnetv11_stage2_batchnorm1_gamma: Tensor[(32), int16];
+free_var %cifarresnetv11_stage2_batchnorm1_beta: Tensor[(32), int16];
+free_var %cifarresnetv11_stage2_batchnorm1_running_mean: Tensor[(32), int16];
+free_var %cifarresnetv11_stage2_batchnorm1_running_var: Tensor[(32), int16];
+%25 = nn.batch_norm(%var_71, %cifarresnetv11_stage2_batchnorm1_gamma, %cifarresnetv11_stage2_batchnorm1_beta, %cifarresnetv11_stage2_batchnorm1_running_mean, %cifarresnetv11_stage2_batchnorm1_running_var);
+%26 = %24.0;
+%27 = %25.0;
+let %var_72 = add(%26, %27);
+%29 = fn (%outer_arg_03, Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_10") -> Tensor[(1, 32, 16, 16), int16] {
+  %28 = fn (%inner_arg_03, Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 32, 16, 16), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 32, 16, 16], output_dtype="int16")
+  };
+  %28(%outer_arg_03)
+};
+let %var_74 = %29(%var_72);
+free_var %cifarresnetv11_stage2_conv3_weight: Tensor[(32, 32, 3, 3), int16];
+let %var_79 = nn.conv2d(%var_74, %cifarresnetv11_stage2_conv3_weight, padding=[1, 1, 1, 1], channels=32, kernel_size=[3, 3], out_dtype="int16");
+%31 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_11") -> Tensor[(1, 32, 16, 16), int16] {
+  %30 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 32, 16, 16), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 32, 16, 16], output_dtype="int16")
+  };
+  %30()
+};
+let %var_81 = %31();
+free_var %cifarresnetv11_stage2_conv4_weight: Tensor[(32, 32, 3, 3), int16];
+let %var_86 = nn.conv2d(%var_81, %cifarresnetv11_stage2_conv4_weight, padding=[1, 1, 1, 1], channels=32, kernel_size=[3, 3], out_dtype="int16");
+free_var %cifarresnetv11_stage2_batchnorm4_gamma: Tensor[(32), int16];
+free_var %cifarresnetv11_stage2_batchnorm4_beta: Tensor[(32), int16];
+free_var %cifarresnetv11_stage2_batchnorm4_running_mean: Tensor[(32), int16];
+free_var %cifarresnetv11_stage2_batchnorm4_running_var: Tensor[(32), int16];
+%32 = nn.batch_norm(%var_86, %cifarresnetv11_stage2_batchnorm4_gamma, %cifarresnetv11_stage2_batchnorm4_beta, %cifarresnetv11_stage2_batchnorm4_running_mean, %cifarresnetv11_stage2_batchnorm4_running_var);
+%33 = %32.0;
+let %var_87 = add(%var_74, %33);
+%35 = fn (%outer_arg_04, Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_13") -> Tensor[(1, 32, 16, 16), int16] {
+  %34 = fn (%inner_arg_04, Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 32, 16, 16), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 32, 16, 16], output_dtype="int16")
+  };
+  %34(%outer_arg_04)
+};
+let %var_89 = %35(%var_87);
+free_var %cifarresnetv11_stage2_conv5_weight: Tensor[(32, 32, 3, 3), int16];
+let %var_94 = nn.conv2d(%var_89, %cifarresnetv11_stage2_conv5_weight, padding=[1, 1, 1, 1], channels=32, kernel_size=[3, 3], out_dtype="int16");
+%37 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_14") -> Tensor[(1, 32, 16, 16), int16] {
+  %36 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 32, 16, 16), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 32, 16, 16], output_dtype="int16")
+  };
+  %36()
+};
+let %var_96 = %37();
+free_var %cifarresnetv11_stage2_conv6_weight: Tensor[(32, 32, 3, 3), int16];
+let %var_101 = nn.conv2d(%var_96, %cifarresnetv11_stage2_conv6_weight, padding=[1, 1, 1, 1], channels=32, kernel_size=[3, 3], out_dtype="int16");
+free_var %cifarresnetv11_stage2_batchnorm6_gamma: Tensor[(32), int16];
+free_var %cifarresnetv11_stage2_batchnorm6_beta: Tensor[(32), int16];
+free_var %cifarresnetv11_stage2_batchnorm6_running_mean: Tensor[(32), int16];
+free_var %cifarresnetv11_stage2_batchnorm6_running_var: Tensor[(32), int16];
+%38 = nn.batch_norm(%var_101, %cifarresnetv11_stage2_batchnorm6_gamma, %cifarresnetv11_stage2_batchnorm6_beta, %cifarresnetv11_stage2_batchnorm6_running_mean, %cifarresnetv11_stage2_batchnorm6_running_var);
+%39 = %38.0;
+let %var_102 = add(%var_89, %39);
+%41 = fn (%outer_arg_05, Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_15") -> Tensor[(1, 32, 16, 16), int16] {
+  %40 = fn (%inner_arg_05, Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 32, 16, 16), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 32, 16, 16], output_dtype="int16")
+  };
+  %40(%outer_arg_05)
+};
+let %var_104 = %41(%var_102);
+free_var %cifarresnetv11_stage3_conv2_weight: Tensor[(64, 32, 1, 1), int16];
+let %var_109 = nn.conv2d(%var_104, %cifarresnetv11_stage3_conv2_weight, strides=[2, 2], padding=[0, 0, 0, 0], channels=64, kernel_size=[1, 1], out_dtype="int16");
+free_var %cifarresnetv11_stage3_conv0_weight: Tensor[(64, 32, 3, 3), int16];
+let %var_115 = nn.conv2d(%var_104, %cifarresnetv11_stage3_conv0_weight, strides=[2, 2], padding=[1, 1, 1, 1], channels=64, kernel_size=[3, 3], out_dtype="int16");
+%43 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_16") -> Tensor[(1, 64, 8, 8), int16] {
+  %42 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 64, 8, 8), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 64, 8, 8], output_dtype="int16")
+  };
+  %42()
+};
+let %var_117 = %43();
+free_var %cifarresnetv11_stage3_conv1_weight: Tensor[(64, 64, 3, 3), int16];
+let %var_122 = nn.conv2d(%var_117, %cifarresnetv11_stage3_conv1_weight, padding=[1, 1, 1, 1], channels=64, kernel_size=[3, 3], out_dtype="int16");
+free_var %cifarresnetv11_stage3_batchnorm2_gamma: Tensor[(64), int16];
+free_var %cifarresnetv11_stage3_batchnorm2_beta: Tensor[(64), int16];
+free_var %cifarresnetv11_stage3_batchnorm2_running_mean: Tensor[(64), int16];
+free_var %cifarresnetv11_stage3_batchnorm2_running_var: Tensor[(64), int16];
+%44 = nn.batch_norm(%var_109, %cifarresnetv11_stage3_batchnorm2_gamma, %cifarresnetv11_stage3_batchnorm2_beta, %cifarresnetv11_stage3_batchnorm2_running_mean, %cifarresnetv11_stage3_batchnorm2_running_var);
+free_var %cifarresnetv11_stage3_batchnorm1_gamma: Tensor[(64), int16];
+free_var %cifarresnetv11_stage3_batchnorm1_beta: Tensor[(64), int16];
+free_var %cifarresnetv11_stage3_batchnorm1_running_mean: Tensor[(64), int16];
+free_var %cifarresnetv11_stage3_batchnorm1_running_var: Tensor[(64), int16];
+%45 = nn.batch_norm(%var_122, %cifarresnetv11_stage3_batchnorm1_gamma, %cifarresnetv11_stage3_batchnorm1_beta, %cifarresnetv11_stage3_batchnorm1_running_mean, %cifarresnetv11_stage3_batchnorm1_running_var);
+%46 = %44.0;
+%47 = %45.0;
+let %var_123 = add(%46, %47);
+%49 = fn (%outer_arg_06, Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_18") -> Tensor[(1, 64, 8, 8), int16] {
+  %48 = fn (%inner_arg_06, Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 64, 8, 8), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 64, 8, 8], output_dtype="int16")
+  };
+  %48(%outer_arg_06)
+};
+let %var_125 = %49(%var_123);
+free_var %cifarresnetv11_stage3_conv3_weight: Tensor[(64, 64, 3, 3), int16];
+let %var_130 = nn.conv2d(%var_125, %cifarresnetv11_stage3_conv3_weight, padding=[1, 1, 1, 1], channels=64, kernel_size=[3, 3], out_dtype="int16");
+%51 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_19") -> Tensor[(1, 64, 8, 8), int16] {
+  %50 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 64, 8, 8), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 64, 8, 8], output_dtype="int16")
+  };
+  %50()
+};
+let %var_132 = %51();
+free_var %cifarresnetv11_stage3_conv4_weight: Tensor[(64, 64, 3, 3), int16];
+let %var_137 = nn.conv2d(%var_132, %cifarresnetv11_stage3_conv4_weight, padding=[1, 1, 1, 1], channels=64, kernel_size=[3, 3], out_dtype="int16");
+free_var %cifarresnetv11_stage3_batchnorm4_gamma: Tensor[(64), int16];
+free_var %cifarresnetv11_stage3_batchnorm4_beta: Tensor[(64), int16];
+free_var %cifarresnetv11_stage3_batchnorm4_running_mean: Tensor[(64), int16];
+free_var %cifarresnetv11_stage3_batchnorm4_running_var: Tensor[(64), int16];
+%52 = nn.batch_norm(%var_137, %cifarresnetv11_stage3_batchnorm4_gamma, %cifarresnetv11_stage3_batchnorm4_beta, %cifarresnetv11_stage3_batchnorm4_running_mean, %cifarresnetv11_stage3_batchnorm4_running_var);
+%53 = %52.0;
+let %var_138 = add(%var_125, %53);
+%55 = fn (%outer_arg_07, Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_21") -> Tensor[(1, 64, 8, 8), int16] {
+  %54 = fn (%inner_arg_07, Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 64, 8, 8), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 64, 8, 8], output_dtype="int16")
+  };
+  %54(%outer_arg_07)
+};
+let %var_140 = %55(%var_138);
+free_var %cifarresnetv11_stage3_conv5_weight: Tensor[(64, 64, 3, 3), int16];
+let %var_145 = nn.conv2d(%var_140, %cifarresnetv11_stage3_conv5_weight, padding=[1, 1, 1, 1], channels=64, kernel_size=[3, 3], out_dtype="int16");
+%57 = fn (Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_22") -> Tensor[(1, 64, 8, 8), int16] {
+  %56 = fn (Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 64, 8, 8), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 64, 8, 8], output_dtype="int16")
+  };
+  %56()
+};
+let %var_147 = %57();
+free_var %cifarresnetv11_stage3_conv6_weight: Tensor[(64, 64, 3, 3), int16];
+let %var_152 = nn.conv2d(%var_147, %cifarresnetv11_stage3_conv6_weight, padding=[1, 1, 1, 1], channels=64, kernel_size=[3, 3], out_dtype="int16");
+free_var %cifarresnetv11_stage3_batchnorm6_gamma: Tensor[(64), int16];
+free_var %cifarresnetv11_stage3_batchnorm6_beta: Tensor[(64), int16];
+free_var %cifarresnetv11_stage3_batchnorm6_running_mean: Tensor[(64), int16];
+free_var %cifarresnetv11_stage3_batchnorm6_running_var: Tensor[(64), int16];
+%58 = nn.batch_norm(%var_152, %cifarresnetv11_stage3_batchnorm6_gamma, %cifarresnetv11_stage3_batchnorm6_beta, %cifarresnetv11_stage3_batchnorm6_running_mean, %cifarresnetv11_stage3_batchnorm6_running_var);
+%59 = %58.0;
+let %var_153 = add(%var_140, %59);
+%61 = fn (%outer_arg_08, Compiler="ilanvdla", Primitive=1, global_symbol="ilanvdla.sdp.layer_relu_23") -> Tensor[(1, 64, 8, 8), int16] {
+  %60 = fn (%inner_arg_08, Composite="ilanvdla.sdp.layer_relu") -> Tensor[(1, 64, 8, 8), int16] {
+    accelerator_call(func_name="nvdla-layerrelu", output_shape=[1, 64, 8, 8], output_dtype="int16")
+  };
+  %60(%outer_arg_08)
+};
+let %var_154 = %61(%var_153);
+let %var_155 = nn.global_avg_pool2d(%var_154);
+let %var_157 = reshape(%var_155, newshape=[1, 64]);
+free_var %cifarresnetv11_dense0_weight: Tensor[(10, 64), int16];
+let %var_159 = nn.dense(%var_157, %cifarresnetv11_dense0_weight, units=None);
+free_var %cifarresnetv11_dense0_bias: Tensor[(10), int16];
+nn.bias_add(%var_159, %cifarresnetv11_dense0_bias)
+Compiled model saved to resnet20_int16-rewritten.relay
+Files already downloaded and verified
+Step 1: Run EqSat with nvdla
+Step 2: Compiling back to Relay with resnet20_int16-rewritten.json and resnet20_int16-data.json
+Vanilla relay:
+ALL overloads: 0
+ALL Ops: 73
+ALL Ops in overloads = 0 * #ops per pattern
+EqSat model:
+ALL overloads: 18
+ALL Ops: 64
+ALL Ops in overloads = 18 * #ops per pattern

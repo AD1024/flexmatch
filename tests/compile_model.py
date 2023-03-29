@@ -7,6 +7,7 @@ from tvm import relay
 from tvm.relay import nn
 from megraph.language import RelayOperators
 
+
 def main(relay_file, output_filename, model_json, data_json, *configs, debug=False):
     home_dir = os.environ.get('FLEXMATCH_HOME')
     if home_dir:
@@ -23,26 +24,30 @@ def main(relay_file, output_filename, model_json, data_json, *configs, debug=Fal
                     out_dtypes.update(cfg.get('out_dtypes', {}))
                     debug_funcs.update(
                         dict(map(lambda pi: (pi[0], eval(pi[1])),
-                        cfg.get('debug_functions', {}).items()))
+                                 cfg.get('debug_functions', {}).items()))
                     )
             except Exception as e:
                 print(f'Error caught when reading {config}:\n{e}')
+
         with open(relay_file, 'r') as fp:
             src = fp.read()
             source_model = tvm.parser.fromtext(src)
-        
+
         with open(model_json, 'r') as fp:
             expr_data = json.load(fp)
         with open(data_json, 'r') as fp:
             analysis_data = json.load(fp)
-            analysis_data = dict(map(lambda pi: (int(pi[0]), pi[1]), analysis_data.items()))
+            analysis_data = dict(
+                map(lambda pi: (int(pi[0]), pi[1]), analysis_data.items()))
         shape_dict = dict()
         dtype_dict = dict()
         for args in source_model['main'].params:
             shape_dict[args.name_hint] = tuple(args.type_annotation.shape)
             dtype_dict[args.name_hint] = args.type_annotation.dtype
-        recexpr_compiler = megraph.RecExprCompiler(composites, compilers, debug_funcs)
-        compiled_expr = recexpr_compiler.to_relay_expr(expr_data, shape_dict, dtype_dict, analysis_data, out_dtypes, use_debug_func=debug)
+        recexpr_compiler = megraph.RecExprCompiler(
+            composites, compilers, debug_funcs)
+        compiled_expr = recexpr_compiler.to_relay_expr(
+            expr_data, shape_dict, dtype_dict, analysis_data, out_dtypes, use_debug_func=debug)
         mod = tvm.ir.IRModule.from_expr(compiled_expr)
         with open(output_filename, 'w') as f:
             f.write(mod.astext())
@@ -58,8 +63,11 @@ def main(relay_file, output_filename, model_json, data_json, *configs, debug=Fal
     else:
         print('FLEXMATCH_HOME not set')
 
+
 if __name__ == '__main__':
     if len(sys.argv) < 6:
-        print('compile_model.py relay_src output_file rewritten_json data_json configs Optional[debug]')
+        print(
+            'compile_model.py relay_src output_file rewritten_json data_json configs Optional[debug]')
     else:
-        main(*filter(lambda x: not x.startswith('--'), sys.argv[1:]), debug='--debug' in sys.argv)
+        main(*filter(lambda x: not x.startswith('--'),
+             sys.argv[1:]), debug='--debug' in sys.argv)
