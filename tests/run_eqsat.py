@@ -24,11 +24,6 @@ def main(relay_file, output_filename, configs, use_ilp):
         os.path.join(cur_dir, f'{output_filename}-data.json'),
         ' '.join(configs)
     )
-    # print('GOT HEREE!!!!! -<<DF_AF<>', os.path.join(home_dir, 'flexmatch'))
-    # print(['./target/debug/flexmatch',
-    #        relay_file,
-    #        model_rewrite_file,
-    #        analysis_data_file])
     try:
         subprocess.run(cwd=os.path.join(home_dir, 'flexmatch'),
                        args=['./target/debug/flexmatch',

@@ -100,7 +100,6 @@ fn main() {
         } else {
             &args[4..]
         };
-
         let aggregated_configs = read_configs(&flexmatch_home, config_files);
         let mut rewrites = vec![];
         let mut rewrite_set = HashSet::new();
@@ -122,6 +121,7 @@ fn main() {
         let relay_src = fs::read_to_string(PathBuf::from(source_file)).unwrap();
         let module: tvm::ir::module::IRModule =
             tvm::ir::module::IRModule::parse("", relay_src).unwrap();
+
         info!("Compiling to Glenside");
         let (expr, shape_info, dtype_info, equiv_worklist) =
             glenside::language::from_relay::from_relay(

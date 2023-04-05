@@ -35,6 +35,8 @@ class RelayOperators(enum.Enum):
     RelayBiasAdd = nn.bias_add,
     RelayDense = nn.dense,
     RelayReshape = relay.reshape,
+    RelaySum = relay.sum,
+    RelaySubtract = relay.subtract,
     RelayAdd = relay.add,
     RelaySigmoid = relay.sigmoid,
     RelayMaximum = relay.maximum,
@@ -42,6 +44,7 @@ class RelayOperators(enum.Enum):
     RelayEqual = relay.equal,
     RelayMean = relay.mean,
     RelayMultiply = relay.multiply,
+    RelayFixedPointMultiply = relay.fixed_point_multiply,
     RelayErf = relay.erf,
     RelayConv1D = relay.nn.conv1d,
     RelayConv2D = relay.nn.conv2d,
@@ -65,7 +68,6 @@ class RelayOperators(enum.Enum):
     RelayArgMax = relay.argmax,
 
     def __call__(self, *x, dtype='int16'):
-        # TODO: TDC/ MIKE relayEqual and RelayPrelu need to be implemented here
         # Handle special case of relay operator calls
         # could be mitigated by spliting parameters from attributes in glenside
         if self.value[0] == relay.zeros:
@@ -82,8 +84,14 @@ class RelayOperators(enum.Enum):
             return relay.nn.dropout_raw(x[0], rate=float(x[1]))
         if self.value[0] == relay.take:
             return relay.take(x[0], x[1], axis=int(x[2]))
-        if self.value[0] == relay.mean:
+        if self.value[0] == relay.nn.prelu:
+            return relay.nn.prelu(x[0], alpha=float(x[1]), axis=int(x[2]))
+        if self.value[0] == relay.fixed_point_multiply:
+            return relay.value[0](x[0], multiplier=x[1], shift=x[2])
+        if self.value[0] == relay.mean or self.value[0] == relay.sum:
             return self.value[0](x[0], axis=x[1], keepdims=int(x[2]) == 1)
+        if self.value[0] == relay.subtract or self.value[0] == relay.equal or self.value[0] == relay.add or self.value[0] == relay.multiply:
+            return self.value[0](x[0], x[1])
         if self.value[0] == relay.nn.bias_add:
             return self.value[0](x[0], x[1], axis=int(x[2]))
         if self.value[0] == relay.nn.batch_norm:
@@ -108,8 +116,9 @@ class RelayOperators(enum.Enum):
         if self.value[0] == relay.nn.softmax:
             return self.value[0](x[0], axis=int(x[1]))
         if self.value[0] == relay.nn.conv2d:
-            data_layout = x[-2].value
-            kernel_layout = x[-1].value
+            data_layout = x[-3].value
+            kernel_layout = x[-2].value
+            dtype = x[-1].value
             # Strides in Glenside includes the batch dimension, which is
             # not the case in relay
             # TODO: Assuming data is NCHW and kernel is OHWI
@@ -124,8 +133,8 @@ class RelayOperators(enum.Enum):
             return nn.avg_pool2d(x[0], pool_size=x[1], strides=x[2], padding=x[3], layout=data_layout)
 
         x = list(map(lambda x: relay.const(x) if isinstance(x, float) else x, x))
-        x = list(map(lambda x: relay.const(x, dtype='int16')
-                 if isinstance(x, int) else x, x))
+        # x = list(map(lambda x: relay.const(x, dtype='int16')
+        #          if isinstance(x, int) else x, x))
         try:
             return self.value[0](*x)
         except Exception as e:
@@ -149,6 +158,8 @@ class AcceleratorFunc(enum.Enum):
 class PadType(enum.Enum):
     ZeroPadding = 'zero-padding'
     MinPadding = 'min-padding'
+    IntPadding = 'int-padding'
+    FloatPadding = 'float-padding'
 
 
 class DType(enum.Enum):
@@ -275,7 +286,8 @@ class Access(ENode):
 
 
 class PadTypeNode(ENode):
-    pass
+    def __init__(self, data=None):
+        self.pad_data = data
 
 
 class AccessPair(ENode):
@@ -437,6 +449,9 @@ class RecExprCompiler:
                     return relay.nn.pad(ch_vars[0], pad_width, pad_value=0)
                 elif pad_type == PadType.MinPadding:
                     return relay.nn.pad(ch_vars[0], pad_width, pad_value=relay.min(ch_vars[0]))
+                elif pad_type == PadType.FloatPadding:
+                    pad_data = self.eclass_analysis[enode.children[1]]
+                    return relay.nn.pad(ch_vars[0], pad_width, pad_value=int(pad_data))
                 else:
                     raise Exception(f'Unkonw PadType: {str(pad_type)}')
             else:
@@ -642,6 +657,8 @@ def downcast(enode: ENode):
         'relay-batch-flatten': RelayOperators.RelayBatchFlatten,
         'relay-bias-add': RelayOperators.RelayBiasAdd,
         'relay-dense':    RelayOperators.RelayDense,
+        'relay-subtract': RelayOperators.RelaySubtract,
+        'relay-sum':      RelayOperators.RelaySum,
         'relay-add':      RelayOperators.RelayAdd,
         'relay-sigmoid':  RelayOperators.RelaySigmoid,
         'relay-minimum':  RelayOperators.RelayMinimum,
@@ -649,6 +666,7 @@ def downcast(enode: ENode):
         'relay-equal':    RelayOperators.RelayEqual,
         'relay-mean':     RelayOperators.RelayMean,
         'relay-mul':      RelayOperators.RelayMultiply,
+        'relay-fixed-point-multiply': RelayOperators.RelayFixedPointMultiply,
         'relay-erf':      RelayOperators.RelayErf,
         'relay-conv1d':   RelayOperators.RelayConv1D,
         'relay-conv2d':   RelayOperators.RelayConv2D,
