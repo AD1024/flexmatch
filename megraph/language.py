@@ -154,6 +154,11 @@ class AcceleratorFunc(enum.Enum):
     NVDLALayerReLU = 'nvdla-layerrelu'
     NVDLAChannelBiasAdd = 'nvdla-channelbiasadd'
     NVDLAElemwiseMax = 'nvdla-elemwisemax'
+    NVDLAElemwiseMin = 'nvdla-elemwisemin'
+    NVDLAElemwiseEqual = 'nvdla-elemwiseequal'
+    NVDLAElemwiseMul = 'nvdla-elemwisemul'
+    NVDLAChannelPReLU = 'nvdla-channelprelu'
+    NVDLAChannelBatchNorm = 'nvdla-channelbatchnorm'
     NVDLAConv2D = 'nvdla-conv2d'
 
     def __str__(self):
@@ -668,6 +673,7 @@ def downcast(enode: ENode):
         'relay-sigmoid':  RelayOperators.RelaySigmoid,
         'relay-minimum':  RelayOperators.RelayMinimum,
         'relay-maximum':  RelayOperators.RelayMaximum,
+        'relay-multiply': RelayOperators.RelayMultiply,
         'relay-equal':    RelayOperators.RelayEqual,
         'relay-mean':     RelayOperators.RelayMean,
         'relay-mul':      RelayOperators.RelayMultiply,
@@ -729,6 +735,11 @@ def downcast(enode: ENode):
         'nvdla-layerrelu': AcceleratorFunc.NVDLALayerReLU,
         'nvdla-channelbiasadd': AcceleratorFunc.NVDLAChannelBiasAdd,
         'nvdla-elemwisemax': AcceleratorFunc.NVDLAElemwiseMax,
+        'nvdla-elemwisemin': AcceleratorFunc.NVDLAElemwiseMin,
+        'nvdla-elemwiseequal': AcceleratorFunc.NVDLAElemwiseEqual,
+        'nvdla-elemwisemul': AcceleratorFunc.NVDLAElemwiseMul,
+        'nvdla-channelprelu': AcceleratorFunc.NVDLAChannelPReLU,
+        'nvdla-channelbatchnorm': AcceleratorFunc.NVDLAChannelBatchNorm,
         'nvdla-conv2d': AcceleratorFunc.NVDLAConv2D,
     }.get(symbol)
     if lang is not None:

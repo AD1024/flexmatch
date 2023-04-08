@@ -2,30 +2,56 @@
     "rewrites": {
         "nvdla-layerrelu": [],
         "nvdla-channelbiasadd": [],
+        "nvdla-elemwisemax": [],
+        "nvdla-elemwisemin": [],
+        "nvdla-elemwiseequal": [],
+        "nvdla-elemwisemul": [],
+        "nvdla-channelprelu": [],
+        "nvdla-channelbatchnorm": [],
         "nvdla-conv2d": []
     },
     "composites": {
         "nvdla-layerrelu": "ilanvdla.sdp.layer_relu",
         "nvdla-channelbiasadd": "ilanvdla.sdp.channel_bias_add",
         "nvdla-elemwisemax": "ilanvdla.sdp.elemwise_max",
+        "nvdla-elemwisemin": "ilanvdla.sdp.elemwise_min",
+        "nvdla-elemwiseequal": "ilanvdla.sdp.elemwise_equal",
+        "nvdla-elemwisemul": "ilanvdla.sdp.elemwise_mul",
+        "nvdla-channelprelu": "ilanvdla.sdp.channel_prelu",
+        "nvdla-channelbatchnorm": "ilanvdla.sdp.channel_batch_norm",
         "nvdla-conv2d": "ilanvdla.conv.conv2d"
     },
     "compilers": {
         "nvdla-layerrelu": "ilanvdla",
         "nvdla-channelbiasadd": "ilanvdla",
         "nvdla-elemwisemax": "ilanvdla",
+        "nvdla-elemwisemin": "ilanvdla",
+        "nvdla-elemwiseequal": "ilanvdla",
+        "nvdla-elemwisemul": "ilanvdla",
+        "nvdla-channelprelu": "ilanvdla",
+        "nvdla-channelbatchnorm": "ilanvdla",
         "nvdla-conv2d": "ilanvdla"
     },
     "debug_functions": {
         "nvdla-layerrelu": "nn.relu",
         "nvdla-channelbiasadd": "nn.bias_add",
-        "nvdla-elemwisemax": "maximum",
+        "nvdla-elemwisemax": "relay.maximum",
+        "nvdla-elemwisemin": "relay.minimum",
+        "nvdla-elemwiseequal": "relay.equal",
+        "nvdla-elemwisemul": "relay.multiply",
+        "nvdla-channelprelu": "nn.prelu",
+        "nvdla-channelbatchnorm": "lambda *x: nn.batch_borm(*x)[0]",
         "nvdla-conv2d": "nn.conv2d"
     },
     "out_dtypes": {
         "nvdla-layerrelu": "int16",
         "nvdla-channelbiasadd": "int16",
         "nvdla-elemwisemax": "int16",
+        "nvdla-elemwisemin": "int16",
+        "nvdla-elemwiseequal": "int16",
+        "nvdla-elemwisemul": "int16",
+        "nvdla-channelprelu": "int16",
+        "nvdla-channelbatchnorm": "int16",
         "nvdla-conv2d": "int16"
     }
 }
