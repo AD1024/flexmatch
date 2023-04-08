@@ -94,6 +94,8 @@ class RelayOperators(enum.Enum):
             return self.value[0](x[0], x[1])
         if self.value[0] == relay.nn.bias_add:
             return self.value[0](x[0], x[1], axis=int(x[2]))
+        if self.value[0] == relay.maximum or self.value[0] == relay.minimum:
+            return self.value[0](x[0], x[1])
         if self.value[0] == relay.nn.batch_norm:
             return self.value[0](x[0], x[1], x[2], x[3], x[4], axis=int(x[5]), epsilon=float(x[6]))
         if self.value[0] == relay.nn.max_pool2d or self.value[0] == relay.nn.global_avg_pool2d:
@@ -150,6 +152,9 @@ class AcceleratorFunc(enum.Enum):
     HLSCNNConv2D = 'hlscnn-conv2d'
     FlexMaxPool = 'flex-maxpool'
     NVDLALayerReLU = 'nvdla-layerrelu'
+    NVDLAChannelBiasAdd = 'nvdla-channelbiasadd'
+    NVDLAElemwiseMax = 'nvdla-elemwisemax'
+    NVDLAConv2D = 'nvdla-conv2d'
 
     def __str__(self):
         return self.value
@@ -721,7 +726,10 @@ def downcast(enode: ENode):
         'vta-conv1d':  AcceleratorFunc.VTAConv1D,
         'hlscnn-conv2d': AcceleratorFunc.HLSCNNConv2D,
         'flex-maxpool': AcceleratorFunc.FlexMaxPool,
-        'nvdla-layerrelu': AcceleratorFunc.NVDLALayerReLU
+        'nvdla-layerrelu': AcceleratorFunc.NVDLALayerReLU,
+        'nvdla-channelbiasadd': AcceleratorFunc.NVDLAChannelBiasAdd,
+        'nvdla-elemwisemax': AcceleratorFunc.NVDLAElemwiseMax,
+        'nvdla-conv2d': AcceleratorFunc.NVDLAConv2D,
     }.get(symbol)
     if lang is not None:
         return AcceleratorCall(lang, enode.children)

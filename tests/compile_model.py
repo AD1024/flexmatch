@@ -15,6 +15,7 @@ def main(relay_file, output_filename, model_json, data_json, *configs, debug=Fal
         composites = dict()
         debug_funcs = dict()
         out_dtypes = dict()
+        print(eval('nn.bias_add'))
         for config in configs:
             try:
                 with open(os.path.join(home_dir, 'configs', f'{config}.json'), 'r') as fp:

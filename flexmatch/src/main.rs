@@ -80,7 +80,9 @@ fn save_expr_and_analysis(
     }
     let data_json_dump = serialize_analysis_data(&egraph, &native_map);
     let data_output = PathBuf::from(env::current_dir().unwrap()).join(analysis_data_file);
+    let extracted_expr = PathBuf::from(env::current_dir().unwrap()).join("extracted_expr.txt");
     let _ = std::fs::write(data_output, data_json_dump.to_string()).unwrap();
+    let _ = std::fs::write(extracted_expr, best.pretty(80)).unwrap();
 }
 
 fn main() {
@@ -131,6 +133,7 @@ fn main() {
                     RelayOperator::RelaySigmoid,
                     RelayOperator::RelayAvgPool2D,
                     RelayOperator::RelayMaxPool2D,
+                    RelayOperator::RelayConv2D,
                     RelayOperator::RelayTanh,
                     RelayOperator::RelayLogSoftmax,
                     RelayOperator::RelayAdd,

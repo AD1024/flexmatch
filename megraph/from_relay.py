@@ -24,6 +24,7 @@ def convert_relay_op(op):
             'sum':                  RelayOperators.RelaySum,
             'fixed_point_multiply': RelayOperators.RelayFixedPointMultiply,
             'sigmoid':              RelayOperators.RelaySigmoid,
+            'maximum':              RelayOperators.RelayMaximum,
             'minimum':              RelayOperators.RelayMinimum,
             'equal':                RelayOperators.RelayEqual,
         }.get(op.name)

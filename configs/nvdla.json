@@ -1,17 +1,31 @@
 {
     "rewrites": {
-        "nvdla-layerrelu": []
+        "nvdla-layerrelu": [],
+        "nvdla-channelbiasadd": [],
+        "nvdla-conv2d": []
     },
     "composites": {
-        "nvdla-layerrelu": "ilanvdla.sdp.layer_relu"
+        "nvdla-layerrelu": "ilanvdla.sdp.layer_relu",
+        "nvdla-channelbiasadd": "ilanvdla.sdp.channel_bias_add",
+        "nvdla-elemwisemax": "ilanvdla.sdp.elemwise_max",
+        "nvdla-conv2d": "ilanvdla.conv.conv2d"
     },
     "compilers": {
-        "nvdla-layerrelu": "ilanvdla"
+        "nvdla-layerrelu": "ilanvdla",
+        "nvdla-channelbiasadd": "ilanvdla",
+        "nvdla-elemwisemax": "ilanvdla",
+        "nvdla-conv2d": "ilanvdla"
     },
     "debug_functions": {
-        "nvdla-layerrelu": "RelayOperators.RelayReLU"
+        "nvdla-layerrelu": "nn.relu",
+        "nvdla-channelbiasadd": "nn.bias_add",
+        "nvdla-elemwisemax": "maximum",
+        "nvdla-conv2d": "nn.conv2d"
     },
     "out_dtypes": {
-        "nvdla-layerrelu": "int16"
+        "nvdla-layerrelu": "int16",
+        "nvdla-channelbiasadd": "int16",
+        "nvdla-elemwisemax": "int16",
+        "nvdla-conv2d": "int16"
     }
 }
