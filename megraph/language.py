@@ -157,6 +157,7 @@ class AcceleratorFunc(enum.Enum):
     NVDLAElemwiseMin = 'nvdla-elemwisemin'
     NVDLAElemwiseEqual = 'nvdla-elemwiseequal'
     NVDLAElemwiseMul = 'nvdla-elemwisemul'
+    NVDLAElemwiseAdd = 'nvdla-elemwiseadd'
     NVDLAChannelPReLU = 'nvdla-channelprelu'
     NVDLAChannelBatchNorm = 'nvdla-channelbatchnorm'
     NVDLAConv2D = 'nvdla-conv2d'
@@ -738,6 +739,7 @@ def downcast(enode: ENode):
         'nvdla-elemwisemin': AcceleratorFunc.NVDLAElemwiseMin,
         'nvdla-elemwiseequal': AcceleratorFunc.NVDLAElemwiseEqual,
         'nvdla-elemwisemul': AcceleratorFunc.NVDLAElemwiseMul,
+        'nvdla-elemwiseadd': AcceleratorFunc.NVDLAElemwiseAdd,
         'nvdla-channelprelu': AcceleratorFunc.NVDLAChannelPReLU,
         'nvdla-channelbatchnorm': AcceleratorFunc.NVDLAChannelBatchNorm,
         'nvdla-conv2d': AcceleratorFunc.NVDLAConv2D,

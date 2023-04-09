@@ -6,6 +6,7 @@
         "nvdla-elemwisemin": [],
         "nvdla-elemwiseequal": [],
         "nvdla-elemwisemul": [],
+        "nvdla-elemwiseadd": [],
         "nvdla-channelprelu": [],
         "nvdla-channelbatchnorm": [],
         "nvdla-conv2d": []
@@ -17,6 +18,7 @@
         "nvdla-elemwisemin": "ilanvdla.sdp.elemwise_min",
         "nvdla-elemwiseequal": "ilanvdla.sdp.elemwise_equal",
         "nvdla-elemwisemul": "ilanvdla.sdp.elemwise_mul",
+        "nvdla-elemwiseadd": "ilanvdla.sdp.elemwise_add",
         "nvdla-channelprelu": "ilanvdla.sdp.channel_prelu",
         "nvdla-channelbatchnorm": "ilanvdla.sdp.channel_batch_norm",
         "nvdla-conv2d": "ilanvdla.conv.conv2d"
@@ -28,6 +30,7 @@
         "nvdla-elemwisemin": "ilanvdla",
         "nvdla-elemwiseequal": "ilanvdla",
         "nvdla-elemwisemul": "ilanvdla",
+        "nvdla-elemwiseadd": "ilanvdla",
         "nvdla-channelprelu": "ilanvdla",
         "nvdla-channelbatchnorm": "ilanvdla",
         "nvdla-conv2d": "ilanvdla"
@@ -39,6 +42,7 @@
         "nvdla-elemwisemin": "relay.minimum",
         "nvdla-elemwiseequal": "relay.equal",
         "nvdla-elemwisemul": "relay.multiply",
+        "nvdla-elemwiseadd": "relay.add",
         "nvdla-channelprelu": "nn.prelu",
         "nvdla-channelbatchnorm": "lambda *x: nn.batch_borm(*x)[0]",
         "nvdla-conv2d": "nn.conv2d"
@@ -50,6 +54,7 @@
         "nvdla-elemwisemin": "int16",
         "nvdla-elemwiseequal": "int16",
         "nvdla-elemwisemul": "int16",
+        "nvdla-elemwiseadd": "int16",
         "nvdla-channelprelu": "int16",
         "nvdla-channelbatchnorm": "int16",
         "nvdla-conv2d": "int16"

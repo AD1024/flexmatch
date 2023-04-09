@@ -34,6 +34,7 @@ pub fn get_rewrite_from_string(name: &String, args: &Box<[i32]>) -> Rewrite<Lang
         "nvdla-elemwisemin" => elemwisemin_on_nvdla(),
         "nvdla-elemwiseequal" => elemwiseequal_on_nvdla(),
         "nvdla-elemwisemul" => elemwisemul_on_nvdla(),
+        "nvdla-elemwiseadd" => elemwiseadd_on_nvdla(),
         "nvdla-channelprelu" => prelu_on_nvdla(),
         "nvdla-channelbatchnorm" => batchnorm_on_nvdla(),
         "nvdla-conv2d" => conv2d_on_nvdla(),
