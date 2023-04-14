@@ -98,7 +98,7 @@ class RelayOperators(enum.Enum):
             return self.value[0](x[0], x[1])
         if self.value[0] == relay.nn.batch_norm:
             return self.value[0](x[0], x[1], x[2], x[3], x[4], axis=int(x[5]), epsilon=float(x[6]))
-        if self.value[0] == relay.nn.max_pool2d or self.value[0] == relay.nn.global_avg_pool2d:
+        if self.value[0] == relay.nn.max_pool2d:
             layout = x[-1]
             if layout == RelayActivationLayout.NCHW:
                 if len(x) > 2:
@@ -107,6 +107,9 @@ class RelayOperators(enum.Enum):
                     return self.value[0](x[0], layout='NCHW')
             elif layout == RelayActivationLayout.NHWC:
                 return self.value[0](*x[:-1], layout='NHWC')
+        if self.value[0] == relay.nn.global_avg_pool2d:
+            print("avg pool 2d args:", x[0])
+            return self.value[0](x[0])
         if self.value[0] == relay.nn.adaptive_avg_pool2d:
             layout = x[-1]
             assert layout == RelayActivationLayout.NCHW
@@ -161,6 +164,7 @@ class AcceleratorFunc(enum.Enum):
     NVDLAChannelPReLU = 'nvdla-channelprelu'
     NVDLAChannelBatchNorm = 'nvdla-channelbatchnorm'
     NVDLAConv2D = 'nvdla-conv2d'
+    NVDLAAvgPool = 'nvdla-avgpool2d'
 
     def __str__(self):
         return self.value
@@ -743,6 +747,7 @@ def downcast(enode: ENode):
         'nvdla-channelprelu': AcceleratorFunc.NVDLAChannelPReLU,
         'nvdla-channelbatchnorm': AcceleratorFunc.NVDLAChannelBatchNorm,
         'nvdla-conv2d': AcceleratorFunc.NVDLAConv2D,
+        'nvdla-avgpool2d': AcceleratorFunc.NVDLAAvgPool,
     }.get(symbol)
     if lang is not None:
         return AcceleratorCall(lang, enode.children)

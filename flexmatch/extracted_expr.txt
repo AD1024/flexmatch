@@ -6,8 +6,8 @@
       relay-dense
       (access-flatten
         (access
-          (relay-operator-call
-            relay-global-avg-pool2d
+          (accelerator-call
+            nvdla-avgpool2d
             (accelerator-call
               nvdla-layerrelu
               (accelerator-call
@@ -21801,7 +21801,11 @@
                 0.00002
                 (shape 0))
               (shape 0))
-            relay-activation-layout-nchw)
+            (shape 4 4)
+            (shape 1 1)
+            (shape 0 0 0 0)
+            relay-activation-layout-nchw
+            (shape 0))
           1))
       (access-tensor fc1_weight))
     (access-tensor fc1_bias)

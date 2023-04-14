@@ -42,6 +42,7 @@ pub fn get_rewrite_from_string(name: &String, args: &Box<[i32]>) -> Rewrite<Lang
         "nvdla-maxpool2d" => maxpool2d_on_nvdla(),
         "glenside_matmul_to_relay_dense" => glenside_matmul_to_relay_dense(),
         "add_bias_add_to_dense" => add_bias_add_to_dense(),
+        "global-avg-pool-to-avg-pooling" => global_avg_pooling_to_avg_pooling(),
         _ => {
             eprintln!("{} not implemented", name);
             todo!()
