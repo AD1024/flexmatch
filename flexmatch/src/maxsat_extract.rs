@@ -1,5 +1,6 @@
 use std::process::Command;
 
+use crate::cycles::{self, *};
 use egg::{Analysis, EGraph, Id, Language, RecExpr};
 use std::collections::{HashMap, HashSet};
 use std::time::Instant;
@@ -29,24 +30,12 @@ where
         let mut clause = Vec::new();
         let next_hop = subpath[(i + 1) % subpath.len()].0;
         for node_idx in egraph[subpath[i].0].nodes.iter().map(|x| node_vars[x]) {
-            // if node_to_children[&node_idx].contains(&next_hop) {
-            clause.push(node_idx);
-            // }
+            if node_to_children[&node_idx].contains(&next_hop) {
+                clause.push(node_idx);
+            }
         }
         clauses.push(clause);
     }
-    // let next_hop = subpath[0].0;
-    // let mut clause = Vec::new();
-    // for node_idx in egraph[subpath[subpath.len() - 1].0]
-    //     .nodes
-    //     .iter()
-    //     .map(|x| node_vars[x])
-    // {
-    //     // if node_to_children[&node_idx].contains(&next_hop) {
-    //     clause.push(node_idx);
-    //     // }
-    // }
-    // clauses.push(clause);
     return clauses;
 }
 
@@ -505,18 +494,21 @@ where
 
         // cycle constraint
         if no_cycle {
-            // let mut cycles = HashMap::new();
-            let mut path = Vec::new();
-            get_all_cycles(
-                self.egraph,
-                &root,
-                &mut HashMap::new(),
-                &mut path,
-                &mut self.writer,
-                &node_vars,
-                &node_to_children,
-                top,
-            );
+            let mut hgraph = HyperGraph::new();
+            println!("ToHGraph: ");
+            to_hypergraph(&root, &self.egraph, &node_vars, &mut hgraph);
+            let class_cycles = cycles::johnson::find_cycles(&hgraph);
+            println!("{}", class_cycles.len());
+            let mut clauses = Vec::new();
+            for c in class_cycles {
+                for i in 0..c.len() {
+                    let next_hop = (i + 1) % c.len();
+                    let u = hgraph.edges(&c[i]).unwrap();
+                    let v = u[&c[next_hop]].clone();
+                    clauses.push(v.into_iter().collect::<Vec<_>>());
+                }
+            }
+            tseytin_encoding(clauses, &mut self.writer, top);
         }
 
         // soft clauses (i.e. not all nodes need to be picked)

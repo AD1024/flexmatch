@@ -1,8 +1,9 @@
+mod cycles;
 mod ilp_extract;
 mod maxsat_extract;
 mod rewrites;
 
-use egg::{EGraph, Extractor, Runner};
+use egg::{EGraph, Extractor, Language, Runner};
 use glenside::{
     extraction::AcceleratorCostFunction,
     language::{serialize_analysis_data, MyAnalysis, RelayOperator},
@@ -121,6 +122,7 @@ fn save_extraction_stats(
         "extract_time": extract_time,
         "num_enodes": egraph.total_number_of_nodes(),
         "num_eclass": egraph.number_of_classes(),
+        "num_eclass_single_enode": egraph.classes().filter(|c| c.nodes.len() == 1).count(),
         "avg_enode_per_class": egraph.total_number_of_nodes() as f64 / egraph.number_of_classes() as f64,
     });
     let mut file = OpenOptions::new()
@@ -129,6 +131,23 @@ fn save_extraction_stats(
         .create(true)
         .open(output_file)
         .unwrap();
+    let filename = format!("egraph_dump.txt");
+    let output_file = PathBuf::from(env::current_dir().unwrap()).join(filename);
+    let mut egraph_dump = OpenOptions::new()
+        .write(true)
+        .append(false)
+        .create(true)
+        .open(output_file)
+        .unwrap();
+    for eclass in egraph.classes() {
+        writeln!(egraph_dump, "{}", eclass.id).unwrap();
+        for node in &eclass.nodes {
+            for child in node.children() {
+                write!(egraph_dump, "{} ", child).unwrap();
+            }
+        }
+        writeln!(egraph_dump, "-1").unwrap();
+    }
     writeln!(file, "{}", stat).unwrap();
 }
 
