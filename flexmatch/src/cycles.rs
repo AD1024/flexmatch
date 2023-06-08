@@ -54,7 +54,7 @@ impl HyperGraph {
         let mut graph_str = String::from("");
         for (u, v) in self.edges.iter() {
             for w in v.keys() {
-                graph_str += &format!("{} {}\n", u, w);
+                graph_str += &format!("{} {}\n", self.get_id_by_node(*u), self.get_id_by_node(*w));
             }
         }
         std::fs::write(path, graph_str);
@@ -178,13 +178,14 @@ pub fn to_hypergraph<L, N>(
     queue.push_front(*root);
     visited.insert(*root);
     while !queue.is_empty() {
-        let front = queue.pop_front().unwrap();
+        let front = egraph.find(queue.pop_front().unwrap());
         for node in egraph[front].nodes.iter() {
             for ch in node.children() {
-                hgraph.connect(&front, ch, node_vars[node]);
-                if !visited.contains(ch) {
-                    visited.insert(*ch);
-                    queue.push_back(*ch);
+                let canonical = egraph.find(*ch);
+                hgraph.connect(&front, &canonical, node_vars[node]);
+                if !visited.contains(&canonical) {
+                    visited.insert(canonical);
+                    queue.push_back(canonical);
                 }
             }
         }
@@ -275,76 +276,85 @@ pub mod johnson {
 
     use super::*;
 
-    fn johnson_alg_impl(v: Id, hgraph: &HyperGraph, cycles: &mut Vec<Vec<Id>>) {
-        let mut path = vec![v];
-        let mut stack = Vec::new();
-        stack.push(hgraph.neighbors(&v));
-        let start = v;
-        let mut closed = vec![false];
-        let mut blocked = HashSet::new();
-        blocked.insert(v);
-        let mut blocked_dict: HashMap<Id, Vec<Id>> = HashMap::new();
-        while !stack.is_empty() {
-            let next = stack.pop().unwrap();
-            let mut f = false;
-            for w in next {
-                f = true;
-                if *w == start {
-                    cycles.push(path.clone());
-                    *closed.last_mut().unwrap() = true;
-                } else if !blocked.contains(w) {
-                    path.push(*w);
-                    blocked.insert(*w);
-                    closed.push(false);
-                    stack.push(hgraph.neighbors(w));
-                    break;
-                }
-            }
-            if !f {
-                stack.pop();
-                let w = path.pop().unwrap();
-                if closed.pop().unwrap() {
-                    if !closed.is_empty() {
-                        *closed.last_mut().unwrap() = true;
-                    }
-                    let mut unblock_chain = vec![w];
-                    while !unblock_chain.is_empty() {
-                        let v = unblock_chain.pop().unwrap();
-                        if blocked.contains(&v) {
-                            blocked.remove(&v);
-                            unblock_chain = [
-                                unblock_chain,
-                                blocked_dict.get(&v).unwrap_or(&vec![]).clone(),
-                            ]
-                            .concat();
-                            blocked_dict.get_mut(&v).unwrap_or(&mut vec![]).clear();
-                        }
-                    }
-                } else {
-                    for u in hgraph.neighbors(&w) {
-                        if !blocked_dict.contains_key(u) {
-                            blocked_dict.insert(*u, vec![]);
-                        }
-                        blocked_dict.get_mut(u).unwrap().push(w);
-                    }
+    fn unblock(v: Id, blocked: &mut HashSet<Id>, blocked_map: &mut HashMap<Id, HashSet<Id>>) {
+        blocked.remove(&v);
+        if let Some(blocked_set) = blocked_map.get_mut(&v) {
+            let worklist = blocked_set.drain().collect_vec();
+            for w in worklist {
+                if blocked.contains(&w) {
+                    unblock(w, blocked, blocked_map);
                 }
             }
         }
     }
 
+    fn johnson_alg_impl(
+        s: Id,
+        v: Id,
+        graph: &HyperGraph,
+        blocked: &mut HashSet<Id>,
+        stack: &mut Vec<Id>,
+        block_map: &mut HashMap<Id, HashSet<Id>>,
+        cycles: &mut Vec<Vec<Id>>,
+    ) -> bool {
+        let mut f = true;
+        blocked.insert(v);
+        stack.push(v);
+        for w in graph.neighbors(&v) {
+            if *w == s {
+                f = true;
+                cycles.push(stack.clone());
+            } else if !blocked.contains(w) {
+                f = johnson_alg_impl(s, *w, graph, blocked, stack, block_map, cycles) || f;
+            }
+        }
+
+        if f {
+            unblock(v, blocked, block_map);
+        } else {
+            for w in graph.neighbors(&v) {
+                if !block_map.contains_key(w) {
+                    block_map.insert(*w, HashSet::new());
+                }
+                block_map.get_mut(w).unwrap().insert(v);
+            }
+        }
+        stack.pop();
+        f
+    }
+
     pub fn find_cycles(hgraph: &HyperGraph) -> Vec<Vec<Id>> {
         let mut scc = scc::scc(hgraph)
             .into_iter()
-            .filter(|c| c.len() >= 2)
-            .collect::<Vec<_>>();
-        println!("SCC len: {}", scc.len());
+            .filter(|c| c.len() > 1)
+            .collect_vec();
         let mut cycles = Vec::new();
+        for n in hgraph.nodes() {
+            if hgraph.neighbors(&n).contains(&&n) {
+                cycles.push(vec![n]);
+            }
+        }
+        // println!("Self-cycles: {:?}", cycles);
+        let mut blocked = HashSet::new();
+        let mut block_map = HashMap::new();
+        let mut stack = Vec::new();
         while !scc.is_empty() {
             let cur_scc = scc.pop().unwrap();
             let mut subgraph = hgraph.subgraph(cur_scc.iter());
             for i in 0..cur_scc.len() {
+                blocked.clear();
+                block_map.clear();
                 let v = subgraph.get_id_by_node(i);
-                johnson_alg_impl(v, &subgraph, &mut cycles);
+                // johnson_alg_impl(v, &subgraph, &mut cycles);
+                johnson_alg_impl(
+                    v,
+                    v,
+                    &subgraph,
+                    &mut blocked,
+                    &mut stack,
+                    &mut block_map,
+                    &mut cycles,
+                );
                 subgraph.remove_node_raw(i);
             }
         }
