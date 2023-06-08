@@ -20,11 +20,11 @@ where
     let mut clauses = Vec::new();
     for i in 0..subpath.len() {
         let mut clause = Vec::new();
-        let next_hop = subpath[(i + 1) % subpath.len()].0;
+        // let next_hop = subpath[(i + 1) % subpath.len()].0;
         for node_idx in egraph[subpath[i].0].nodes.iter().map(|x| node_vars[x]) {
-            // if node_to_children[&node_idx].contains(&next_hop) {
+        // if node_to_children[&node_idx].contains(&next_hop) {
             clause.push(node_idx);
-            // }
+        // }
         }
         clauses.push(clause);
     }

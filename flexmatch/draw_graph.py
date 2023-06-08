@@ -59,14 +59,15 @@ def draw_extraction_times(data: dict, simpl: bool):
     ilp_acyc_xaxis = np.array(sorted(list(solver_times['ILP-ACyc'].keys())))
     ilp_acyc_solver_times = list(map(solver_times['ILP-ACyc'].get, ilp_acyc_xaxis))
     ilp_acyc_overhead_times = list(map(overhead_times['ILP-ACyc'].get, ilp_acyc_xaxis))
-    ax.bar(ilp_acyc_xaxis - bar_width, ilp_acyc_solver_times, bar_width, label='ILP-ACyc', color='lightgreen', edgecolor='grey')
-    overhead = ax.bar(ilp_acyc_xaxis - bar_width, ilp_acyc_overhead_times, bar_width, bottom=ilp_acyc_solver_times, color='slateblue', label='Overhead', hatch='//', edgecolor='grey')
+    ax.bar(ilp_acyc_xaxis, ilp_acyc_solver_times, bar_width, label='ILP-ACyc', color='lightgreen', edgecolor='grey')
+    overhead = ax.bar(ilp_acyc_xaxis, ilp_acyc_overhead_times, bar_width, bottom=ilp_acyc_solver_times, color='slateblue', label='Overhead', hatch='//', edgecolor='grey')
 
     maxsat_xaxis = np.array(sorted(list(solver_times['WPMAXSAT'].keys())))
     maxsat_solver_times = list(map(solver_times['WPMAXSAT'].get, maxsat_xaxis))
     maxsat_overhead_times = list(map(overhead_times['WPMAXSAT'].get, maxsat_xaxis))
-    ax.bar(maxsat_xaxis, maxsat_solver_times, bar_width, label='WPMAXSAT', color='lightblue', edgecolor='grey')
-    overhead = ax.bar(maxsat_xaxis, maxsat_overhead_times, bar_width, bottom=maxsat_solver_times, color='slateblue', hatch='//', edgecolor='grey')
+    print('Maxsat times:', maxsat_solver_times, maxsat_overhead_times)
+    ax.bar(maxsat_xaxis - bar_width, maxsat_solver_times, bar_width, label='WPMAXSAT', color='lightblue', edgecolor='grey')
+    overhead = ax.bar(maxsat_xaxis - bar_width, maxsat_overhead_times, bar_width, bottom=maxsat_solver_times, color='slateblue', hatch='//', edgecolor='grey')
 
     ilp_topo_xaxis = np.array(sorted(list(solver_times['ILP-Topo'].keys())))
     ilp_topo_solver_times = list(map(solver_times['ILP-Topo'].get, ilp_topo_xaxis))
@@ -98,6 +99,7 @@ def draw_extraction_times(data: dict, simpl: bool):
     if simpl:
         ax.set_xticks(x, data.keys())
         ax.set_xticklabels(x_ticks)
+        ax.set_yscale('symlog', base=2)
     else:
         ax.set_xticks([], [])
 
