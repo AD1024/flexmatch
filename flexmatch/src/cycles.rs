@@ -1,6 +1,9 @@
 use egg::{Analysis, EGraph, Id, Language};
 use itertools::Itertools;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::{
+    collections::{HashMap, HashSet, VecDeque},
+    path::PathBuf,
+};
 
 #[derive(Debug)]
 pub struct HyperGraph {
@@ -8,8 +11,11 @@ pub struct HyperGraph {
     /// multiple e-nodes might be connecting to the same e-node
     /// therefore, we collapse them together and record the corresponding
     /// e-nodes (as usize, representing the variables in the MAXSAT problem)
-    edges: HashMap<Id, HashMap<Id, HashSet<usize>>>,
-    nodes: HashSet<Id>,
+    edges: HashMap<usize, HashMap<usize, HashSet<usize>>>,
+    nodes: HashSet<usize>,
+    ids_to_nodes: HashMap<Id, usize>,
+    nodes_to_ids: HashMap<usize, Id>,
+    num_nodes: usize,
 }
 
 impl HyperGraph {
@@ -17,24 +23,50 @@ impl HyperGraph {
         HyperGraph {
             edges: HashMap::new(),
             nodes: HashSet::new(),
+            ids_to_nodes: HashMap::new(),
+            nodes_to_ids: HashMap::new(),
+            num_nodes: 0,
         }
     }
 
     pub fn contains(&self, eclass: &Id) -> bool {
-        self.edges.contains_key(eclass)
+        self.ids_to_nodes.contains_key(eclass)
     }
 
-    pub fn edges(&self, eclass: &Id) -> Option<&HashMap<Id, HashSet<usize>>> {
+    pub fn edges(&self, eclass: &Id) -> Option<HashMap<Id, &HashSet<usize>>> {
         if self.contains(eclass) {
-            Some(&self.edges[eclass])
+            let mut result = HashMap::new();
+            for (to, enodes) in self.edges[&self.ids_to_nodes[eclass]].iter() {
+                result.insert(self.nodes_to_ids[to], enodes);
+            }
+            Some(result)
         } else {
             None
         }
     }
 
+    pub fn nodes(&self) -> HashSet<Id> {
+        self.nodes.iter().map(|x| self.nodes_to_ids[x]).collect()
+    }
+
+    pub fn dump(&self, path: PathBuf) {
+        // let f = std::fs::
+        let mut graph_str = String::from("");
+        for (u, v) in self.edges.iter() {
+            for w in v.keys() {
+                graph_str += &format!("{} {}\n", u, w);
+            }
+        }
+        std::fs::write(path, graph_str);
+    }
+
     fn add_node(&mut self, k: Id) {
-        self.edges.insert(k, HashMap::new());
-        self.nodes.insert(k);
+        let node_id = self.num_nodes;
+        self.ids_to_nodes.insert(k, node_id);
+        self.nodes_to_ids.insert(node_id, k);
+        self.edges.insert(node_id, HashMap::new());
+        self.nodes.insert(node_id);
+        self.num_nodes += 1;
     }
 
     fn connect(&mut self, from: &Id, to: &Id, enode: usize) {
@@ -44,6 +76,8 @@ impl HyperGraph {
         if !self.contains(to) {
             self.add_node(*to);
         }
+        let from = &self.ids_to_nodes[from];
+        let to = &self.ids_to_nodes[to];
         if !self.edges[from].contains_key(to) {
             self.edges
                 .get_mut(from)
@@ -69,27 +103,61 @@ impl HyperGraph {
 
     pub fn neighbors(&self, u: &Id) -> Vec<&Id> {
         if self.contains(u) {
-            self.edges[u].keys().collect()
+            self.edges[&self.ids_to_nodes[u]]
+                .keys()
+                .map(|x| &self.nodes_to_ids[x])
+                .collect()
         } else {
             vec![]
         }
     }
 
+    pub fn get_node_by_id(&self, id: &Id) -> usize {
+        self.ids_to_nodes[id]
+    }
+
+    pub fn get_id_by_node(&self, node: usize) -> Id {
+        self.nodes_to_ids[&node]
+    }
+
+    pub fn remove_node_raw(&mut self, node: usize) {
+        if self.nodes.contains(&node) {
+            self.edges.remove(&node);
+            for (k, v) in self.edges.iter_mut() {
+                v.remove(&node);
+            }
+            self.nodes.remove(&node);
+        }
+    }
+
+    pub fn remove_node(&mut self, node: &Id) {
+        let node_id = &self.ids_to_nodes[node];
+        if self.contains(node) {
+            self.edges.remove(node_id);
+            for (k, v) in self.edges.iter_mut() {
+                v.remove(node_id);
+            }
+            self.nodes.remove(node_id);
+        }
+    }
+
+    pub fn size(&self) -> usize {
+        self.nodes.len()
+    }
+
     pub fn subgraph<'a, T: Iterator<Item = &'a Id>>(&self, nodes: T) -> Self {
         let mut graph = HyperGraph::new();
         let node_set: HashSet<&Id> = nodes.collect();
-        for n in node_set.iter() {
-            if self.contains(n) {
-                graph.edges.insert(
-                    **n,
-                    self.edges
-                        .get(n)
-                        .unwrap()
-                        .iter()
-                        .filter(|(n, _)| node_set.contains(n))
-                        .map(|(&x, y)| (x, y.clone()))
-                        .collect::<HashMap<_, _>>(),
-                );
+        for &n in node_set.iter() {
+            assert!(self.contains(n));
+            let edges = self.edges(n).unwrap();
+            for (neighbor, enodes) in edges.iter() {
+                if !node_set.contains(neighbor) {
+                    continue;
+                }
+                for enode in enodes.iter() {
+                    graph.connect(n, neighbor, *enode);
+                }
             }
         }
         graph
@@ -183,7 +251,7 @@ pub mod scc {
         let mut stack = Vec::new();
         let mut idx = 0;
         let mut scc = Vec::new();
-        for v in graph.nodes.iter().sorted() {
+        for v in graph.nodes().iter().sorted() {
             if !visited.contains(v) {
                 scc_impl(
                     v,
@@ -264,84 +332,21 @@ pub mod johnson {
         }
     }
 
-    fn unblock(v: Id, blocked: &mut HashSet<Id>, block_list: &mut HashMap<Id, HashSet<Id>>) {
-        blocked.remove(&v);
-        while !block_list[&v].is_empty() {
-            let blocked_set = block_list.get_mut(&v).unwrap();
-            let worklist: Vec<_> = blocked_set.drain().collect();
-            for i in worklist {
-                if blocked.contains(&i) {
-                    unblock(i, blocked, block_list);
-                }
-            }
-        }
-    }
-
-    fn johnson_naive(
-        start: Id,
-        v: Id,
-        graph: &HyperGraph,
-        cycles: &mut Vec<Vec<Id>>,
-        blocked: &mut HashSet<Id>,
-        stack: &mut Vec<Id>,
-        block_list: &mut HashMap<Id, HashSet<Id>>,
-    ) -> bool {
-        stack.push(v);
-        blocked.insert(v);
-        let mut f = false;
-        for w in graph.neighbors(&v) {
-            if *w == start {
-                cycles.push(stack.clone());
-                f = true;
-            } else if *w > start && !blocked.contains(w) {
-                f = johnson_naive(start, *w, graph, cycles, blocked, stack, block_list);
-            }
-        }
-        if f {
-            unblock(v, blocked, block_list);
-        } else {
-            for w in graph.neighbors(&v) {
-                if !block_list[w].contains(&v) {
-                    block_list.get_mut(w).unwrap().insert(v);
-                }
-            }
-        }
-        stack.pop();
-        f
-    }
-
     pub fn find_cycles(hgraph: &HyperGraph) -> Vec<Vec<Id>> {
-        // let mut scc = scc::scc(hgraph);
+        let mut scc = scc::scc(hgraph)
+            .into_iter()
+            .filter(|c| c.len() >= 2)
+            .collect::<Vec<_>>();
+        println!("SCC len: {}", scc.len());
         let mut cycles = Vec::new();
-        // println!("SCC len: {}", scc.len());
-        // while !scc.is_empty() {
-        //     let cur_scc = scc.pop().unwrap();
-        //     let subgraph = hgraph.subgraph(cur_scc.iter());
-        //     let v = cur_scc[0];
-        //     johnson_alg_impl(v, &subgraph, &mut cycles);
-        // }
-        let mut stack = Vec::new();
-        let mut blocked = HashSet::new();
-        let mut block_list: HashMap<Id, HashSet<Id>> = HashMap::new();
-        let nodes = hgraph.nodes.iter().sorted().collect::<Vec<_>>();
-        let mut i = 0;
-        while i < nodes.len() {
-            let start = nodes[i];
-            for j in i..nodes.len() {
-                blocked.remove(nodes[j]);
-                block_list.insert(*nodes[j], HashSet::new());
+        while !scc.is_empty() {
+            let cur_scc = scc.pop().unwrap();
+            let mut subgraph = hgraph.subgraph(cur_scc.iter());
+            for i in 0..cur_scc.len() {
+                let v = subgraph.get_id_by_node(i);
+                johnson_alg_impl(v, &subgraph, &mut cycles);
+                subgraph.remove_node_raw(i);
             }
-            println!("Node {}", i);
-            johnson_naive(
-                *start,
-                *start,
-                hgraph,
-                &mut cycles,
-                &mut blocked,
-                &mut stack,
-                &mut block_list,
-            );
-            i += 1;
         }
         cycles
     }

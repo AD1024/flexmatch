@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use std::process::Command;
 
 use crate::cycles::{self, *};
@@ -497,6 +498,7 @@ where
             let mut hgraph = HyperGraph::new();
             println!("ToHGraph: ");
             to_hypergraph(&root, &self.egraph, &node_vars, &mut hgraph);
+            hgraph.dump(PathBuf::from("./hgraph_dump.txt"));
             let class_cycles = cycles::johnson::find_cycles(&hgraph);
             println!("{}", class_cycles.len());
             let mut clauses = Vec::new();
