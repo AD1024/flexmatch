@@ -4,7 +4,7 @@ import argparse
 import numpy
 import tvm
 import test_model_on_vta as utils 
-from tvm.relay.testing import op_summary
+# from tvm.relay.testing import op_summary
 
 DEFAULT_CONFIGS = {
     'max_pool2d': ['flexasr-maxpool'],
@@ -69,9 +69,9 @@ def get_offload_stats(model, quantize):
         mod = tvm.parser.fromtext(src)
         if quantize:
             mod = quantize_model(mod)
-        print(f'ALL overloads: {op_summary.count_all_overloads(mod)}')
-        print(f'ALL Ops: {op_summary.count_all_ops(mod)}')
-        print(f'ALL Ops in overloads = {op_summary.count_all_ops_in_overloads(mod)} * #ops per pattern')
+        # print(f'ALL overloads: {op_summary.count_all_overloads(mod)}')
+        # print(f'ALL Ops: {op_summary.count_all_ops(mod)}')
+        # print(f'ALL Ops in overloads = {op_summary.count_all_ops_in_overloads(mod)} * #ops per pattern')
 
 def run_model(model, configs, use_ilp, debug, get_stats, quantize):
     print(f'Step 1: Run EqSat with {" ".join(configs)}')
